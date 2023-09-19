@@ -8,7 +8,7 @@ from pyworld3.utils import plot_world_variables
 params = {'lines.linewidth': '3'}
 plt.rcParams.update(params)
 
-world3 = World3()
+world3 = World3(year_max=2100, pyear=1975)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()

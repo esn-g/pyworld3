@@ -76,26 +76,18 @@ class Capital:
         labor force participation fraction []. The default is 0.75.
     lufdt : float, optional
         labor utilization fraction delay time [years]. The default is 2.
-    icor1 : float, optional
-        icor, value before time=pyear [years]. The default is 3.
-    icor2 : float, optional
-        icor, value after time=pyear [years]. The default is 3.
-    scor1 : float, optional
-        scor, value before time=pyear [years]. The default is 1.
-    scor2 : float, optional
-        scor, value after time=pyear [years]. The default is 1.
-    alic1 : float, optional
-        alic, value before time=pyear [years]. The default is 14.
-    alic2 : float, optional
-        alic, value after time=pyear [years]. The default is 14.
-    alsc1 : float, optional
-        alsc, value before time=pyear [years]. The default is 20.
-    alsc2 : float, optional
-        alsc, value after time=pyear [years]. The default is 20.
-    fioac1 : float, optional
-        fioac, value before time=pyear []. The default is 0.43.
-    fioac2 : float, optional
-        fioac, value after time=pyear []. The default is 0.43.
+
+    **Control signals**
+    icor_control : function, optional
+        icor, control function with argument time [years]. The default is 3.
+    scor_control : function, optional
+        scor, control value with argument time [years]. The default is 1.
+    alic_control : function, optional
+        alic, control value with argument time [years]. The default is 14.
+    alsc_control : function, optional
+        alsc, control value with argument time [years]. The default is 20.
+    fioac_control : function, optional
+        fioac, control value with argument time [years]. The default is 0.43.
 
     **Industrial subsector**
 
@@ -190,9 +182,12 @@ class Capital:
         self.verbose = False
 
     def init_capital_constants(self, ici=2.1e11, sci=1.44e11, iet=4000,
-                               iopcd=400, lfpf=0.75, lufdt=2, icor1=3, icor2=3,
-                               scor1=1, scor2=1, alic1=14, alic2=14,
-                               alsc1=20, alsc2=20, fioac1=0.43, fioac2=0.43):
+                               iopcd=400, lfpf=0.75, lufdt=2, 
+                               icor_control=lambda _ : 3,
+                               scor_control=lambda _ : 1,
+                               alic_control=lambda _ : 14,
+                               alsc_control=lambda _ : 20, 
+                               fioac_control= lambda _ : 0.43):
         """
         Initialize the constant parameters of the capital sector. Constants
         and their unit are documented above at the class level.
@@ -204,16 +199,11 @@ class Capital:
         self.iopcd = iopcd
         self.lfpf = lfpf
         self.lufdt = lufdt
-        self.icor1 = icor1
-        self.icor2 = icor2
-        self.scor1 = scor1
-        self.scor2 = scor2
-        self.alic1 = alic1
-        self.alic2 = alic2
-        self.alsc1 = alsc1
-        self.alsc2 = alsc2
-        self.fioac1 = fioac1
-        self.fioac2 = fioac2
+        self.icor_control = icor_control
+        self.scor_control = scor_control
+        self.alic_control = alic_control
+        self.alsc_control = alsc_control
+        self.fioac_control = fioac_control
 
     def init_capital_variables(self):
         """
@@ -518,7 +508,7 @@ class Capital:
         """
         From step k requires: nothing
         """
-        self.alic[k] = clip(self.alic2, self.alic1, self.time[k], self.pyear)
+        self.alic[k] = max(self.alic_control(self.time[k]), 0.01)
 
     @requires(["icdr"], ["ic", "alic"])
     def _update_icdr(self, k, kl):
@@ -532,7 +522,7 @@ class Capital:
         """
         From step k requires: nothing
         """
-        self.icor[k] = clip(self.icor2, self.icor1, self.time[k], self.pyear)
+        self.icor[k] = max(self.icor_control(self.time[k]), 0.01)
 
     @requires(["io"], ["ic", "fcaor", "cuf", "icor"])
     def _update_io(self, k):
@@ -555,8 +545,7 @@ class Capital:
         From step k requires: IOPC
         """
         self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
-        self.fioacc[k] = clip(self.fioac2, self.fioac1, self.time[k],
-                              self.pyear)
+        self.fioacc[k] = clip(self.fioac_control(self.time[k]), 0, 1)
         self.fioac[k] = clip(self.fioacv[k], self.fioacc[k], self.time[k],
                              self.iet)
 
@@ -585,7 +574,7 @@ class Capital:
         """
         From step k requires: nothing
         """
-        self.alsc[k] = clip(self.alsc2, self.alsc1, self.time[k], self.pyear)
+        self.alsc[k] = max(self.alsc_control(self.time[k]), 0.01)
 
     @requires(["scdr"], ["sc", "alsc"])
     def _update_scdr(self, k, kl):
@@ -599,7 +588,7 @@ class Capital:
         """
         From step k requires: nothing
         """
-        self.scor[k] = clip(self.scor2, self.scor1, self.time[k], self.pyear)
+        self.scor[k] = clip(self.scor_control(self.time[k]), 0.01, 1)
 
     @requires(["so"], ["sc", "cuf", "scor"])
     def _update_so(self, k):

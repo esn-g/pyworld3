@@ -91,7 +91,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
 
     """
 
-    def __init__(self, year_min=1900, year_max=2100, dt=0.5, pyear=1975,
+    def __init__(self, year_min=1900, year_max=2200, dt=0.5, pyear=2023,
                  iphst=1940, verbose=False):
         self.iphst = iphst
         self.pyear = pyear
@@ -108,9 +108,11 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
                               lpd=20, mtfn=12, pet=4000, rlt=30, sad=20,
                               zpgt=4000,
                               ici=2.1e11, sci=1.44e11, iet=4000, iopcd=400,
-                              lfpf=0.75, lufdt=2, icor1=3, icor2=3, scor1=1,
-                              scor2=1, alic1=14, alic2=14, alsc1=20, alsc2=20,
-                              fioac1=0.43, fioac2=0.43,
+                              lfpf=0.75, lufdt=2, icor_control=lambda t : 3, 
+                              scor_control=lambda _ : 1, 
+                              alic_control=lambda _ : 14, 
+                              alsc_control=lambda _ : 20,
+                              fioac_control=lambda _ : 0.43,
                               ali=0.9e9, pali=2.3e9, lfh=0.7, palt=3.2e9,
                               pl=0.1, alai1=2, alai2=2, io70=7.9e11, lyf1=1,
                               lyf2=1, sd=0.07, uili=8.2e6, alln=6000, uildt=10,
@@ -128,9 +130,9 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.init_population_constants(p1i, p2i, p3i, p4i, dcfsn, fcest, hsid,
                                        ieat, len, lpd, mtfn, pet, rlt, sad,
                                        zpgt)
-        self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt, icor1,
-                                    icor2, scor1, scor2, alic1, alic2, alsc1,
-                                    alsc2, fioac1, fioac2)
+        self.init_capital_constants(ici, sci, iet, iopcd, lfpf, lufdt, icor_control,
+                                    scor_control, alic_control, alsc_control, 
+                                    fioac_control)
         self.init_agriculture_constants(ali, pali, lfh, palt, pl, alai1, alai2,
                                         io70, lyf1, lyf2, sd, uili, alln,
                                         uildt, lferti, ilf, fspd, sfpc)

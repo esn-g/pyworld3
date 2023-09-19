@@ -125,7 +125,8 @@ def plot_world_variables(time, var_data, var_names, var_lims,
     axs[0].set_xlim(time[0], time[-1])
 
     for ax, lim in zip(axs, var_lims):
-        ax.set_ylim(lim[0], lim[1])
+        if lim is not None:
+            ax.set_ylim(lim[0], lim[1])
 
     for ax_ in axs:
         formatter_ = EngFormatter(places=0, sep="\N{THIN SPACE}")

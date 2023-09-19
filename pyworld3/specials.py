@@ -62,7 +62,7 @@ def switch(var1, var2, boolean_switch):
             return var2
 
 
-def clip(func2, func1, t, t_switch):
+def clip(func2, func1, t, t_switch=None):
     """
     Logical function used as time switch to change parameter value.
 
@@ -85,10 +85,10 @@ def clip(func2, func1, t, t_switch):
     if np.isnan(func1) or np.isnan(func2):
         return np.nan
     else:
-        if t <= t_switch:
-            return func1
+        if t_switch is not None:
+            return func1 if t <= t_switch else func2
         else:
-            return func2
+            return max(min(func2, t), func1)
 
 
 def ramp(slope, t_offset, t):
