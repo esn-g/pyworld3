@@ -162,7 +162,7 @@ class Capital:
 
     """
 
-    def __init__(self, year_min=1900, year_max=2000, dt=1, pyear=1975, verbose=False):
+    def __init__(self, year_min=1900, year_max=2000, dt=1, verbose=False, **kwargs):
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
@@ -180,7 +180,7 @@ class Capital:
         fioac_control=lambda _: 0.43,
     ):
         """
-        Define the control commands
+        Define the control commands. Their units are documented above at the class level.
         """
         self.icor_control = icor_control
         self.scor_control = scor_control

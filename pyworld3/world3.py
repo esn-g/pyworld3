@@ -117,10 +117,13 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         alic_control=lambda _: 14,
         alsc_control=lambda _: 20,
         fioac_control=lambda _: 0.43,
+        alai_control=lambda _: 2,
+        lyf_control=lambda _: 1,
     ):
         self.set_capital_control(
             icor_control, scor_control, alic_control, alsc_control, fioac_control
         )
+        self.set_agriculture_control(alai_control, lyf_control)
 
     def init_world3_constants(
         self,
@@ -150,11 +153,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         lfh=0.7,
         palt=3.2e9,
         pl=0.1,
-        alai1=2,
-        alai2=2,
         io70=7.9e11,
-        lyf1=1,
-        lyf2=1,
         sd=0.07,
         uili=8.2e6,
         alln=6000,
@@ -210,11 +209,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             lfh,
             palt,
             pl,
-            alai1,
-            alai2,
             io70,
-            lyf1,
-            lyf2,
             sd,
             uili,
             alln,

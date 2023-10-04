@@ -86,16 +86,8 @@ class Agriculture:
         potentially arable land total [hectares]. The default is 3.2e9.
     pl : float, optional
         processing loss []. The default is 0.1.
-    alai1 : float, optional
-        alai, value before time=pyear [years]. The default is 2.
-    alai2 : float, optional
-        alai, value after time=pyear [years]. The default is 2.
     io70 : float, optional
         industrial output in 1970 [dollars/year]. The default is 7.9e11.
-    lyf1 : float, optional
-        lyf, value before time=pyear []. The default is 1.
-    lyf2 : float, optional
-        lyf, value after time=pyear []. The default is 1.
     sd : float, optional
         social discount [1/year]. The default is 0.07.
     uili : float, optional
@@ -116,6 +108,12 @@ class Agriculture:
         subsistence food per capita
         [vegetable-equivalent kilograms/person-year]. The default is 230.
 
+    **Control signals**
+    alai_control : function, optional
+        alai, control function with argument time [years]. The default is 2.
+    lyf_control : function, optional
+        lyf, control function with argument time [years]. The default is 1.
+
     **Loop 1 - food from investment in land development**
 
     al : numpy.ndarray
@@ -130,18 +128,8 @@ class Agriculture:
         food per capita [vegetable-equivalent kilograms/person-year].
     fioaa : numpy.ndarray
         fraction of industrial output allocated to agriculture [].
-    fioaa1 : numpy.ndarray
-        fioaa, value before time=pyear [].
-    fioaa2 : numpy.ndarray
-        fioaa, value after time=pyear [].
     ifpc : numpy.ndarray
         indicated food per capita [vegetable-equivalent kilograms/person-year].
-    ifpc1 : numpy.ndarray
-        ifpc, value before time=pyear
-        [vegetable-equivalent kilograms/person-year].
-    ifpc2 : numpy.ndarray
-        ifpc, value after time=pyear
-        [vegetable-equivalent kilograms/person-year].
     ldr : numpy.ndarray
         land development rate [hectares/year].
     lfc : numpy.ndarray
@@ -165,10 +153,6 @@ class Agriculture:
         land yield factor [].
     lymap : numpy.ndarray
         land yield multiplier from air pollution [].
-    lymap1 : numpy.ndarray
-        lymap, value before time=pyear [].
-    lymap2 : numpy.ndarray
-        lymap, value after time=pyear [].
     lymc : numpy.ndarray
         land yield multiplier from capital [].
 
@@ -193,10 +177,6 @@ class Agriculture:
         average life of land [years].
     llmy : numpy.ndarray
         land life multiplier from yield [].
-    llmy1 : numpy.ndarray
-        llmy, value before time=pyear [].
-    llmy2 : numpy.ndarray
-        llmy, value after time=pyear [].
     ler : numpy.ndarray
         land erosion rate [hectares/year].
     lrui : numpy.ndarray
@@ -247,6 +227,17 @@ class Agriculture:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
+    def set_agriculture_control(
+        self,
+        alai_control=lambda _: 2,
+        lyf_control=lambda _: 1,
+    ):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        self.alai_control = alai_control
+        self.lyf_control = lyf_control
+
     def init_agriculture_constants(
         self,
         ali=0.9e9,
@@ -254,11 +245,7 @@ class Agriculture:
         lfh=0.7,
         palt=3.2e9,
         pl=0.1,
-        alai1=2,
-        alai2=2,
         io70=7.9e11,
-        lyf1=1,
-        lyf2=1,
         sd=0.07,
         uili=8.2e6,
         alln=6000,
@@ -280,11 +267,7 @@ class Agriculture:
         self.palt = palt
         self.pl = pl
         # loop 2 - food from investment in agricultural inputs
-        self.alai1 = alai1
-        self.alai2 = alai2
         self.io70 = io70
-        self.lyf1 = lyf1
-        self.lyf2 = lyf2
         # loop 1 & 2 - the investment allocation decision
         self.sd = sd
         # loop 3 -land erosion and urban-industrial use
@@ -329,8 +312,6 @@ class Agriculture:
         self.ly = np.full((self.n,), np.nan)
         self.lyf = np.full((self.n,), np.nan)
         self.lymap = np.full((self.n,), np.nan)
-        self.lymap1 = np.full((self.n,), np.nan)
-        self.lymap2 = np.full((self.n,), np.nan)
         self.lymc = np.full((self.n,), np.nan)
         # loop 1 & 2 - the investment allocation decision
         self.fiald = np.full((self.n,), np.nan)
@@ -341,8 +322,6 @@ class Agriculture:
         self.uil = np.full((self.n,), np.nan)
         self.all = np.full((self.n,), np.nan)
         self.llmy = np.full((self.n,), np.nan)
-        self.llmy1 = np.full((self.n,), np.nan)
-        self.llmy2 = np.full((self.n,), np.nan)
         self.ler = np.full((self.n,), np.nan)
         self.lrui = np.full((self.n,), np.nan)
         self.uilpc = np.full((self.n,), np.nan)
@@ -399,18 +378,14 @@ class Agriculture:
             tables = json.load(fjson)
 
         func_names = [
-            "IFPC1",
-            "IFPC2",
-            "FIOAA1",
-            "FIOAA2",
+            "IFPC",
+            "FIOAA",
             "DCPH",
             "LYMC",
-            "LYMAP1",
-            "LYMAP2",
+            "LYMAP",
             "FIALD",
             "MLYMC",
-            "LLMY1",
-            "LLMY2",
+            "LLMY",
             "UILPC",
             "LFDR",
             "LFRT",
@@ -662,14 +637,12 @@ class Agriculture:
         """
         self.fpc[k] = self.f[k] / self.pop[k]
 
-    @requires(["ifpc1", "ifpc2", "ifpc"], ["iopc"])
+    @requires(["ifpc"], ["iopc"])
     def _update_ifpc(self, k):
         """
         From step k requires: IOPC
         """
-        self.ifpc1[k] = self.ifpc1_f(self.iopc[k])
-        self.ifpc2[k] = self.ifpc2_f(self.iopc[k])
-        self.ifpc[k] = clip(self.ifpc2[k], self.ifpc1[k], self.time[k], self.pyear)
+        self.ifpc[k] = self.ifpc_f(self.iopc[k])
 
     @requires(["tai"], ["io", "fioaa"])
     def _update_tai(self, k):
@@ -678,14 +651,12 @@ class Agriculture:
         """
         self.tai[k] = self.io[k] * self.fioaa[k]
 
-    @requires(["fioaa1", "fioaa2", "fioaa"], ["fpc", "ifpc"])
+    @requires(["fioaa"], ["fpc", "ifpc"])
     def _update_fioaa(self, k):
         """
         From step k requires: FPC IFPC
         """
-        self.fioaa1[k] = self.fioaa1_f(self.fpc[k] / self.ifpc[k])
-        self.fioaa2[k] = self.fioaa2_f(self.fpc[k] / self.ifpc[k])
-        self.fioaa[k] = clip(self.fioaa2[k], self.fioaa1[k], self.time[k], self.pyear)
+        self.fioaa[k] = self.fioaa_f(self.fpc[k] / self.ifpc[k])
 
     @requires(["ldr"], ["tai", "fiald", "dcph"])
     def _update_ldr(self, k, kl):
@@ -721,7 +692,7 @@ class Agriculture:
         """
         From step k requires: nothing
         """
-        self.alai[k] = clip(self.alai2, self.alai1, self.time[k], self.pyear)
+        self.alai[k] = self.alai_control(self.time[k])
 
     @requires(["aiph"], ["ai", "falm", "al"])
     def _update_aiph(self, k):
@@ -749,16 +720,14 @@ class Agriculture:
         """
         From step k requires: nothing
         """
-        self.lyf[k] = clip(self.lyf2, self.lyf1, self.time[k], self.pyear)
+        self.lyf[k] = max(self.lyf_control(self.time[k]), 0.01)
 
-    @requires(["lymap1", "lymap2", "lymap"], ["io"])
+    @requires(["lymap"], ["io"])
     def _update_lymap(self, k):
         """
         From step k requires: IO
         """
-        self.lymap1[k] = self.lymap1_f(self.io[k] / self.io70)
-        self.lymap2[k] = self.lymap2_f(self.io[k] / self.io70)
-        self.lymap[k] = clip(self.lymap2[k], self.lymap1[k], self.time[k], self.pyear)
+        self.lymap[k] = self.lymap_f(self.io[k] / self.io70)
 
     @requires(["fiald"], ["mpld", "mpai"])
     def _update_fiald(self, k):
@@ -800,9 +769,7 @@ class Agriculture:
         """
         From step k requires: LY
         """
-        self.llmy1[k] = self.llmy1_f(self.ly[k] / self.ilf)
-        self.llmy2[k] = self.llmy2_f(self.ly[k] / self.ilf)
-        self.llmy[k] = clip(self.llmy2[k], self.llmy1[k], self.time[k], self.pyear)
+        self.llmy[k] = self.llmy_f(self.ly[k] / self.ilf)
 
     @requires(["ler"], ["al", "all"])
     def _update_ler(self, k, kl):
