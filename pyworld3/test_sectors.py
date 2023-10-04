@@ -51,25 +51,28 @@ def test_population_sector(significant_digits=10):
     pop.set_population_delay_functions()
     pop.run_population()
 
-    vec_computed = [pop.p1[-1],
-                    pop.p2[-1],
-                    pop.p3[-1],
-                    pop.p4[-1],
-                    pop.le[-1],
-                    pop.tf[-1],
-                    pop.cbr[-1]]
+    vec_computed = [
+        pop.p1[-1],
+        pop.p2[-1],
+        pop.p3[-1],
+        pop.p4[-1],
+        pop.le[-1],
+        pop.tf[-1],
+        pop.cbr[-1],
+    ]
 
-    vec_reference = [1438726995.063073,
-                     1652597018.7257755,
-                     623934754.6756827,
-                     304445848.4588078,
-                     47.18320703555073,
-                     5.00641642443415,
-                     33.99945073141471]
+    vec_reference = [
+        1438726995.063073,
+        1652597018.7257755,
+        623934754.6756827,
+        304445848.4588078,
+        47.18320703555073,
+        5.00641642443415,
+        33.99945073141471,
+    ]
 
     for val_computed, val_reference in zip(vec_computed, vec_reference):
-        assert_approx_equal(val_computed, val_reference,
-                            significant=significant_digits)
+        assert_approx_equal(val_computed, val_reference, significant=significant_digits)
 
 
 def test_capital_sector(significant_digits=10):
@@ -81,24 +84,27 @@ def test_capital_sector(significant_digits=10):
     cap.init_exogenous_inputs()
     cap.run_capital()
 
-    vec_computed = [cap.ic[-1],
-                    cap.sc[-1],
-                    cap.io[-1],
-                    cap.iopc[-1],
-                    cap.sopc[-1],
-                    cap.fioas[-1],
-                    cap.cuf[-1]]
+    vec_computed = [
+        cap.ic[-1],
+        cap.sc[-1],
+        cap.io[-1],
+        cap.iopc[-1],
+        cap.sopc[-1],
+        cap.fioas[-1],
+        cap.cuf[-1],
+    ]
 
-    vec_reference = [8431442212986.304,
-                     3807237555827.785,
-                     2669956700778.996,
-                     524.0346812127568,
-                     747.2497656187999,
-                     0.1268777273388647]
+    vec_reference = [
+        8431442212986.304,
+        3807237555827.785,
+        2669956700778.996,
+        524.0346812127568,
+        747.2497656187999,
+        0.1268777273388647,
+    ]
 
     for val_computed, val_reference in zip(vec_computed, vec_reference):
-        assert_approx_equal(val_computed, val_reference,
-                            significant=significant_digits)
+        assert_approx_equal(val_computed, val_reference, significant=significant_digits)
 
 
 def test_agriculture_sector(significant_digits=10):
@@ -110,23 +116,26 @@ def test_agriculture_sector(significant_digits=10):
     agr.init_exogenous_inputs()
     agr.run_agriculture()
 
-    vec_computed = [agr.al[-1],
-                    agr.pal[-1],
-                    agr.uil[-1],
-                    agr.f[-1],
-                    agr.ly[-1],
-                    agr.aiph[-1]]
+    vec_computed = [
+        agr.al[-1],
+        agr.pal[-1],
+        agr.uil[-1],
+        agr.f[-1],
+        agr.ly[-1],
+        agr.aiph[-1],
+    ]
 
-    vec_reference = [1395697595.027307,
-                     -125540117.14492828,
-                     1455671094.280906,
-                     198298271854.23358,
-                     225.52103177280915,
-                     22836.376251696394]
+    vec_reference = [
+        1395697595.027307,
+        -125540117.14492828,
+        1455671094.280906,
+        198298271854.23358,
+        225.52103177280915,
+        22836.376251696394,
+    ]
 
     for val_computed, val_reference in zip(vec_computed, vec_reference):
-        assert_approx_equal(val_computed, val_reference,
-                            significant=significant_digits)
+        assert_approx_equal(val_computed, val_reference, significant=significant_digits)
 
 
 def test_pollution_sector(significant_digits=10):
@@ -138,19 +147,17 @@ def test_pollution_sector(significant_digits=10):
     pol.init_exogenous_inputs()
     pol.run_pollution()
 
-    vec_computed = [pol.ppol[-1],
-                    pol.ppolx[-1],
-                    pol.ppgr[-1],
-                    pol.ppasr[-1]]
+    vec_computed = [pol.ppol[-1], pol.ppolx[-1], pol.ppgr[-1], pol.ppasr[-1]]
 
-    vec_reference = [70318090645.31825,
-                     517.0447841567518,
-                     6309900000.0,
-                     1547228900.9026806]
+    vec_reference = [
+        70318090645.31825,
+        517.0447841567518,
+        6309900000.0,
+        1547228900.9026806,
+    ]
 
     for val_computed, val_reference in zip(vec_computed, vec_reference):
-        assert_approx_equal(val_computed, val_reference,
-                            significant=significant_digits)
+        assert_approx_equal(val_computed, val_reference, significant=significant_digits)
 
 
 def test_resource_sector(significant_digits=10):
@@ -162,17 +169,12 @@ def test_resource_sector(significant_digits=10):
     rsc.init_exogenous_inputs()
     rsc.run_resource()
 
-    vec_computed = [rsc.nr[-1],
-                    rsc.nrur[-1],
-                    rsc.fcaor[-1]]
+    vec_computed = [rsc.nr[-1], rsc.nrur[-1], rsc.fcaor[-1]]
 
-    vec_reference = [155436214735.18893,
-                     190353997.60791045,
-                     0.7891275705296221]
+    vec_reference = [155436214735.18893, 190353997.60791045, 0.7891275705296221]
 
     for val_computed, val_reference in zip(vec_computed, vec_reference):
-        assert_approx_equal(val_computed, val_reference,
-                            significant=significant_digits)
+        assert_approx_equal(val_computed, val_reference, significant=significant_digits)
 
 
 def test_world3_model(significant_digits=10):
@@ -183,21 +185,24 @@ def test_world3_model(significant_digits=10):
     world3.set_world3_table_functions()
     world3.run_world3(fast=False)
 
-    vec_computed = [world3.pop[-1],
-                    world3.ppol[-1],
-                    world3.nr[-1],
-                    world3.io[-1],
-                    world3.al[-1]]
+    vec_computed = [
+        world3.pop[-1],
+        world3.ppol[-1],
+        world3.nr[-1],
+        world3.io[-1],
+        world3.al[-1],
+    ]
 
-    vec_reference = [3976857676.148028,
-                     81853646.6443053,
-                     152023587005.39246,
-                     42594878499.225685,
-                     2420811800.6284337]
+    vec_reference = [
+        3976857676.148028,
+        81853646.6443053,
+        152023587005.39246,
+        42594878499.225685,
+        2420811800.6284337,
+    ]
 
     for val_computed, val_reference in zip(vec_computed, vec_reference):
-        assert_approx_equal(val_computed, val_reference,
-                            significant=significant_digits)
+        assert_approx_equal(val_computed, val_reference, significant=significant_digits)
 
 
 def test_world3_fast_nocheck(significant_digits=10):
@@ -208,18 +213,21 @@ def test_world3_fast_nocheck(significant_digits=10):
     world3.set_world3_table_functions()
     world3.run_world3(fast=True)
 
-    vec_computed = [world3.pop[-1],
-                    world3.ppol[-1],
-                    world3.nr[-1],
-                    world3.io[-1],
-                    world3.al[-1]]
+    vec_computed = [
+        world3.pop[-1],
+        world3.ppol[-1],
+        world3.nr[-1],
+        world3.io[-1],
+        world3.al[-1],
+    ]
 
-    vec_reference = [3976857676.148028,
-                     81853646.6443053,
-                     152023587005.39246,
-                     42594878499.225685,
-                     2420811800.6284337]
+    vec_reference = [
+        3976857676.148028,
+        81853646.6443053,
+        152023587005.39246,
+        42594878499.225685,
+        2420811800.6284337,
+    ]
 
     for val_computed, val_reference in zip(vec_computed, vec_reference):
-        assert_approx_equal(val_computed, val_reference,
-                            significant=significant_digits)
+        assert_approx_equal(val_computed, val_reference, significant=significant_digits)
