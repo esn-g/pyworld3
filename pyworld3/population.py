@@ -109,6 +109,9 @@ class Population:
         time when desired family size equals 2 children [year]. The default is
         4000.
 
+    **Control signals**
+    None
+
     **Population sector**
 
     p1 : numpy.ndarray
@@ -216,8 +219,8 @@ class Population:
 
     """
 
-    def __init__(self, year_min=1900, year_max=1975, dt=1, iphst=1940, verbose=False):
-        self.iphst = iphst
+    def __init__(self, year_min=1900, year_max=1975, dt=1, verbose=False):
+        self.iphst = 1940
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
@@ -225,6 +228,12 @@ class Population:
         self.length = self.year_max - self.year_min
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
+
+    def set_population_control(self):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        pass
 
     def init_population_constants(
         self,
