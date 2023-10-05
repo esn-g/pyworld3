@@ -72,11 +72,6 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         end year of the simulation [year]. The default is 2100.
     dt : float, optional
         time step of the simulation [year]. The default is 1.
-    pyear : float, optional
-        implementation date of new policies [year]. The default is 1975.
-    iphst : float, optional
-        implementation date of new policy on health service time [year].
-        The default is 1940.
     verbose : bool, optional
         print information for debugging. The default is False.
 
@@ -96,12 +91,10 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         year_min=1900,
         year_max=2200,
         dt=0.5,
-        pyear=2023,
-        iphst=1940,
         verbose=False,
     ):
-        self.iphst = iphst
-        self.pyear = pyear
+        self.iphst = 1940
+        self.pyear = 1975
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max

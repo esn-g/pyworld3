@@ -69,6 +69,8 @@ class Pollution:
         end year of the simulation [year]. The default is 2100.
     dt : float, optional
         time step of the simulation [year]. The default is 1.
+    pyear : float, optional
+        implementation date of new policies [year]. The default is 1975.
     verbose : bool, optional
         print information for debugging. The default is False.
 
@@ -92,8 +94,16 @@ class Pollution:
         fraction of inputs as persistent materials []. The default is 0.001.
     frpm : float, optional
         fraction of resources as persistent materials []. The default is 0.02.
+    ppgf1 : float, optional
+        ppgf value before time=pyear []. The default is 1.
+    ppgf2 : float, optional
+        ppgf value after time=pyear []. The default is 1.
     ppgf21 : float, optional
         DESCRIPTION. The default is 1.
+    pptd1 : float, optional
+        pptd value before time=pyear [years]. The default is 20.
+    pptd2 : float, optional
+        pptd value after time=pyear [years]. The default is 20.
     ppol : numpy.ndarray
         persistent pollution [pollution units]. It is a state variable.
     ppolx : numpy.ndarray
@@ -119,15 +129,10 @@ class Pollution:
     ahlm : numpy.ndarray
         assimilation half-life multiplier [].
 
-    **Control signals**
-    ppgf_control : function, optional
-        ppgf, control function with argument time [years]. The default is 1.
-    pptd_control : function, optional
-        pptd, control function with argument time [years]. The default is 20.
-
     """
 
-    def __init__(self, year_min=1900, year_max=2100, dt=1, verbose=False, **kwargs):
+    def __init__(self, year_min=1900, year_max=2100, dt=1, verbose=False):
+        self.pyear = pyear
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
@@ -157,7 +162,11 @@ class Pollution:
         imef=0.1,
         fipm=0.001,
         frpm=0.02,
+        ppgf1=1,
+        ppgf2=1,
         ppgf21=1,
+        pptd1=20,
+        pptd2=20,
     ):
         """
         Initialize the constant parameters of the pollution sector. Constants
@@ -172,8 +181,11 @@ class Pollution:
         self.imef = imef
         self.fipm = fipm
         self.frpm = frpm
-        # self.ppgf2 = ppgf2  # if sector is alone, modified as exogeneous
+        self.ppgf1 = ppgf1
+        self.ppgf2 = ppgf2  # if sector is alone, modified as exogeneous
         self.ppgf21 = ppgf21
+        self.pptd1 = pptd1
+        self.pptd2 = pptd2
 
     def init_pollution_variables(self):
         """
@@ -267,10 +279,24 @@ class Pollution:
         self.pctcm = np.full((self.n,), np.nan)
         self.plmp = np.full((self.n,), np.nan)
         self.lmp = np.full((self.n,), np.nan)
+        self.lmp1 = np.full((self.n,), np.nan)
+        self.lmp2 = np.full((self.n,), np.nan)
         self.lfdr = np.full((self.n,), np.nan)
+        self.lfdr1 = np.full((self.n,), np.nan)
+        self.lfdr2 = np.full((self.n,), np.nan)
         self.ppgf22 = np.full((self.n,), np.nan)
         # tables
-        func_names = ["PCRUM", "POP", "AIPH", "AL", "PCTCM", "LMP", "LFDR"]
+        func_names = [
+            "PCRUM",
+            "POP",
+            "AIPH",
+            "AL",
+            "PCTCM",
+            "LMP1",
+            "LMP2",
+            "LFDR1",
+            "LFDR2",
+        ]
         y_values = [
             [_ * 10**-2 for _ in [17, 30, 52, 78, 138, 280, 480, 660, 700, 700, 700]],
             [_ * 10**8 for _ in [16, 19, 22, 31, 42, 53, 67, 86, 109, 139, 176]],
@@ -335,8 +361,12 @@ class Pollution:
 
         self.pctir[kl] = clip(self.pcti[k] * self.pctcm[k], 0, self.time[k], self.pyear)
 
-        self.lmp[k] = self.lmp_f(self.ppolx[k])
-        self.lfdr[k] = self.lfdr_f(self.ppolx[k])
+        self.lmp1[k] = self.lmp1_f(self.ppolx[k])
+        self.lmp2[k] = self.lmp2_f(self.ppolx[k])
+        self.lmp[k] = clip(self.lmp2[k], self.lmp1[k], self.time[k], self.pyear)
+        self.lfdr1[k] = self.lfdr1_f(self.ppolx[k])
+        self.lfdr2[k] = self.lfdr1_f(self.ppolx[k])
+        self.lfdr[k] = clip(self.lfdr2[k], self.lfdr1[k], self.time[k], self.pyear)
 
     def loop0_exogenous(self):
         """
@@ -353,14 +383,18 @@ class Pollution:
         self.ppgf22[0] = self.dlinf3_pcti(0, self.tdd)
         self.ppgf2 = switch(self.ppgf21, self.ppgf22[0], self.swat)
 
-        self.lmp[0] = self.lmp_f(self.ppolx[0])
+        self.lmp1[0] = self.lmp1_f(self.ppolx[0])
+        self.lmp2[0] = self.lmp2_f(self.ppolx[0])
+        self.lmp[0] = clip(self.lmp2[0], self.lmp1[0], self.time[0], self.pyear)
 
         self.plmp[0] = self.dlinf3_lmp(0, self.pd)
         self.pctcm[0] = self.pctcm_f(1 - self.plmp[0])
 
         self.pctir[0] = clip(self.pcti[0] * self.pctcm[0], 0, self.time[0], self.pyear)
 
-        self.lfdr[0] = self.lfdr_f(self.ppolx[0])
+        self.lfdr1[0] = self.lfdr1_f(self.ppolx[0])
+        self.lfdr2[0] = self.lfdr1_f(self.ppolx[0])
+        self.lfdr[0] = clip(self.lfdr2[0], self.lfdr1[0], self.time[0], self.pyear)
 
     def loop0_pollution(self, alone=False):
         """
@@ -465,7 +499,7 @@ class Pollution:
         From step k requires: PPGF22
         """
 
-        self.ppgf[k] = self.ppgf_control(self.time[k])
+        self.ppgf[k] = clip(self.ppgf2, self.ppgf1, self.time[k], self.pyear)
 
     @requires(["ppgr"], ["ppgio", "ppgao", "ppgf"])
     def _update_ppgr(self, k, kl):
@@ -479,7 +513,7 @@ class Pollution:
         """
         From step k requires: nothing
         """
-        self.pptd[k] = self.ppgf_control(self.time[k])
+        self.pptd[k] = clip(self.pptd2, self.pptd1, self.time[k], self.pyear)
 
     @requires(["ppapr"], ["ppgr"], check_after_init=False)
     def _update_ppapr(self, k, kl):

@@ -213,7 +213,7 @@ class Agriculture:
 
     """
 
-    def __init__(self, year_min=1900, year_max=2100, dt=0.25, verbose=False, **kwargs):
+    def __init__(self, year_min=1900, year_max=2100, dt=0.25, verbose=False):
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
