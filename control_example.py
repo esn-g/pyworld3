@@ -51,7 +51,7 @@ plt.savefig("fig_world3_standard_c.pdf")
 
 plot_world_variables(
     world3.time,
-    [world3.fioaa1],
+    [world3.icor],
     ["icor"],
     [None],
     figsize=(7, 5),

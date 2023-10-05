@@ -69,8 +69,6 @@ class Agriculture:
         end year of the simulation [year]. The default is 2100.
     dt : float, optional
         time step of the simulation [year]. The default is 0.25.
-    pyear : float, optional
-        implementation date of new policies [year]. The default is 1975.
     verbose : bool, optional
         print information for debugging. The default is False.
 
@@ -215,10 +213,7 @@ class Agriculture:
 
     """
 
-    def __init__(
-        self, year_min=1900, year_max=2100, dt=0.25, pyear=1975, verbose=False
-    ):
-        self.pyear = pyear
+    def __init__(self, year_min=1900, year_max=2100, dt=0.25, verbose=False, **kwargs):
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
