@@ -114,6 +114,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         lyf_control=lambda _: 1,
         ppgf_control=lambda _: 1,
         pptd_control=lambda _: 20,
+        nruf_control=lambda _: 1,
     ):
         self.set_capital_control(
             icor_control, scor_control, alic_control, alsc_control, fioac_control
@@ -121,6 +122,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         self.set_agriculture_control(alai_control, lyf_control)
         self.set_pollution_control(ppgf_control, pptd_control)
         self.set_population_control()
+        self.set_resource_control(nruf_control)
 
     def init_world3_constants(
         self,
@@ -223,7 +225,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             frpm,
             ppgf21,
         )
-        self.init_resource_constants(nri, nruf1, nruf2)
+        self.init_resource_constants(nri)
 
     def init_world3_variables(self):
         """

@@ -132,7 +132,7 @@ class Pollution:
     """
 
     def __init__(self, year_min=1900, year_max=2100, dt=1, verbose=False):
-        self.pyear = pyear
+        self.pyear = 1975
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max

@@ -78,10 +78,6 @@ class Resource:
     ----------
     nri : float, optional
         nonrenewable resources initial [resource units]. The default is 1e12.
-    nruf1 : float, optional
-        nruf value before time=pyear []. The default is 1.
-    nruf2 : float, optional
-        nruf value after time=pyear []. The default is 1.
     nr : numpy.ndarray
         nonrenewable resources [resource units]. It is a state variable.
     nrfr : numpy.ndarray
@@ -94,15 +90,14 @@ class Resource:
         per capita resource usage multiplier [resource units/person-year].
     fcaor : numpy.ndarray
         fraction of capital allocated to obtaining resources [].
-    fcaor1 : numpy.ndarray
-        fcaor value before time=pyear [].
-    fcaor2 : numpy.ndarray
-        fcaor value after time=pyear [].
+
+    **Control signals**
+    nruf_control : function, optional
+        nruf, control function with argument time [years]. The default is 1.
 
     """
 
-    def __init__(self, year_min=1900, year_max=2100, dt=1, pyear=1975, verbose=False):
-        self.pyear = pyear
+    def __init__(self, year_min=1900, year_max=2100, dt=1, verbose=False):
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
@@ -111,15 +106,22 @@ class Resource:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
-    def init_resource_constants(self, nri=1e12, nruf1=1, nruf2=1):
+    def set_resource_control(
+        self,
+        nruf_control=lambda _: 1,
+    ):
+        """
+        Define the control commands. Their units are documented above at the class level.
+        """
+        self.nruf_control = nruf_control
+
+    def init_resource_constants(self, nri=1e12):
         """
         Initialize the constant parameters of the resource sector. Constants
         and their unit are documented above at the class level.
 
         """
         self.nri = nri
-        self.nruf1 = nruf1
-        self.nruf2 = nruf2
 
     def init_resource_variables(self):
         """
@@ -134,8 +136,6 @@ class Resource:
         self.nrur = np.full((self.n,), np.nan)
         self.pcrum = np.full((self.n,), np.nan)
         self.fcaor = np.full((self.n,), np.nan)
-        self.fcaor1 = np.full((self.n,), np.nan)
-        self.fcaor2 = np.full((self.n,), np.nan)
 
     def set_resource_delay_functions(self, method="euler"):
         """
@@ -171,7 +171,7 @@ class Resource:
         with open(json_file) as fjson:
             tables = json.load(fjson)
 
-        func_names = ["PCRUM", "FCAOR1", "FCAOR2"]
+        func_names = ["PCRUM", "FCAOR"]
 
         for func_name in func_names:
             for table in tables:
@@ -316,21 +316,19 @@ class Resource:
         """
         self.nrfr[k] = self.nr[k] / self.nri
 
-    @requires(["fcaor1", "fcaor2", "fcaor"], ["nrfr"])
+    @requires(["fcaor"], ["nrfr"])
     def _update_fcaor(self, k):
         """
         From step k requires: NRFR
         """
-        self.fcaor1[k] = self.fcaor1_f(self.nrfr[k])
-        self.fcaor2[k] = self.fcaor2_f(self.nrfr[k])
-        self.fcaor[k] = clip(self.fcaor2[k], self.fcaor1[k], self.time[k], self.pyear)
+        self.fcaor[k] = self.fcaor_f(self.nrfr[k])
 
     @requires(["nruf"])
     def _update_nruf(self, k):
         """
         From step k requires: nothing
         """
-        self.nruf[k] = clip(self.nruf2, self.nruf1, self.time[k], self.pyear)
+        self.nruf[k] = self.nruf_control(self.time[k])
 
     @requires(["pcrum"], ["iopc"])
     def _update_pcrum(self, k):
