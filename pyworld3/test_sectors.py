@@ -45,6 +45,7 @@ from .world3 import World3
 def test_population_sector(significant_digits=10):
     pop = Population()
     pop.set_population_table_functions()
+    pop.set_population_control()
     pop.init_population_constants()
     pop.init_population_variables()
     pop.init_exogenous_inputs()
@@ -78,6 +79,7 @@ def test_population_sector(significant_digits=10):
 def test_capital_sector(significant_digits=10):
     cap = Capital()
     cap.set_capital_table_functions()
+    cap.set_capital_control()
     cap.init_capital_variables()
     cap.init_capital_constants()
     cap.set_capital_delay_functions(method="euler")
@@ -110,6 +112,7 @@ def test_capital_sector(significant_digits=10):
 def test_agriculture_sector(significant_digits=10):
     agr = Agriculture()
     agr.set_agriculture_table_functions()
+    agr.set_agriculture_control()
     agr.init_agriculture_variables()
     agr.init_agriculture_constants()
     agr.set_agriculture_delay_functions(method="euler")
@@ -141,6 +144,7 @@ def test_agriculture_sector(significant_digits=10):
 def test_pollution_sector(significant_digits=10):
     pol = Pollution()
     pol.set_pollution_table_functions()
+    pol.set_pollution_control()
     pol.init_pollution_variables()
     pol.init_pollution_constants()
     pol.set_pollution_delay_functions(method="euler")
@@ -163,6 +167,7 @@ def test_pollution_sector(significant_digits=10):
 def test_resource_sector(significant_digits=10):
     rsc = Resource()
     rsc.set_resource_table_functions()
+    rsc.set_resource_control()
     rsc.init_resource_variables()
     rsc.init_resource_constants()
     rsc.set_resource_delay_functions(method="euler")
@@ -179,6 +184,7 @@ def test_resource_sector(significant_digits=10):
 
 def test_world3_model(significant_digits=10):
     world3 = World3()
+    world3.set_world3_control()
     world3.init_world3_constants()
     world3.init_world3_variables()
     world3.set_world3_delay_functions()
@@ -207,6 +213,7 @@ def test_world3_model(significant_digits=10):
 
 def test_world3_fast_nocheck(significant_digits=10):
     world3 = World3()
+    world3.set_world3_control()
     world3.init_world3_constants()
     world3.init_world3_variables()
     world3.set_world3_delay_functions()

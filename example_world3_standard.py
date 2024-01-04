@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
@@ -15,6 +16,11 @@ world3.init_world3_variables()
 world3.set_world3_table_functions()
 world3.set_world3_delay_functions()
 world3.run_world3(fast=False)
+
+fig = plt.figure()
+x = np.linspace(0, 100, 200)
+plt.plot(x, world3.lmhs1_f(x))
+plt.plot(x, world3.lmhs2_f(x))
 
 plot_world_variables(
     world3.time,

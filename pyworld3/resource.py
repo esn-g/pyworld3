@@ -69,8 +69,6 @@ class Resource:
         end year of the simulation [year]. The default is 2100.
     dt : float, optional
         time step of the simulation [year]. The default is 1.
-    pyear : float, optional
-        implementation date of new policies [year]. The default is 1975.
     verbose : bool, optional
         print information for debugging. The default is False.
 
@@ -94,6 +92,8 @@ class Resource:
     **Control signals**
     nruf_control : function, optional
         nruf, control function with argument time [years]. The default is 1.
+    fcaor_control : function, optional
+        fraction of normal fcaor used, control function with argument time [years]. The default is 1.0
 
     """
 
@@ -106,14 +106,12 @@ class Resource:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
-    def set_resource_control(
-        self,
-        nruf_control=lambda _: 1,
-    ):
+    def set_resource_control(self, nruf_control=lambda _: 1, fcaor_control=lambda _: 1):
         """
         Define the control commands. Their units are documented above at the class level.
         """
         self.nruf_control = nruf_control
+        self.fcaor_control = fcaor_control
 
     def init_resource_constants(self, nri=1e12):
         """
@@ -321,7 +319,7 @@ class Resource:
         """
         From step k requires: NRFR
         """
-        self.fcaor[k] = self.fcaor_f(self.nrfr[k])
+        self.fcaor[k] = self.fcaor_control(self.time[k]) * self.fcaor_f(self.nrfr[k])
 
     @requires(["nruf"])
     def _update_nruf(self, k):

@@ -88,6 +88,12 @@ class Capital:
         alsc, control value with argument time [years]. The default is 20.
     fioac_control : function, optional
         fioac, control value with argument time [years]. The default is 0.43.
+    isopc_control : function, optional
+        fraction of normal isopc used, control function with argument time [years]. The default is 1.0
+    fioas_control : function, optional
+        fraction of normal fioas used, control function with argument time [years]. The default is 1.0
+
+
 
     **Industrial subsector**
 
@@ -178,6 +184,8 @@ class Capital:
         alic_control=lambda _: 14,
         alsc_control=lambda _: 20,
         fioac_control=lambda _: 0.43,
+        isopc_control=lambda _: 1.0,
+        fioas_control=lambda _: 1.0,
     ):
         """
         Define the control commands. Their units are documented above at the class level.
@@ -187,6 +195,8 @@ class Capital:
         self.alic_control = alic_control
         self.alsc_control = alsc_control
         self.fioac_control = fioac_control
+        self.isopc_control = isopc_control
+        self.fioas_control = fioas_control
 
     def init_capital_constants(
         self, ici=2.1e11, sci=1.44e11, iet=4000, iopcd=400, lfpf=0.75, lufdt=2
@@ -583,7 +593,7 @@ class Capital:
         """
         From step k requires: IOPC
         """
-        self.isopc[k] = self.isopc_f(self.iopc[k])
+        self.isopc[k] = self.isopc_control(self.time[k]) * self.isopc_f(self.iopc[k])
 
     @requires(["alsc"])
     def _update_alsc(self, k):
@@ -620,12 +630,14 @@ class Capital:
         """
         self.sopc[k] = self.so[k] / self.pop[k]
 
-    @requires(["fioas1", "fioas2", "fioas"], ["sopc", "isopc"])
+    @requires(["fioas"], ["sopc", "isopc"])
     def _update_fioas(self, k):
         """
         From step k requires: SOPC ISOPC
         """
-        self.fioas[k] = self.fioas_f(self.sopc[k] / self.isopc[k])
+        self.fioas[k] = self.fioas_control(self.time[k]) * self.fioas_f(
+            self.sopc[k] / self.isopc[k]
+        )
 
     @requires(["scir"], ["io", "fioas"])
     def _update_scir(self, k, kl):

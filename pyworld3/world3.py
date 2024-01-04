@@ -94,7 +94,6 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         verbose=False,
     ):
         self.iphst = 1940
-        self.pyear = 1975
         self.dt = dt
         self.year_min = year_min
         self.year_max = year_max
@@ -223,7 +222,6 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
             imef,
             fipm,
             frpm,
-            ppgf21,
         )
         self.init_resource_constants(nri)
 

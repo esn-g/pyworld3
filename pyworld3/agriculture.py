@@ -111,6 +111,15 @@ class Agriculture:
         alai, control function with argument time [years]. The default is 2.
     lyf_control : function, optional
         lyf, control function with argument time [years]. The default is 1.
+    ifpc_control : function, optional
+        fraction of normal ifpc used, control function with argument time [years]. The default is 1.0
+    lymap_control : function, optional
+        fraction of normal lymap used, control function with argument time [years]. The default is 1.0
+    llmy_control : function, optional
+        fraction of normal llmy used, control function with argument time [years]. The default is 1.0
+    fioaa_control : function, optional
+        fraction of normal fioaa used, control function with argument time [years]. The default is 1.0
+
 
     **Loop 1 - food from investment in land development**
 
@@ -226,12 +235,20 @@ class Agriculture:
         self,
         alai_control=lambda _: 2,
         lyf_control=lambda _: 1,
+        ifpc_control=lambda _: 1,
+        lymap_control=lambda _: 1,
+        llmy_control=lambda _: 1,
+        fioaa_control=lambda _: 1,
     ):
         """
         Define the control commands. Their units are documented above at the class level.
         """
         self.alai_control = alai_control
         self.lyf_control = lyf_control
+        self.ifpc_control = ifpc_control
+        self.lymap_control = lymap_control
+        self.llmy_control = llmy_control
+        self.fioaa_control = fioaa_control
 
     def init_agriculture_constants(
         self,
@@ -291,11 +308,7 @@ class Agriculture:
         self.f = np.full((self.n,), np.nan)
         self.fpc = np.full((self.n,), np.nan)
         self.fioaa = np.full((self.n,), np.nan)
-        self.fioaa1 = np.full((self.n,), np.nan)
-        self.fioaa2 = np.full((self.n,), np.nan)
         self.ifpc = np.full((self.n,), np.nan)
-        self.ifpc1 = np.full((self.n,), np.nan)
-        self.ifpc2 = np.full((self.n,), np.nan)
         self.ldr = np.full((self.n,), np.nan)
         self.lfc = np.full((self.n,), np.nan)
         self.tai = np.full((self.n,), np.nan)
@@ -637,7 +650,7 @@ class Agriculture:
         """
         From step k requires: IOPC
         """
-        self.ifpc[k] = self.ifpc_f(self.iopc[k])
+        self.ifpc[k] = self.ifpc_control(self.time[k]) * self.ifpc_f(self.iopc[k])
 
     @requires(["tai"], ["io", "fioaa"])
     def _update_tai(self, k):
@@ -651,7 +664,9 @@ class Agriculture:
         """
         From step k requires: FPC IFPC
         """
-        self.fioaa[k] = self.fioaa_f(self.fpc[k] / self.ifpc[k])
+        self.fioaa[k] = self.fioaa_control(self.time[k]) * self.fioaa_f(
+            self.fpc[k] / self.ifpc[k]
+        )
 
     @requires(["ldr"], ["tai", "fiald", "dcph"])
     def _update_ldr(self, k, kl):
@@ -722,7 +737,9 @@ class Agriculture:
         """
         From step k requires: IO
         """
-        self.lymap[k] = self.lymap_f(self.io[k] / self.io70)
+        self.lymap[k] = self.lymap_control(self.time[k]) * self.lymap_f(
+            self.io[k] / self.io70
+        )
 
     @requires(["fiald"], ["mpld", "mpai"])
     def _update_fiald(self, k):
@@ -759,12 +776,14 @@ class Agriculture:
         """
         self.all[k] = self.alln * self.llmy[k]
 
-    @requires(["llmy1", "llmy2", "llmy"], ["ly"])
+    @requires(["llmy"], ["ly"])
     def _update_llmy(self, k):
         """
         From step k requires: LY
         """
-        self.llmy[k] = self.llmy_f(self.ly[k] / self.ilf)
+        self.llmy[k] = self.llmy_control(self.time[k]) * self.llmy_f(
+            self.ly[k] / self.ilf
+        )
 
     @requires(["ler"], ["al", "all"])
     def _update_ler(self, k, kl):

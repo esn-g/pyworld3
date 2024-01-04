@@ -110,7 +110,8 @@ class Population:
         4000.
 
     **Control signals**
-    None
+    lmhs_control : function, optional
+        fraction of normal lmhs used, control function with argument time [years]. The default is 1.
 
     **Population sector**
 
@@ -229,11 +230,11 @@ class Population:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
-    def set_population_control(self):
+    def set_population_control(self, lmhs_control=lambda _: 1):
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        pass
+        self.lmhs_control = lmhs_control
 
     def init_population_constants(
         self,
@@ -739,7 +740,9 @@ class Population:
         """
         self.lmhs1[k] = self.lmhs1_f(self.ehspc[k])
         self.lmhs2[k] = self.lmhs2_f(self.ehspc[k])
-        self.lmhs[k] = clip(self.lmhs2[k], self.lmhs1[k], self.time[k], self.iphst)
+        self.lmhs[k] = self.lmhs_control(self.time[k]) * clip(
+            self.lmhs2[k], self.lmhs1[k], self.time[k], self.iphst
+        )
 
     @requires(["lmc"], ["cmi", "fpu"])
     def _update_lmc(self, k):
