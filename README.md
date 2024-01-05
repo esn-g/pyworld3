@@ -127,10 +127,10 @@ To cite the project in your paper via BibTex:
 ```
 @softwareversion{vanwynsberghe:hal-03414394v1,
   TITLE = {{PyWorld3 - The World3 model revisited in Python}},
-  AUTHOR = {Vanwynsberghe, Charles},
+  AUTHOR = {Vanwynsberghe, Charles and Barreau, Matthieu},
   URL = {https://hal.archives-ouvertes.fr/hal-03414394},
-  YEAR = {2021},
-  MONTH = Nov,
+  YEAR = {2024},
+  MONTH = Jan,
   SWHID = {swh:1:dir:9d4ad7aec99385fa4d5057dece7a989d8892d866;origin=https://hal.archives-ouvertes.fr/hal-03414394;visit=swh:1:snp:be7d9ffa2c1be6920d774d1f193e49ada725ea5e;anchor=swh:1:rev:da5e3732d9d832734232d88ea33af99ab8987d52;path=/},
   LICENSE = {CeCILL Free Software License Agreement v2.1},
   HAL_ID = {hal-03414394},

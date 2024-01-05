@@ -12,8 +12,8 @@ setup(
     packages=["pyworld3"],
     description=description,
     long_description=description,
-    author="Charles Vanwynsberghe",
-    url="http://github.com/cvanwynsberghe/pyworld3",
+    author="Charles Vanwynsberghe, Matthieu Barreau",
+    url="https://github.com/mBarreau/pyworld3",
     download_url="https://github.com/cvanwynsberghe/pyworld3/archive/v1.1.tar.gz",
     install_requires=["numpy", "scipy", "matplotlib"],
     include_package_data=True,  # files declared in MANIFEST.in
