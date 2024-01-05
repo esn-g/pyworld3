@@ -742,7 +742,8 @@ class Population:
         """
         self.lmhs1[k] = self.lmhs1_f(self.ehspc[k])
         self.lmhs2[k] = self.lmhs2_f(self.ehspc[k])
-        self.lmhs[k] = self.lmhs_control(k) * clip(
+        self.lmhs_control_values[k] = max(0, self.lmhs_control(k))
+        self.lmhs[k] = self.lmhs_control_values[k] * clip(
             self.lmhs2[k], self.lmhs1[k], self.time[k], self.iphst
         )
 

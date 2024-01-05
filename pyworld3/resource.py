@@ -321,14 +321,16 @@ class Resource:
         """
         From step k requires: NRFR
         """
-        self.fcaor[k] = self.fcaor_control(k) * self.fcaor_f(self.nrfr[k])
+        self.fcaor_control_values[k] = max(0, self.fcaor_control(k))
+        self.fcaor[k] = self.fcaor_control_values[k] * self.fcaor_f(self.nrfr[k])
 
     @requires(["nruf"])
     def _update_nruf(self, k):
         """
         From step k requires: nothing
         """
-        self.nruf[k] = self.nruf_control(k)
+        self.nruf_control_values[k] = self.nruf_control(k)
+        self.nruf[k] = self.nruf_control_values[k]
 
     @requires(["pcrum"], ["iopc"])
     def _update_pcrum(self, k):

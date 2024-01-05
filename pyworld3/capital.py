@@ -114,8 +114,6 @@ class Capital:
         average lifetime of industrial capital [years].
     fioac : numpy.ndarray
         fraction of industrial output allocated to consumption [].
-    fioacc : numpy.ndarray
-        fioac constant [].
     fioacv : numpy.ndarray
         fioac variable [].
     fioai : numpy.ndarray
@@ -225,7 +223,6 @@ class Capital:
         self.iopc = np.full((self.n,), np.nan)
         self.alic = np.full((self.n,), np.nan)
         self.fioac = np.full((self.n,), np.nan)
-        self.fioacc = np.full((self.n,), np.nan)
         self.fioai = np.full((self.n,), np.nan)
         self.fioacv = np.full((self.n,), np.nan)
         # service subsector
@@ -535,7 +532,8 @@ class Capital:
         """
         From step k requires: nothing
         """
-        self.alic[k] = max(self.alic_control(k), 0.01)
+        self.alic_control_values[k] = max(self.alic_control(k), 0.01)
+        self.alic[k] = self.alic_control_values[k]
 
     @requires(["icdr"], ["ic", "alic"])
     def _update_icdr(self, k, kl):
@@ -549,7 +547,8 @@ class Capital:
         """
         From step k requires: nothing
         """
-        self.icor[k] = max(self.icor_control(k), 0.01)
+        self.icor_control_values[k] = max(self.icor_control(k), 0.01)
+        self.icor[k] = self.icor_control_values[k]
 
     @requires(["io"], ["ic", "fcaor", "cuf", "icor"])
     def _update_io(self, k):
@@ -565,14 +564,16 @@ class Capital:
         """
         self.iopc[k] = self.io[k] / self.pop[k]
 
-    @requires(["fioacv", "fioacc", "fioac"], ["iopc"])
+    @requires(["fioacv", "fioac"], ["iopc"])
     def _update_fioac(self, k):
         """
         From step k requires: IOPC
         """
         self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
-        self.fioacc[k] = clip(self.fioac_control(k), 0, 1)
-        self.fioac[k] = clip(self.fioacv[k], self.fioacc[k], self.time[k], self.iet)
+        self.fioac_control_values[k] = clip(self.fioac_control(k), 0, 1)
+        self.fioac[k] = clip(
+            self.fioacv[k], self.fioac_control_values[k], self.time[k], self.iet
+        )
 
     @requires(["sc"])
     def _update_state_sc(self, k, j, jk):

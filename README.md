@@ -83,7 +83,7 @@ want to modify:
 
 # How to control your simulation
 
-Controls are time functions defined with `*_control`.
+Controls are time functions defined with `*_control`. Real control values are stored in the world (or sector) as an array under the name `*_control_values`.
 
 For open loop control, this is relatively easy and one can adapt the following code:
 ``` Python

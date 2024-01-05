@@ -647,7 +647,8 @@ class Agriculture:
         """
         From step k requires: IOPC
         """
-        self.ifpc[k] = self.ifpc_control(k) * self.ifpc_f(self.iopc[k])
+        self.ifpc_control_values[k] = max(0, self.ifpc_control(k))
+        self.ifpc[k] = self.ifpc_control_values[k] * self.ifpc_f(self.iopc[k])
 
     @requires(["tai"], ["io", "fioaa"])
     def _update_tai(self, k):
@@ -661,7 +662,10 @@ class Agriculture:
         """
         From step k requires: FPC IFPC
         """
-        self.fioaa[k] = self.fioaa_control(k) * self.fioaa_f(self.fpc[k] / self.ifpc[k])
+        self.fioaa_control_values[k] = max(0, self.fioaa_control(k))
+        self.fioaa[k] = self.fioaa_control_values[k] * self.fioaa_f(
+            self.fpc[k] / self.ifpc[k]
+        )
 
     @requires(["ldr"], ["tai", "fiald", "dcph"])
     def _update_ldr(self, k, kl):
@@ -697,7 +701,8 @@ class Agriculture:
         """
         From step k requires: nothing
         """
-        self.alai[k] = self.alai_control(k)
+        self.alai_control_values[k] = self.alai_control(k)
+        self.alai[k] = self.alai_control_values[k]
 
     @requires(["aiph"], ["ai", "falm", "al"])
     def _update_aiph(self, k):
@@ -725,14 +730,18 @@ class Agriculture:
         """
         From step k requires: nothing
         """
-        self.lyf[k] = max(self.lyf_control(k), 0.01)
+        self.lyf_control_values[k] = max(self.lyf_control(k), 0.01)
+        self.lyf[k] = self.lyf_control_values[k]
 
     @requires(["lymap"], ["io"])
     def _update_lymap(self, k):
         """
         From step k requires: IO
         """
-        self.lymap[k] = self.lymap_control(k) * self.lymap_f(self.io[k] / self.io70)
+        self.lymap_control_values[k] = max(0, self.lymap_control(k))
+        self.lymap[k] = self.lymap_control_values[k] * self.lymap_f(
+            self.io[k] / self.io70
+        )
 
     @requires(["fiald"], ["mpld", "mpai"])
     def _update_fiald(self, k):
@@ -774,7 +783,8 @@ class Agriculture:
         """
         From step k requires: LY
         """
-        self.llmy[k] = self.llmy_control(k) * self.llmy_f(self.ly[k] / self.ilf)
+        self.llmy_control_values[k] = max(0, self.llmy_control(k))
+        self.llmy[k] = self.llmy_control_values[k] * self.llmy_f(self.ly[k] / self.ilf)
 
     @requires(["ler"], ["al", "all"])
     def _update_ler(self, k, kl):

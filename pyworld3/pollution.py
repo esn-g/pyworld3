@@ -123,8 +123,6 @@ class Pollution:
         ppgf, control function with argument time [years]. The default is 1.
     pptd_control : function, optional
         pptd, control function with argument time [years]. The default is 20.
-    isopc_control : function, optional
-        fraction of normal isopc used, control function with argument time [years]. The default is 1.
 
     """
 
@@ -450,7 +448,8 @@ class Pollution:
         """
         From step k requires: nothing
         """
-        self.ppgf[k] = clip(self.ppgf_control(k), 0.01, 1)
+        self.ppgf_control_values[k] = clip(self.ppgf_control(k), 0.01, 1)
+        self.ppgf[k] = self.ppgf_control_values[k]
 
     @requires(["ppgr"], ["ppgio", "ppgao", "ppgf"])
     def _update_ppgr(self, k, kl):
@@ -464,7 +463,8 @@ class Pollution:
         """
         From step k requires: nothing
         """
-        self.pptd[k] = self.pptd_control(k)
+        self.pptd_control_values[k] = self.pptd_control(k)
+        self.pptd[k] = self.pptd_control_values[k]
 
     @requires(["ppapr"], ["ppgr"], check_after_init=False)
     def _update_ppapr(self, k, kl):

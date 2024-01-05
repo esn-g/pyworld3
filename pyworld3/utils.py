@@ -38,7 +38,7 @@ import inspect
 import matplotlib.pyplot as plt
 from matplotlib.ticker import EngFormatter
 from matplotlib.image import imread
-from numpy import isnan
+from numpy import isnan, full, nan
 
 verbose_debug = False
 
@@ -67,12 +67,12 @@ def _create_control_function(instance, argspec):
                         instance.time[k]
                     )
                 )
-
             else:
                 raise Exception(
                     f"Incorrect number of arguments in control function {control_name}. Got {number_arguments_control_function}, expected 1 or 3."
                 )
             setattr(instance, control_name, refactored_function)
+            setattr(instance, f"{control_name}_values", full((instance.n,), nan))
 
 
 def requires(outputs=None, inputs=None, check_at_init=True, check_after_init=True):
