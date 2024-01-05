@@ -64,6 +64,7 @@ One simulation requires a script with the following steps:
 from pyworld3 import World3
 
 world3 = World3()                    # choose the time limits and step.
+world3.set_world3_control()          # choose your controls
 world3.init_world3_constants()       # choose the model constants.
 world3.init_world3_variables()       # initialize all variables.
 world3.set_world3_table_functions()  # get tables from a json file.
@@ -79,6 +80,42 @@ want to modify:
 `./your_modified_tables.json` based on the initial json file
 `pyworld3/functions_table_world3.json` and calling
 `world3.set_world3_table_functions("./your_modified_tables.json")`.
+
+# How to control your simulation
+
+Controls are time functions defined with `*_control`.
+
+For open loop control, this is relatively easy and one can adapt the following code:
+``` Python
+from pyworld3 import World3
+
+icor_control = lambda t: min(3 * np.exp(-(t - 2023) / 50), 3) # This is the open loop control function
+
+world3 = World3(year_max=2100)
+world3.set_world3_control(icor_control=icor_control)
+world3.init_world3_constants()
+world3.init_world3_variables()
+world3.set_world3_table_functions()
+world3.set_world3_delay_functions()
+world3.run_world3(fast=False)
+```
+The variable `t` is the time in years (note that it does not start from `0` but depends on your simulation parameters).
+
+Close-loop control works similarly but one must define a control function with 3 arguments instead:
+``` Python
+from pyworld3 import World3
+
+icor_control = lambda t, world, k: world.fioac[k] # This is the feedback control function
+
+world3 = World3(year_max=2100)
+world3.set_world3_control(icor_control=icor_control)
+world3.init_world3_constants()
+world3.init_world3_variables()
+world3.set_world3_table_functions()
+world3.set_world3_delay_functions()
+world3.run_world3(fast=False)
+```
+In that case, `t` is the same argument as before, `world` refers to the instance of the object (it can be a sector as well) and `k` is the index to get the value of a variable at last step.
 
 # Licence
 

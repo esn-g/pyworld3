@@ -37,9 +37,10 @@ import json
 
 from scipy.interpolate import interp1d
 import numpy as np
+import inspect
 
 from .specials import Dlinf3, Smooth, clip, ramp
-from .utils import requires
+from .utils import requires, _create_control_function
 
 
 class Population:
@@ -234,7 +235,8 @@ class Population:
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        self.lmhs_control = lmhs_control
+        argspec = inspect.getargvalues(inspect.currentframe())
+        _create_control_function(self, argspec)
 
     def init_population_constants(
         self,
@@ -740,7 +742,7 @@ class Population:
         """
         self.lmhs1[k] = self.lmhs1_f(self.ehspc[k])
         self.lmhs2[k] = self.lmhs2_f(self.ehspc[k])
-        self.lmhs[k] = self.lmhs_control(self.time[k]) * clip(
+        self.lmhs[k] = self.lmhs_control(k) * clip(
             self.lmhs2[k], self.lmhs1[k], self.time[k], self.iphst
         )
 

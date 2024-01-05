@@ -37,9 +37,10 @@ import json
 
 from scipy.interpolate import interp1d
 import numpy as np
+import inspect
 
 from .specials import Smooth, clip
-from .utils import requires
+from .utils import requires, _create_control_function
 
 
 class Capital:
@@ -190,13 +191,8 @@ class Capital:
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        self.icor_control = icor_control
-        self.scor_control = scor_control
-        self.alic_control = alic_control
-        self.alsc_control = alsc_control
-        self.fioac_control = fioac_control
-        self.isopc_control = isopc_control
-        self.fioas_control = fioas_control
+        argspec = inspect.getargvalues(inspect.currentframe())
+        _create_control_function(self, argspec)
 
     def init_capital_constants(
         self, ici=2.1e11, sci=1.44e11, iet=4000, iopcd=400, lfpf=0.75, lufdt=2
@@ -539,7 +535,7 @@ class Capital:
         """
         From step k requires: nothing
         """
-        self.alic[k] = max(self.alic_control(self.time[k]), 0.01)
+        self.alic[k] = max(self.alic_control(k), 0.01)
 
     @requires(["icdr"], ["ic", "alic"])
     def _update_icdr(self, k, kl):
@@ -553,7 +549,7 @@ class Capital:
         """
         From step k requires: nothing
         """
-        self.icor[k] = max(self.icor_control(self.time[k]), 0.01)
+        self.icor[k] = max(self.icor_control(k), 0.01)
 
     @requires(["io"], ["ic", "fcaor", "cuf", "icor"])
     def _update_io(self, k):
@@ -575,7 +571,7 @@ class Capital:
         From step k requires: IOPC
         """
         self.fioacv[k] = self.fioacv_f(self.iopc[k] / self.iopcd)
-        self.fioacc[k] = clip(self.fioac_control(self.time[k]), 0, 1)
+        self.fioacc[k] = clip(self.fioac_control(k), 0, 1)
         self.fioac[k] = clip(self.fioacv[k], self.fioacc[k], self.time[k], self.iet)
 
     @requires(["sc"])
@@ -593,14 +589,14 @@ class Capital:
         """
         From step k requires: IOPC
         """
-        self.isopc[k] = self.isopc_control(self.time[k]) * self.isopc_f(self.iopc[k])
+        self.isopc[k] = self.isopc_control(k) * self.isopc_f(self.iopc[k])
 
     @requires(["alsc"])
     def _update_alsc(self, k):
         """
         From step k requires: nothing
         """
-        self.alsc[k] = max(self.alsc_control(self.time[k]), 0.01)
+        self.alsc[k] = max(self.alsc_control(k), 0.01)
 
     @requires(["scdr"], ["sc", "alsc"])
     def _update_scdr(self, k, kl):
@@ -614,7 +610,7 @@ class Capital:
         """
         From step k requires: nothing
         """
-        self.scor[k] = clip(self.scor_control(self.time[k]), 0.01, 1)
+        self.scor[k] = clip(self.scor_control(k), 0.01, 1)
 
     @requires(["so"], ["sc", "cuf", "scor"])
     def _update_so(self, k):
@@ -635,7 +631,7 @@ class Capital:
         """
         From step k requires: SOPC ISOPC
         """
-        self.fioas[k] = self.fioas_control(self.time[k]) * self.fioas_f(
+        self.fioas[k] = self.fioas_control(k) * self.fioas_f(
             self.sopc[k] / self.isopc[k]
         )
 

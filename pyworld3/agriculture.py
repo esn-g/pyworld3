@@ -37,9 +37,10 @@ import json
 
 from scipy.interpolate import interp1d
 import numpy as np
+import inspect
 
 from .specials import Smooth, clip
-from .utils import requires
+from .utils import requires, _create_control_function
 
 
 class Agriculture:
@@ -243,12 +244,8 @@ class Agriculture:
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        self.alai_control = alai_control
-        self.lyf_control = lyf_control
-        self.ifpc_control = ifpc_control
-        self.lymap_control = lymap_control
-        self.llmy_control = llmy_control
-        self.fioaa_control = fioaa_control
+        argspec = inspect.getargvalues(inspect.currentframe())
+        _create_control_function(self, argspec)
 
     def init_agriculture_constants(
         self,
@@ -650,7 +647,7 @@ class Agriculture:
         """
         From step k requires: IOPC
         """
-        self.ifpc[k] = self.ifpc_control(self.time[k]) * self.ifpc_f(self.iopc[k])
+        self.ifpc[k] = self.ifpc_control(k) * self.ifpc_f(self.iopc[k])
 
     @requires(["tai"], ["io", "fioaa"])
     def _update_tai(self, k):
@@ -664,9 +661,7 @@ class Agriculture:
         """
         From step k requires: FPC IFPC
         """
-        self.fioaa[k] = self.fioaa_control(self.time[k]) * self.fioaa_f(
-            self.fpc[k] / self.ifpc[k]
-        )
+        self.fioaa[k] = self.fioaa_control(k) * self.fioaa_f(self.fpc[k] / self.ifpc[k])
 
     @requires(["ldr"], ["tai", "fiald", "dcph"])
     def _update_ldr(self, k, kl):
@@ -702,7 +697,7 @@ class Agriculture:
         """
         From step k requires: nothing
         """
-        self.alai[k] = self.alai_control(self.time[k])
+        self.alai[k] = self.alai_control(k)
 
     @requires(["aiph"], ["ai", "falm", "al"])
     def _update_aiph(self, k):
@@ -730,16 +725,14 @@ class Agriculture:
         """
         From step k requires: nothing
         """
-        self.lyf[k] = max(self.lyf_control(self.time[k]), 0.01)
+        self.lyf[k] = max(self.lyf_control(k), 0.01)
 
     @requires(["lymap"], ["io"])
     def _update_lymap(self, k):
         """
         From step k requires: IO
         """
-        self.lymap[k] = self.lymap_control(self.time[k]) * self.lymap_f(
-            self.io[k] / self.io70
-        )
+        self.lymap[k] = self.lymap_control(k) * self.lymap_f(self.io[k] / self.io70)
 
     @requires(["fiald"], ["mpld", "mpai"])
     def _update_fiald(self, k):
@@ -781,9 +774,7 @@ class Agriculture:
         """
         From step k requires: LY
         """
-        self.llmy[k] = self.llmy_control(self.time[k]) * self.llmy_f(
-            self.ly[k] / self.ilf
-        )
+        self.llmy[k] = self.llmy_control(k) * self.llmy_f(self.ly[k] / self.ilf)
 
     @requires(["ler"], ["al", "all"])
     def _update_ler(self, k, kl):

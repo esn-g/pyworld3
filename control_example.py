@@ -9,15 +9,19 @@ from pyworld3.utils import plot_world_variables
 params = {"lines.linewidth": "3"}
 plt.rcParams.update(params)
 
-icor_control = lambda t: min(3 * np.exp(-(t - 2023) / 50), 3)
+
+def fcaor_control(t, world, k):
+    return world.fioac[k]
+
 
 world3 = World3(year_max=2100)
-world3.set_world3_control(icor_control=icor_control)
+world3.set_world3_control(fcaor_control=fcaor_control)
 world3.init_world3_constants()
 world3.init_world3_variables()
 world3.set_world3_table_functions()
 world3.set_world3_delay_functions()
 world3.run_world3(fast=False)
+
 
 plot_world_variables(
     world3.time,
@@ -26,9 +30,9 @@ plot_world_variables(
     [[0, 1], [0, 1e3], [0, 1e3], [0, 16e9], [0, 32]],
     img_background="./img/fig7-7.png",
     figsize=(7, 5),
-    title="World3 standard run",
+    title="World3 control run - General",
 )
-plt.savefig("fig_world3_standard_a.pdf")
+plt.savefig("fig_world3_control_general.pdf")
 
 plot_world_variables(
     world3.time,
@@ -37,9 +41,9 @@ plot_world_variables(
     [[0, 1], [0, 4e12], [0, 4e12], [0, 2e2], [0, 0.201]],
     img_background="./img/fig7-8.png",
     figsize=(7, 5),
-    title="World3 standard run - Capital sector",
+    title="World3 control run - Capital sector",
 )
-plt.savefig("fig_world3_standard_b.pdf")
+plt.savefig("fig_world3_control_capital.pdf")
 
 plot_world_variables(
     world3.time,
@@ -48,15 +52,6 @@ plot_world_variables(
     [[0, 4e3], [0, 4e9], [0, 8e2], [0, 1.6], [0, 16e9]],
     img_background="./img/fig7-9.png",
     figsize=(7, 5),
-    title="World3 standard run - Agriculture sector",
+    title="World3 control run - Agriculture sector",
 )
-
-plot_world_variables(
-    world3.time,
-    [world3.icor],
-    ["icor"],
-    [None],
-    figsize=(7, 5),
-    title="World3 standard run - Population sector",
-)
-plt.savefig("fig_world3_standard_d.pdf")
+plt.savefig("fig_world3_control_agriculture.pdf")

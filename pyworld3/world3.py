@@ -109,19 +109,40 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         alic_control=lambda _: 14,
         alsc_control=lambda _: 20,
         fioac_control=lambda _: 0.43,
+        isopc_control=lambda _: 1.0,
+        fioas_control=lambda _: 1.0,
         alai_control=lambda _: 2,
         lyf_control=lambda _: 1,
+        ifpc_control=lambda _: 1,
+        lymap_control=lambda _: 1,
+        llmy_control=lambda _: 1,
+        fioaa_control=lambda _: 1,
         ppgf_control=lambda _: 1,
         pptd_control=lambda _: 20,
+        lmhs_control=lambda _: 1,
         nruf_control=lambda _: 1,
+        fcaor_control=lambda _: 1,
     ):
         self.set_capital_control(
-            icor_control, scor_control, alic_control, alsc_control, fioac_control
+            icor_control,
+            scor_control,
+            alic_control,
+            alsc_control,
+            fioac_control,
+            isopc_control,
+            fioas_control,
         )
-        self.set_agriculture_control(alai_control, lyf_control)
+        self.set_agriculture_control(
+            alai_control,
+            lyf_control,
+            ifpc_control,
+            lymap_control,
+            llmy_control,
+            fioaa_control,
+        )
         self.set_pollution_control(ppgf_control, pptd_control)
-        self.set_population_control()
-        self.set_resource_control(nruf_control)
+        self.set_population_control(lmhs_control)
+        self.set_resource_control(nruf_control, fcaor_control)
 
     def init_world3_constants(
         self,
@@ -168,10 +189,7 @@ class World3(Population, Capital, Agriculture, Pollution, Resource):
         imef=0.1,
         fipm=0.001,
         frpm=0.02,
-        ppgf21=1,
         nri=1e12,
-        nruf1=1,
-        nruf2=1,
     ):
         """
         Initialize the constant parameters of the 5 sectors. Constants and

@@ -37,9 +37,10 @@ import json
 
 from scipy.interpolate import interp1d
 import numpy as np
+import inspect
 
 from .specials import Dlinf3, clip, Delay3
-from .utils import requires
+from .utils import requires, _create_control_function
 
 
 class Pollution:
@@ -144,8 +145,8 @@ class Pollution:
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        self.ppgf_control = ppgf_control
-        self.pptd_control = pptd_control
+        argspec = inspect.getargvalues(inspect.currentframe())
+        _create_control_function(self, argspec)
 
     def init_pollution_constants(
         self,
@@ -449,7 +450,7 @@ class Pollution:
         """
         From step k requires: nothing
         """
-        self.ppgf[k] = clip(self.ppgf_control(self.time[k]), 0.01, 1)
+        self.ppgf[k] = clip(self.ppgf_control(k), 0.01, 1)
 
     @requires(["ppgr"], ["ppgio", "ppgao", "ppgf"])
     def _update_ppgr(self, k, kl):
@@ -463,7 +464,7 @@ class Pollution:
         """
         From step k requires: nothing
         """
-        self.pptd[k] = self.pptd_control(self.time[k])
+        self.pptd[k] = self.pptd_control(k)
 
     @requires(["ppapr"], ["ppgr"], check_after_init=False)
     def _update_ppapr(self, k, kl):

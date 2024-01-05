@@ -38,8 +38,10 @@ import json
 from scipy.interpolate import interp1d
 import numpy as np
 
+import inspect
+
 from .specials import clip
-from .utils import requires
+from .utils import requires, _create_control_function
 
 
 class Resource:
@@ -110,8 +112,8 @@ class Resource:
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        self.nruf_control = nruf_control
-        self.fcaor_control = fcaor_control
+        argspec = inspect.getargvalues(inspect.currentframe())
+        _create_control_function(self, argspec)
 
     def init_resource_constants(self, nri=1e12):
         """
@@ -319,14 +321,14 @@ class Resource:
         """
         From step k requires: NRFR
         """
-        self.fcaor[k] = self.fcaor_control(self.time[k]) * self.fcaor_f(self.nrfr[k])
+        self.fcaor[k] = self.fcaor_control(k) * self.fcaor_f(self.nrfr[k])
 
     @requires(["nruf"])
     def _update_nruf(self, k):
         """
         From step k requires: nothing
         """
-        self.nruf[k] = self.nruf_control(self.time[k])
+        self.nruf[k] = self.nruf_control(k)
 
     @requires(["pcrum"], ["iopc"])
     def _update_pcrum(self, k):

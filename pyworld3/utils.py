@@ -34,12 +34,45 @@
 
 from functools import wraps
 
+import inspect
 import matplotlib.pyplot as plt
 from matplotlib.ticker import EngFormatter
 from matplotlib.image import imread
 from numpy import isnan
 
 verbose_debug = False
+
+
+def _create_control_function(instance, argspec):
+    for control_name in argspec.args:
+        if control_name == "self":
+            continue
+        else:
+            control_function = argspec.locals[control_name]
+            number_arguments_control_function = len(
+                inspect.signature(control_function).parameters
+            )
+            if number_arguments_control_function == 3:
+                # Feedback control
+                refactored_function = (
+                    lambda k, control_function=control_function: 0
+                    if k == 0
+                    else control_function(instance.time[k], instance, k - 1)
+                )
+
+            elif number_arguments_control_function == 1:
+                # Open loop control
+                refactored_function = (
+                    lambda k, control_function=control_function: control_function(
+                        instance.time[k]
+                    )
+                )
+
+            else:
+                raise Exception(
+                    f"Incorrect number of arguments in control function {control_name}. Got {number_arguments_control_function}, expected 1 or 3."
+                )
+            setattr(instance, control_name, refactored_function)
 
 
 def requires(outputs=None, inputs=None, check_at_init=True, check_after_init=True):

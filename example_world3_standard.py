@@ -17,11 +17,6 @@ world3.set_world3_table_functions()
 world3.set_world3_delay_functions()
 world3.run_world3(fast=False)
 
-fig = plt.figure()
-x = np.linspace(0, 100, 200)
-plt.plot(x, world3.lmhs1_f(x))
-plt.plot(x, world3.lmhs2_f(x))
-
 plot_world_variables(
     world3.time,
     [world3.nrfr, world3.iopc, world3.fpc, world3.pop, world3.ppolx],
@@ -29,9 +24,9 @@ plot_world_variables(
     [[0, 1], [0, 1e3], [0, 1e3], [0, 16e9], [0, 32]],
     img_background="./img/fig7-7.png",
     figsize=(7, 5),
-    title="World3 standard run",
+    title="World3 standard run - General",
 )
-plt.savefig("fig_world3_standard_a.pdf")
+plt.savefig("fig_world3_standard_general.pdf")
 
 plot_world_variables(
     world3.time,
@@ -42,7 +37,7 @@ plot_world_variables(
     figsize=(7, 5),
     title="World3 standard run - Capital sector",
 )
-plt.savefig("fig_world3_standard_b.pdf")
+plt.savefig("fig_world3_standard_capital.pdf")
 
 plot_world_variables(
     world3.time,
@@ -53,4 +48,4 @@ plot_world_variables(
     figsize=(7, 5),
     title="World3 standard run - Agriculture sector",
 )
-plt.savefig("fig_world3_standard_c.pdf")
+plt.savefig("fig_world3_standard_agriculture.pdf")
