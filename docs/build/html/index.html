@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Welcome to PyWorld3’s documentation! &#8212; PyWorld3 1.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script src="_static/documentation_options.js?v=61243dd2"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="welcome-to-pyworld3-s-documentation">
+<h1>Welcome to PyWorld3’s documentation!<a class="headerlink" href="#welcome-to-pyworld3-s-documentation" title="Link to this heading">¶</a></h1>
+<p>PyWorld3 is a Python implementation of the World3 model, as described in
+the book <em>Dynamics of Growth in a Finite World</em>. This version slightly differs
+from the previous one used in the world-known reference <em>the Limits to Growth</em>,
+because of different numerical parameters and a slightly different model
+structure.</p>
+<p>The World3 model is based on an Ordinary Differential Equation solved by a
+Backward Euler method. Although it is described with 12 state variables, taking
+internal delay functions into account raises the problem to the 29th order. For
+the sake of clarity and model calibration purposes, the model is structured
+into 5 main sectors: Population, Capital, Agriculture, Persistent Pollution
+and Nonrenewable Resource. For a better understanding of variables and their
+relations, one can refer to <a class="reference external" href="https://abaucher.gitlabpages.inria.fr/pydynamo/w3_sectors.html">this</a>.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/pyworld3.html">pyworld3</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/pyworld3.agriculture.html">pyworld3.agriculture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pyworld3.capital.html">pyworld3.capital</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pyworld3.pollution.html">pyworld3.pollution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pyworld3.population.html">pyworld3.population</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pyworld3.resource.html">pyworld3.resource</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pyworld3.specials.html">pyworld3.specials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pyworld3.test_sectors.html">pyworld3.test_sectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pyworld3.utils.html">pyworld3.utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/pyworld3.world3.html">pyworld3.world3</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">PyWorld3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="installation.html" title="next chapter">Installation</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, Charles Vanwynsberghe, Matthieu Barreau.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

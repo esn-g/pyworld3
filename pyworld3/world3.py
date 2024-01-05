@@ -43,9 +43,9 @@ from .resource import Resource
 
 class World3(Population, Capital, Agriculture, Pollution, Resource):
     """
-    The World3 model as it is described in the technical book [1]_. World3 is
+    The World3 model as it is described in the technical book [1]. World3 is
     structured in 5 main sectors and contains 12 state variables. The figures
-    in the first prints of the Limits to Growth [2]_ result from an older
+    in the first prints of the Limits to Growth [2] result from an older
     version of the model, with slighly different numerical parameters and
     some missing dynamical phenomena.
 

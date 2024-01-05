@@ -23,11 +23,12 @@ Backward Euler method. Although it is described with 12 state variables, taking
 internal delay functions into account raises the problem to the 29th order. For
 the sake of clarity and model calibration purposes, the model is structured
 into 5 main sectors: Population, Capital, Agriculture, Persistent Pollution
-and Nonrenewable Resource.
+and Nonrenewable Resource. For a better understanding of variables and their
+relations, one can refer to [this](https://abaucher.gitlabpages.inria.fr/pydynamo/w3_sectors.html).
 
 # Install and Hello World3
 
-Install pyworld3 either via:
+Install pyworld3 using `pip`:
 ```
 pip install git+https://github.com/mBarreau/pyworld3
 ```

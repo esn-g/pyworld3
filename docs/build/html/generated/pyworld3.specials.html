@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pyworld3.specials &#8212; PyWorld3 1.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=039e1c02" />
+    <script src="../_static/documentation_options.js?v=61243dd2"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyworld3.test_sectors" href="pyworld3.test_sectors.html" />
+    <link rel="prev" title="pyworld3.resource" href="pyworld3.resource.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-pyworld3.specials">
+<span id="pyworld3-specials"></span><h1>pyworld3.specials<a class="headerlink" href="#module-pyworld3.specials" title="Link to this heading">¶</a></h1>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clip</span></code>(func2, func1, t[, t_switch])</p></td>
+<td><p>Logical function used as time switch to change parameter value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">func_delay1</span></code>(out_, t_, in_, del_)</p></td>
+<td><p>Computes the derivative of <a href="#id1"><span class="problematic" id="id2">out_</span></a> at time <a href="#id3"><span class="problematic" id="id4">t_</span></a>, for the 1st order delay.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">func_delay3</span></code>(out_, t_, in_, del_)</p></td>
+<td><p>Computes the derivative of <a href="#id5"><span class="problematic" id="id6">out_</span></a> at time <a href="#id7"><span class="problematic" id="id8">t_</span></a>, for the 3rd order delay.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ramp</span></code>(slope, t_offset, t)</p></td>
+<td><p>Affine function with provided slope, clipped at 0 for t &lt; t_offset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">switch</span></code>(var1, var2, boolean_switch)</p></td>
+<td><p>Logical function returning var1 if boolean_switch is False, else var2.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Delay3</span></code>(in_arr, dt, t[, method])</p></td>
+<td><p>Delay function of the 3rd order.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">DlInf1</span></code></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Smooth</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Dlinf3</span></code>(in_arr, dt, t[, method])</p></td>
+<td><p>Delay information function of the 3rd order for smoothing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">Smooth</span></code>(in_arr, dt, t[, method])</p></td>
+<td><p>Delay information function of the 1st order for smoothing.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">PyWorld3</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="pyworld3.html">pyworld3</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="pyworld3.agriculture.html">pyworld3.agriculture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyworld3.capital.html">pyworld3.capital</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyworld3.pollution.html">pyworld3.pollution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyworld3.population.html">pyworld3.population</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyworld3.resource.html">pyworld3.resource</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">pyworld3.specials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyworld3.test_sectors.html">pyworld3.test_sectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyworld3.utils.html">pyworld3.utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyworld3.world3.html">pyworld3.world3</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../API.html">API</a><ul>
+  <li><a href="pyworld3.html">pyworld3</a><ul>
+      <li>Previous: <a href="pyworld3.resource.html" title="previous chapter">pyworld3.resource</a></li>
+      <li>Next: <a href="pyworld3.test_sectors.html" title="next chapter">pyworld3.test_sectors</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, Charles Vanwynsberghe, Matthieu Barreau.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/generated/pyworld3.specials.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
