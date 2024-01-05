@@ -29,14 +29,7 @@ and Nonrenewable Resource.
 
 Install pyworld3 either via:
 ```
-pip install pyworld3
-```
-
-or by cloning the repository, installing the requirements ``numpy``, ``scipy``
-and ``matplotlib`` and do:
-
-```
-python setup.py install
+pip install git+https://github.com/mBarreau/pyworld3
 ```
 
 Run the provided example to simulate the standard run, known as the *Business

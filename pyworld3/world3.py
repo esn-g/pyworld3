@@ -506,6 +506,7 @@ def hello_world3():
     rcParams.update(params)
 
     world3 = World3()
+    world3.set_world3_control()
     world3.init_world3_constants()
     world3.init_world3_variables()
     world3.set_world3_table_functions()
