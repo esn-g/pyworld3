@@ -80,15 +80,15 @@ class Resource:
         nonrenewable resources initial [resource units]. The default is 1e12.
     nr : numpy.ndarray
         nonrenewable resources [resource units]. It is a state variable.
-    nrfr : numpy.ndarray
+    nrfr : numpy.ndarray                                                        # nrfr output
         nonrenewable resource fraction remaining [].
     nruf : numpy.ndarray
         nonrenewable resource usage factor [].
     nrur : numpy.ndarray
-        nonrenewable resource usage rate [resource units/year].
-    pcrum : numpy.ndarray
+        nonrenewable resource usage rate [resource units/year].                 
+    pcrum : numpy.ndarray                                                       # pcrum  y values from JSON-file
         per capita resource usage multiplier [resource units/person-year].
-    fcaor : numpy.ndarray
+    fcaor : numpy.ndarray                                                       # fcaor, y values from JSON-filen      
         fraction of capital allocated to obtaining resources [].
 
     **Control signals**
@@ -176,7 +176,7 @@ class Resource:
         for func_name in func_names:
             for table in tables:
                 if table["y.name"] == func_name:
-                    func = interp1d(
+                    func = interp1d(                                                # interpolerar värdena i JSON-filen
                         table["x.values"],
                         table["y.values"],
                         bounds_error=False,

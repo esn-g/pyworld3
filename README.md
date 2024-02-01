@@ -18,7 +18,7 @@ from the previous one used in the world-known reference *the Limits to Growth*,
 because of different numerical parameters and a slightly different model
 structure.
 
-The World3 model is based on an Ordinary Differential Equation solved by a
+The World3 model is based on an Ordinary Differential Equation solved by a            # ODE istället 
 Backward Euler method. Although it is described with 12 state variables, taking
 internal delay functions into account raises the problem to the 29th order. For
 the sake of clarity and model calibration purposes, the model is structured
