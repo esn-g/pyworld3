@@ -113,6 +113,8 @@ class Resource:
         Define the control commands. Their units are documented above at the class level.
         """
         argspec = inspect.getargvalues(inspect.currentframe())
+        print("\n\nI fil resource.py, i funktion set_resource_control, argspec:\n", argspec,"\n\n")
+
         _create_control_function(self, argspec)
 
     def init_resource_constants(self, nri=1e12):
