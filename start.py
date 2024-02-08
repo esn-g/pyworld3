@@ -8,4 +8,4 @@ world3.set_world3_table_functions()  # get tables from a json file.
 world3.set_world3_delay_functions()  # initialize delay functions.
 world3.run_world3()
 
- 
+# plottar ej
