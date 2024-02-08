@@ -43,16 +43,25 @@ from numpy import isnan, full, nan
 verbose_debug = False
 
 
-def _create_control_function(instance, argspec):
-    for control_name in argspec.args:
-        if control_name == "self":
+def _create_control_function(instance, argspec):    
+    '''
+    called from resource.py's set_resource_control() for example. There it takes in self as instance, 
+    it takes in an arginfo-object as argspec on the form: 
+    ArgInfo(args=['self', 'nruf_control', 'fcaor_control'],
+    varargs=None, keywords=None, 
+    locals={'self': <pyworld3.resource.Resource object at 0x1241b11d0>, 'nruf_control': <function Resource.<lambda> at 0x124334860>, 'fcaor_control': <function Resource.<lambda> at 0x124334900>}) 
+    '''
+
+
+    for control_name in argspec.args:   #Goes through argspec's arguments
+        if control_name == "self":      #Generally this is the first argument 
             continue
         else:
             control_function = argspec.locals[control_name]
             number_arguments_control_function = len(
                 inspect.signature(control_function).parameters
             )
-            if number_arguments_control_function == 3:
+            if number_arguments_control_function == 3:    #If our control function contains 3 variables - feedback control
                 # Feedback control
                 refactored_function = (
                     lambda k, control_function=control_function: 0
@@ -60,7 +69,7 @@ def _create_control_function(instance, argspec):
                     else control_function(instance.time[k], instance, k - 1)
                 )
 
-            elif number_arguments_control_function == 1:
+            elif number_arguments_control_function == 1:  #If our control function contains only 1 variable - open loop
                 # Open loop control
                 refactored_function = (
                     lambda k, control_function=control_function: control_function(
