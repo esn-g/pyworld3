@@ -98,7 +98,11 @@ Close-loop control works similarly but one must define a control function with 3
 ``` Python
 from pyworld3 import World3
 
-icor_control = lambda t, world, k: world.fioac[k] # This is the feedback control function
+def icor_control(t, world, k): # This is the feedback control function
+    if t <= 2023:
+        return world.icor[k] # Default value before year 2023
+    else:
+        return world.fioac[k] # We start the new policy from year 2024
 
 world3 = World3(year_max=2100)
 world3.set_world3_control(icor_control=icor_control)

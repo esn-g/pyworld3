@@ -177,21 +177,20 @@ class Capital:
         self.time = np.arange(self.year_min, self.year_max, self.dt)
         self.verbose = verbose
 
-    def set_capital_control(
-        self,
-        icor_control=lambda _: 3,
-        scor_control=lambda _: 1,
-        alic_control=lambda _: 14,
-        alsc_control=lambda _: 20,
-        fioac_control=lambda _: 0.43,
-        isopc_control=lambda _: 1.0,
-        fioas_control=lambda _: 1.0,
-    ):
+    def set_capital_control(self, **control_functions):
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        argspec = inspect.getargvalues(inspect.currentframe())
-        _create_control_function(self, argspec)
+        default_control_functions = {
+            "icor_control": lambda _: 3,
+            "scor_control": lambda _: 1,
+            "alic_control": lambda _: 14,
+            "alsc_control": lambda _: 20,
+            "fioac_control": lambda _: 0.43,
+            "isopc_control": lambda _: 1.0,
+            "fioas_control": lambda _: 1.0,
+        }
+        _create_control_function(self, default_control_functions, control_functions)
 
     def init_capital_constants(
         self, ici=2.1e11, sci=1.44e11, iet=4000, iopcd=400, lfpf=0.75, lufdt=2

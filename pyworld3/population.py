@@ -232,12 +232,12 @@ class Population:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
-    def set_population_control(self, lmhs_control=lambda _: 1):
+    def set_population_control(self, **control_functions):
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        argspec = inspect.getargvalues(inspect.currentframe())
-        _create_control_function(self, argspec)
+        default_control_functions = {"lmhs_control": lambda _: 1}
+        _create_control_function(self, default_control_functions, control_functions)
 
     def init_population_constants(
         self,

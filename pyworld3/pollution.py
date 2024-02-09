@@ -136,16 +136,15 @@ class Pollution:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
-    def set_pollution_control(
-        self,
-        ppgf_control=lambda _: 1,
-        pptd_control=lambda _: 20,
-    ):
+    def set_pollution_control(self, **control_functions):
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        argspec = inspect.getargvalues(inspect.currentframe())
-        _create_control_function(self, argspec)
+        default_control_functions = {
+            "ppgf_control": lambda _: 1,
+            "pptd_control": lambda _: 20,
+        }
+        _create_control_function(self, default_control_functions, control_functions)
 
     def init_pollution_constants(
         self,

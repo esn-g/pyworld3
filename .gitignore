@@ -7,3 +7,4 @@ dist/
 
 # pdf files
 *.pdf
+.vscode/launch.json

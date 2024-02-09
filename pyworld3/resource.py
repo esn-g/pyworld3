@@ -56,7 +56,7 @@ class Resource:
     from the following example:
 
     >>> rsc = Resource()
-     >>> rsc.set_control_functions()
+    >>> rsc.set_control_functions()
     >>> rsc.set_resource_table_functions()
     >>> rsc.init_resource_variables()
     >>> rsc.init_resource_constants()
@@ -109,12 +109,15 @@ class Resource:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
-    def set_resource_control(self, nruf_control=lambda _: 1, fcaor_control=lambda _: 1):
+    def set_resource_control(self, **control_functions):
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        argspec = inspect.getargvalues(inspect.currentframe())
-        _create_control_function(self, argspec)
+        default_control_functions = {
+            "nruf_control": lambda _: 1,
+            "fcaor_control": lambda _: 1,
+        }
+        _create_control_function(self, default_control_functions, control_functions)
 
     def init_resource_constants(self, nri=1e12):
         """

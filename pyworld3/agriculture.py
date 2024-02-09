@@ -233,20 +233,19 @@ class Agriculture:
         self.n = int(self.length / self.dt)
         self.time = np.arange(self.year_min, self.year_max, self.dt)
 
-    def set_agriculture_control(
-        self,
-        alai_control=lambda _: 2,
-        lyf_control=lambda _: 1,
-        ifpc_control=lambda _: 1,
-        lymap_control=lambda _: 1,
-        llmy_control=lambda _: 1,
-        fioaa_control=lambda _: 1,
-    ):
+    def set_agriculture_control(self, **control_functions):
         """
         Define the control commands. Their units are documented above at the class level.
         """
-        argspec = inspect.getargvalues(inspect.currentframe())
-        _create_control_function(self, argspec)
+        default_control_functions = {
+            "alai_control": lambda _: 2,
+            "lyf_control": lambda _: 1,
+            "ifpc_control": lambda _: 1,
+            "lymap_control": lambda _: 1,
+            "llmy_control": lambda _: 1,
+            "fioaa_control": lambda _: 1,
+        }
+        _create_control_function(self, default_control_functions, control_functions)
 
     def init_agriculture_constants(
         self,
