@@ -55,6 +55,7 @@ class Agriculture:
     example:
 
     >>> agr = Agriculture()
+    >>> agr.set_control_functions()
     >>> agr.set_agriculture_table_functions()
     >>> agr.init_agriculture_variables()
     >>> agr.init_agriculture_constants()

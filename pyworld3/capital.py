@@ -56,6 +56,7 @@ class Capital:
 
     >>> cap = Capital()
     >>> cap.set_capital_table_functions()
+    >>> cap.set_control_functions()
     >>> cap.init_capital_variables()
     >>> cap.init_capital_constants()
     >>> cap.set_capital_delay_functions()

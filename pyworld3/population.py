@@ -56,6 +56,7 @@ class Population:
 
     >>> pop = Population()
     >>> pop.set_population_table_functions()
+    >>> pop.set_control_functions()
     >>> pop.init_population_constants()
     >>> pop.init_population_variables()
     >>> pop.init_exogenous_inputs()

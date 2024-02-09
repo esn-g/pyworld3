@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from pyworld3 import World3
 from pyworld3.utils import plot_world_variables

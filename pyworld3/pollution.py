@@ -56,6 +56,7 @@ class Pollution:
 
     >>> pol = Pollution()
     >>> pol.set_pollution_table_functions()
+    >>> pol.set_control_functions()
     >>> pol.init_pollution_variables()
     >>> pol.init_pollution_constants()
     >>> pol.set_pollution_delay_functions()

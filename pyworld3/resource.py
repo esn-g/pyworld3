@@ -56,6 +56,7 @@ class Resource:
     from the following example:
 
     >>> rsc = Resource()
+     >>> rsc.set_control_functions()
     >>> rsc.set_resource_table_functions()
     >>> rsc.init_resource_variables()
     >>> rsc.init_resource_constants()
