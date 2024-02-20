@@ -34,7 +34,9 @@ world3.p4
 # resource states
 #print(world3.nr)
 
-statelist = [world3.al,
+
+dim2=world3.pal.shape
+state_array = np.array([world3.al,
     world3.pal,
     world3.uil,
     world3.lfert,
@@ -45,20 +47,35 @@ statelist = [world3.al,
     world3.p2,
     world3.p3,
     world3.p4,
-    world3.nr]
-dim2=world3.pal.shape
-state_array = np.array(statelist)
+    world3.nr])
 dim=state_array.shape
-print(dim)
-print(dim2)
+# print(dim)
+# print(dim2)
 
 
-for i in statelist:
+theta_list = []
+residuals = []
+for i in state_array:
     
-    print(i)
-    print(i.shape)
-    i = i[:,np.newaxis]
-    print(i)
-    print(i.shape)
-    x = np.linalg.lstsq(state_array,i)
-    print(x)
+    # print(i)
+    # print(i.shape)
+    i = i[:,np.newaxis] # från alejandro
+    # print(i)
+    # print(i.shape)
+    x, residual, _ , _ = np.linalg.lstsq(state_array.T , i , rcond=None)
+    # print(x.shape)
+    x = x.reshape(-1)
+    # print(x.shape)
+
+    theta_list.append(x)
+    residuals.append(residual)
+    # residuals = np.concatenate(residuals, residual, axis=0 )
+
+theta_array = np.array(theta_list)
+# theta_array = theta_array.reshape(-2)
+residuals = np.array(residuals)
+print(theta_array.shape)
+print(theta_array)
+# print(residuals)
+# print(residuals)
+
