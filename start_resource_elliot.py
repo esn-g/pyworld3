@@ -219,6 +219,12 @@ nruf_control
 fcaor_control
 
 
+Plotting json fraction relations example pcrum of iopc:
+iopc= linspace(0,1600)
+plt.plot(iopc, rsc.pcrum_f(iopc))
+pl.show()
+
+
 '''
 
 '''Fcaor nrfr find relation and why'''
