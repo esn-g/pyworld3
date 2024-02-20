@@ -29,18 +29,18 @@ state_variables=np.array([world3.al,
     world3.p4,
     world3.nr])
 
-var_str_list=["world3.al",
-    "world3.pal",
-    "world3.uil",
-    "world3.lfert",
-    "world3.ic",
-    "world3.sc",
-    "world3.ppol",
-    "world3.p1",
-    "world3.p2",
-    "world3.p3",
-    "world3.p4",
-    "world3.nr"]
+var_str_list=["al",
+    "pal",
+    "uil",
+    "lfert",
+    "ic",
+    "sc",
+    "ppol",
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "nr"]
 
 
 state_array=state_variables
@@ -51,12 +51,12 @@ state_array_prev=state_variables[:, : (world3.n-1)]
 
 
 def calculate_theta_row(var_index=0, var_array=np.array([]) ):
-    var_array_k=var_array[ 1: ]
-    var_array_prev=var_array[ : (world3.n-1)]
-    print(var_str_list[var_index])
+    var_array_k=var_array[ 1: ,np.newaxis]
+    var_array_prev=var_array[ : (world3.n-1) ]
+    print(f"\n_____{var_str_list[var_index]}:_____\n")
     print(state_array_k.shape)
-    print(var_array_prev.shape)
-    theta = np.linalg.lstsq(state_array_k,var_array_prev)
+    print(var_array_prev[:,np.newaxis].shape)
+    theta = np.linalg.lstsq(state_array_prev.T,var_array_k)
     print(theta)
 
 def construct_A_matrix( array_of_states=np.array([]) ):
