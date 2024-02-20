@@ -126,9 +126,9 @@ class Agriculture:
     **Loop 1 - food from investment in land development**
 
     al : numpy.ndarray
-        arable land [hectares].
+        arable land [hectares]. #state?
     pal : numpy.ndarray
-        potentially arable land [hectares].
+        potentially arable land [hectares]. #state?
     dcph : numpy.ndarray
         development cost per hectare [dollars/hectare].
     f : numpy.ndarray
@@ -180,8 +180,8 @@ class Agriculture:
 
     **Loop 3 -land erosion and urban-industrial use**
 
-    uil : numpy.ndarray
-        urban-industrial land [hectares].
+    uil : numpy.ndarray                     #state?
+        urban-industrial land [hectares]. 
     all : numpy.ndarray
         average life of land [years].
     llmy : numpy.ndarray
@@ -197,7 +197,7 @@ class Agriculture:
 
     **Loop 4 - land fertility degradation**
 
-    lfert : numpy.ndarray
+    lfert : numpy.ndarray                                               #state???
         land fertility [vegetable-equivalent kilograms/hectare-year].
     lfd : numpy.ndarray
         land fertility degradation
