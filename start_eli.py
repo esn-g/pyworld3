@@ -1,3 +1,4 @@
+from re import A
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -16,27 +17,57 @@ world3.run_world3(fast=False)
 #np.shape(world3.nrfr)
 
 state_variables=np.array([world3.al,
-world3.pal,
-world3.uil,
-world3.lfert,
-world3.ic,
-world3.sc,
-world3.ppol,
-world3.p1,
-world3.p2,
-world3.p3,
-world3.p4,
-world3.nr])
+    world3.pal,
+    world3.uil,
+    world3.lfert,
+    world3.ic,
+    world3.sc,
+    world3.ppol,
+    world3.p1,
+    world3.p2,
+    world3.p3,
+    world3.p4,
+    world3.nr])
 
-state_array_k=state_variables[:, : (world3.n-1)]
+var_str_list=["world3.al",
+    "world3.pal",
+    "world3.uil",
+    "world3.lfert",
+    "world3.ic",
+    "world3.sc",
+    "world3.ppol",
+    "world3.p1",
+    "world3.p2",
+    "world3.p3",
+    "world3.p4",
+    "world3.nr"]
 
-state_array_prev=state_variables[:, 1: ]
+
+state_array=state_variables
+
+state_array_k=state_variables[:, 1: ]
+
+state_array_prev=state_variables[:, : (world3.n-1)]
 
 
+def calculate_theta_row(var_index=0, var_array=np.array([]) ):
+    var_array_k=var_array[ 1: ]
+    var_array_prev=var_array[ : (world3.n-1)]
+    print(var_str_list[var_index])
+    print(state_array_k.shape)
+    print(var_array_prev.shape)
+    theta = np.linalg.lstsq(state_array_k,var_array_prev)
+    print(theta)
 
-print(state_array_prev[0,0:2])
+def construct_A_matrix( array_of_states=np.array([]) ):
+    
+    for var_index, var_array in enumerate(array_of_states):
+        calculate_theta_row(var_index, var_array )
 
-print(state_array_k[0,0:2])
+
+construct_A_matrix(state_array)
+
+    
 
 
 #for i in state_variables:
