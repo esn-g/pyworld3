@@ -51,16 +51,16 @@ state_array_prev=state_variables[:, : (world3.n-1)]
 
 
 def calculate_theta_row(var_index=0, var_array=np.array([]) ):
-    var_array_k=var_array[ 1: ,np.newaxis].T
+    var_array_k=var_array[ 1: ,np.newaxis]
     var_array_prev=var_array[ : (world3.n-1) ]
     print(f"\n_____{var_str_list[var_index]}:_____\n")
     print(state_array_prev.shape)
     print(var_array_k.shape)
-    print(var_array_k)
-    theta = np.linalg.lstsq(state_array_prev, var_array_k, rcond=None)
+    # print(var_array_k)
+    theta = np.linalg.lstsq(state_array_prev.T, var_array_k, rcond=None)
     print(theta)
-    theta=theta.reshape(-1)
-    print(theta.shape)
+    # theta=theta.reshape(-1)
+    # print(theta.shape)
 
 def construct_A_matrix( array_of_states=np.array([]) ):
     
