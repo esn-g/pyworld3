@@ -60,8 +60,8 @@ for i in state_array:
     # print(i)
     # print(i.shape)
     i = i[:,np.newaxis] # från alejandro
-    # print(i)
-    # print(i.shape)
+    print(i.shape)
+    print(state_array.shape)
     x, residual, _ , _ = np.linalg.lstsq(state_array.T , i , rcond=None)
     # print(x.shape)
     x = x.reshape(-1)
@@ -76,6 +76,7 @@ theta_array = np.array(theta_list)
 residuals = np.array(residuals)
 print(theta_array.shape)
 print(theta_array)
+# theta_
 # print(residuals)
 # print(residuals)
 
