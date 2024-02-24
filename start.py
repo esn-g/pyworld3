@@ -32,11 +32,10 @@ world3.p2
 world3.p3
 world3.p4
 # resource states
-#print(world3.nr)
+world3.nr
 
-
-dim2=world3.pal.shape
-state_array = np.array([world3.al,
+state_array_flat = np.array([
+    world3.al,
     world3.pal,
     world3.uil,
     world3.lfert,
@@ -47,36 +46,29 @@ state_array = np.array([world3.al,
     world3.p2,
     world3.p3,
     world3.p4,
-    world3.nr])
-dim=state_array.shape
-# print(dim)
-# print(dim2)
-
-
+    world3.nr
+    ])
+state_array = state_array_flat.T # state_array_tall, som det ska vara  
+# print(state_array_flat.shape)         
+# print(state_array.shape) # shape(rows, columns), #601 rader 12 kolumner. Korrekt.
 theta_list = []
 residuals = []
-for i in state_array:
-    
-    # print(i)
-    # print(i.shape)
-    i = i[:,np.newaxis] # från alejandro
-    print(i.shape)
-    print(state_array.shape)
-    x, residual, _ , _ = np.linalg.lstsq(state_array.T , i , rcond=None)
-    # print(x.shape)
+for i in state_array_flat: # tar en rad från den långa, som är en kolumn i dne vanliga
+    i = i[1: ,np.newaxis]
+    x, residual, _ , _ = np.linalg.lstsq(state_array[ : (world3.n-1)] , i , rcond=None)
+    x = x.T
+    print(x.shape)
     x = x.reshape(-1)
     # print(x.shape)
-
+    
     theta_list.append(x)
     residuals.append(residual)
-    # residuals = np.concatenate(residuals, residual, axis=0 )
 
 theta_array = np.array(theta_list)
 # theta_array = theta_array.reshape(-2)
-residuals = np.array(residuals)
+# residuals = np.array(residuals)
 print(theta_array.shape)
 print(theta_array)
 # theta_
 # print(residuals)
 # print(residuals)
-
