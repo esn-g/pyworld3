@@ -1,5 +1,5 @@
-#from re import A
-#import matplotlib.pyplot as plt
+from re import A
+import matplotlib.pyplot as plt
 import numpy as np
 
 from pyworld3 import World3
@@ -64,24 +64,15 @@ X_state_matrix=np.array([world3.al,
 
 
 
-#print("state array shape: ", X_state_matrix.shape,"\n state_array:\n", X_state_matrix)
-
-
-#X_state_matrix_0=X_state_matrix[:(world3.n-1),:]  #Removes last row corresponding to kmax
-
 ############################# Create the theta-matrix (A) ########################################
 
 
 #Calculate a row of the theta matrix via linalg.lstsq, least dquare method
 def calculate_theta_row(var_index=0, row_of_state_var=np.array([]) , state_array= np.array([])):
     
-    print(f"\n_____{var_str_list[var_index]}:_____\n") 
-    print("var_row shape: ", row_of_state_var.shape)
-    print("state_array_truncated shape: ", state_array.shape)
-    
     theta, residuals, rank, s = np.linalg.lstsq(state_array, row_of_state_var, rcond=None)
     
-    print("shape of theta: ", theta.shape, "\ntheta: ",theta)
+    
     return theta
 
 #Construct the State transitions matrix A by calling calculate_theta_row() for each state variable
@@ -106,81 +97,3 @@ def construct_A_matrix( state_array=np.array([]) ):
 
 
 A_state_transition_matrix=construct_A_matrix(X_state_matrix)
-
-print("A_state_transition_matrix.shape: ", A_state_transition_matrix.shape)
-np.set_printoptions(precision=3, suppress=True)
-
-print(np.get_printoptions())
-
-
-print("A_matrix: \n\n",A_state_transition_matrix)
-print(A_state_transition_matrix)
-
-
-def next_state_estimate(current_state=np.array([]), transition_matrix=np.array([]) ):
-    next_state=transition_matrix@current_state
-    return next_state
-
-#state_1=next_state_estimate(X_state_matrix[0,:], A_state_transition_matrix )
-#print("\nreal state 1: \n", X_state_matrix[1,:] ,"\nestimated state_1: \n", state_1[:])
-
-
-def estimated_model(state_matrix=np.array([]), transition_matrix=np.array([]), number_of_states=600, start_state_index=0):
-    
-    current_state=state_matrix[start_state_index,:]
-    estimated_state_matrix=np.empty( (number_of_states, 12), dtype=object )
-    
-    for k in range(start_state_index, start_state_index+number_of_states):
-        estimated_state_matrix[k,:]=current_state
-    
-        next_state=next_state_estimate(current_state, transition_matrix)
-
-        current_state=next_state
-        print("\ncurr state\n",current_state)
-
-    estimated_state_matrix[number_of_states-1,:]=current_state
-
-    return estimated_state_matrix
-    
-
-states_estimated=estimated_model(X_state_matrix, A_state_transition_matrix, 10, 0)
-
-print("\nreal state 1-10: \n", X_state_matrix[0:10,:] ,"\nestimated state 1-10: \n", states_estimated)
-
-error_matrix=X_state_matrix[0:10,:]-states_estimated
-
-print("Error matrix: \n", error_matrix)
-
-
-
-
-#for i in state_variables:
-    
-
-'''
-State variables:
-
-Agriculture:
-al
-pal
-uil
-lfert
-
-
-Capital:
-ic 
-sc
-
-Pollution:
-ppol
-
-Population:
-p1
-p2
-p3
-p4
-
-Resource:
-nr
-
-'''
