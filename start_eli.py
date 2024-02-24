@@ -91,8 +91,6 @@ def construct_A_matrix( state_array=np.array([]) ):
     #Goes through row by row of the Transposed state_array (Col by Col), means going through each variable one at a time
     for var_index, var_row in enumerate(state_array.T): 
 
-        
-
         #Truncate the X matrix and state variable vector according to x1{1-kmax}=X{0-(kmax-1)}*theta_1
         var_row_truncated=var_row[ 1: ,np.newaxis]
         #print("var_row_truncated shape: ", var_row_truncated.shape)
@@ -101,12 +99,14 @@ def construct_A_matrix( state_array=np.array([]) ):
         #print("state_array_truncated shape: ", state_array_truncated.shape)
 
         theta_row=calculate_theta_row(var_index, var_row_truncated, state_array_truncated)
+
         A_matrix[var_index,:]=theta_row.reshape(-1)
     return A_matrix
 
 
 
 A_state_transition_matrix=construct_A_matrix(X_state_matrix)
+
 print("A_state_transition_matrix.shape: ", A_state_transition_matrix.shape)
 np.set_printoptions(precision=3, suppress=True)
 
@@ -116,7 +116,42 @@ print(np.get_printoptions())
 print("A_matrix: \n\n",A_state_transition_matrix)
 print(A_state_transition_matrix)
 
-   
+
+def next_state_estimate(current_state=np.array([]), transition_matrix=np.array([]) ):
+    next_state=transition_matrix@current_state
+    return next_state
+
+#state_1=next_state_estimate(X_state_matrix[0,:], A_state_transition_matrix )
+#print("\nreal state 1: \n", X_state_matrix[1,:] ,"\nestimated state_1: \n", state_1[:])
+
+
+def estimated_model(state_matrix=np.array([]), transition_matrix=np.array([]), number_of_states=600, start_state_index=0):
+    
+    current_state=state_matrix[start_state_index,:]
+    estimated_state_matrix=np.empty( (number_of_states, 12), dtype=object )
+    
+    for k in range(start_state_index, start_state_index+number_of_states):
+        estimated_state_matrix[k,:]=current_state
+    
+        next_state=next_state_estimate(current_state, transition_matrix)
+
+        current_state=next_state
+        print("\ncurr state\n",current_state)
+
+    estimated_state_matrix[number_of_states-1,:]=current_state
+
+    return estimated_state_matrix
+    
+
+states_estimated=estimated_model(X_state_matrix, A_state_transition_matrix, 10, 0)
+
+print("\nreal state 1-10: \n", X_state_matrix[0:10,:] ,"\nestimated state 1-10: \n", states_estimated)
+
+error_matrix=X_state_matrix[0:10,:]-states_estimated
+
+print("Error matrix: \n", error_matrix)
+
+
 
 
 #for i in state_variables:
@@ -147,10 +182,5 @@ p4
 
 Resource:
 nr
-
-
-
-
-
 
 '''
