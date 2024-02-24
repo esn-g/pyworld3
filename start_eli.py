@@ -1,5 +1,5 @@
-from re import A
-import matplotlib.pyplot as plt
+#from re import A
+#import matplotlib.pyplot as plt
 import numpy as np
 
 from pyworld3 import World3
@@ -16,22 +16,8 @@ world3.run_world3(fast=False)
 
 #np.shape(world3.nrfr)
 
-state_variables=np.array([world3.al,
-    world3.pal,
-    world3.uil,
-    world3.lfert,
-    world3.ic,
-    world3.sc,
-    world3.ppol,
-    world3.p1,
-    world3.p2,
-    world3.p3,
-    world3.p4,
-    world3.nr])
 
-
-
-X_state_matrix=state_variables.T
+########################################### Create a matrix of variable names ########################################
 
 var_str_list=np.array(["al",
     "pal",
@@ -45,59 +31,88 @@ var_str_list=np.array(["al",
     "p3",
     "p4",
     "nr"]).T       #Transposes it to get each variable as its own column - X matrix but names
-print(var_str_list.shape)
 
-var_str_matrix=np.full((world3.n,12),"a")
-print(var_str_matrix.shape)
 
-print(var_str_matrix)
 
-for var_index, variable_name in enumerate(var_str_list):
-    print(var_index, variable_name)
-    print(var_str_matrix[var_index,:])
-    var_str_matrix=np.char.add(var_str_matrix[var_index,:],variable_name) #Add variable name to entire row
+var_name_matrix=np.empty((world3.n,12), dtype=object) #Init matrix
 
-for k_index in range(world3.n):
-    var_str_matrix=np.char.add(var_str_matrix[:,k_index],f"_{k_index}") #Add nr to entire column
+for var_index, variable_name in enumerate(var_str_list):  #Go through variable names and add to matrix columns
+    #print(var_index, variable_name)
+    var_name_matrix[:,var_index]=variable_name+"_k="
+    
+for k in np.arange(world3.n):   #Go through rows and assign k value
+    var_name_matrix[k,:]+=str(k)
 
+#print(var_name_matrix)    
+############################# Create the State Matrix X  ########################################
+
+X_state_matrix=np.array([world3.al,
+    world3.pal,
+    world3.uil,
+    world3.lfert,
+    world3.ic,
+    world3.sc,
+    world3.ppol,
+    world3.p1,
+    world3.p2,
+    world3.p3,
+    world3.p4,
+    world3.nr]).T
+
+
+
+
+#print("state array shape: ", X_state_matrix.shape,"\n state_array:\n", X_state_matrix)
+
+
+#X_state_matrix_0=X_state_matrix[:(world3.n-1),:]  #Removes last row corresponding to kmax
+
+############################# Create the theta-matrix (A) ########################################
+
+def calculate_theta_row(var_index=0, row_of_state_var=np.array([]) , state_array= np.array([])):
 
 
     
-
-
-
-state_array=state_variables
-
-state_array_k=state_variables[:, 1: ]
-
-state_array_prev=state_variables[:, : (world3.n-1)]
-
-X_state_matrix_0=X_state_matrix[:(world3.n-1),:]  #Removes last row corresponding to kmax
-
-
-def calculate_theta_row(var_index=0, var_array=np.array([]) ):
-    var_array_k=var_array[ 1: ,np.newaxis]
-    var_array_prev=var_array[ : (world3.n-1) ]
     print(f"\n_____{var_str_list[var_index]}:_____\n") 
-    print(state_array_prev.shape)
-    print(var_array_k.shape)
-    # print(var_array_k)
-    theta = np.linalg.lstsq(state_array_prev.T, var_array_k, rcond=None)
-    print(theta)
-    # theta=theta.reshape(-1)
-    # print(theta.shape)
-
-def construct_A_matrix( array_of_vars=np.array([]) ):
+    print("var_row shape: ", row_of_state_var.shape)
+    print("state_array_truncated shape: ", state_array.shape)
     
-    for var_index, var_array in enumerate(array_of_vars): #Goes through row by row, where each row is 
-
-        print(var_array)
-        calculate_theta_row(var_index, var_array )
-
-
-construct_A_matrix(state_array)
-
+    theta, residuals, rank, s = np.linalg.lstsq(state_array, row_of_state_var, rcond=None)
     
+    print("shape of theta: ", theta.shape, "\ntheta: ",theta)
+    return theta
+
+def construct_A_matrix( state_array=np.array([]) ):
+    A_matrix=np.empty((12,12), dtype=object)
+    #Goes through row by row of the Transposed state_array (Col by Col), means going through each variable one at a time
+    for var_index, var_row in enumerate(state_array.T): 
+
+        
+
+        #Truncate the X matrix and state variable vector according to x1{1-kmax}=X{0-(kmax-1)}*theta_1
+        var_row_truncated=var_row[ 1: ,np.newaxis]
+        #print("var_row_truncated shape: ", var_row_truncated.shape)
+        
+        state_array_truncated=state_array[:(world3.n-1), : ]
+        #print("state_array_truncated shape: ", state_array_truncated.shape)
+
+        theta_row=calculate_theta_row(var_index, var_row_truncated, state_array_truncated)
+        A_matrix[var_index,:]=theta_row.reshape(-1)
+    return A_matrix
+
+
+
+A_state_transition_matrix=construct_A_matrix(X_state_matrix)
+print("A_state_transition_matrix.shape: ", A_state_transition_matrix.shape)
+np.set_printoptions(precision=3, suppress=True)
+
+print(np.get_printoptions())
+np.set_printoptions(precision=3, suppress=True)
+
+print("A_matrix: \n\n",A_state_transition_matrix)
+print(A_state_transition_matrix)
+
+   
 
 
 #for i in state_variables:
