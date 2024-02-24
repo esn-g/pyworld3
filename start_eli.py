@@ -6,6 +6,8 @@ from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
 
 
+########################################### Create a world3-run ########################################
+
 world3 = World3()
 world3.set_world3_control()
 world3.init_world3_constants()
@@ -44,7 +46,7 @@ for k in np.arange(world3.n):   #Go through rows and assign k value
     var_name_matrix[k,:]+=str(k)
 
 #print(var_name_matrix)    
-############################# Create the State Matrix X  ########################################
+######################################### Create the State Matrix X  ########################################
 
 X_state_matrix=np.array([world3.al,
     world3.pal,
@@ -69,9 +71,9 @@ X_state_matrix=np.array([world3.al,
 
 ############################# Create the theta-matrix (A) ########################################
 
+
+#Calculate a row of the theta matrix via linalg.lstsq, least dquare method
 def calculate_theta_row(var_index=0, row_of_state_var=np.array([]) , state_array= np.array([])):
-
-
     
     print(f"\n_____{var_str_list[var_index]}:_____\n") 
     print("var_row shape: ", row_of_state_var.shape)
@@ -82,8 +84,10 @@ def calculate_theta_row(var_index=0, row_of_state_var=np.array([]) , state_array
     print("shape of theta: ", theta.shape, "\ntheta: ",theta)
     return theta
 
+#Construct the State transitions matrix A by calling calculate_theta_row() for each state variable
 def construct_A_matrix( state_array=np.array([]) ):
-    A_matrix=np.empty((12,12), dtype=object)
+
+    A_matrix=np.empty((12,12), dtype=object)    #Initialize the A-matrix
     #Goes through row by row of the Transposed state_array (Col by Col), means going through each variable one at a time
     for var_index, var_row in enumerate(state_array.T): 
 
@@ -107,7 +111,7 @@ print("A_state_transition_matrix.shape: ", A_state_transition_matrix.shape)
 np.set_printoptions(precision=3, suppress=True)
 
 print(np.get_printoptions())
-np.set_printoptions(precision=3, suppress=True)
+
 
 print("A_matrix: \n\n",A_state_transition_matrix)
 print(A_state_transition_matrix)
