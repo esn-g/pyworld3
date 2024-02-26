@@ -12,7 +12,7 @@ from init_transition_matrix import A_state_transition_matrix #Brings transition 
 
 world3 = World3()
 world3.set_world3_control()
-world3.init_world3_constants(p1i=90e7)
+world3.init_world3_constants(p1i=77e7) # p1i=67e7
 world3.init_world3_variables()
 world3.set_world3_table_functions()
 world3.set_world3_delay_functions()
@@ -87,11 +87,11 @@ plot_world_variables(
     world3.time,
     [world3.al, world3.pal, world3.uil, world3.lfert, al_est_full, pal_est_full, uil_est_full, lfert_est_full ],
     [ "AL", "PAL", "UIL","LFERT", "al_est", "pal_est", "uil_est", "lfert_est"],
-    [[0, max(world3.al)], [0, max(world3.pal)], [0, max(world3.uil)], [0, max(world3.lfert)], [0, max(world3.al)], [0, max(world3.pal)], [0, max(world3.uil)], [0, max(world3.lfert)] ],
+    [[0, 1.1*max(world3.al)], [0, 1.1*max(world3.pal)], [0, 1.1*max(world3.uil)], [0, 1.1*max(world3.lfert)], [0, 1.1*max(world3.al)], [0, 1.1*max(world3.pal)], [0, 1.3*max(world3.uil)], [0, 1.3*max(world3.lfert)] ],
     img_background=None,
     figsize=(7, 5),
-    title="Test AR",
+    title="Test AR poli1_diff_15%",
 )
-plt.savefig("fig_world3_AR_test_po1i_diff.pdf")
+plt.savefig("fig_world3_AR_test_poli1_diff_big.png")
 
 
