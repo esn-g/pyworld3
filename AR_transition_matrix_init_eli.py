@@ -108,7 +108,7 @@ def construct_A_matrix( state_array=np.array([]) ):
 A_state_transition_matrix=construct_A_matrix(X_state_matrix)
 
 print("A_state_transition_matrix.shape: ", A_state_transition_matrix.shape)
-np.set_printoptions(precision=3, suppress=True)
+np.set_printoptions(precision=2, suppress=False, linewidth=300)
 
 print(np.get_printoptions())
 
@@ -136,7 +136,7 @@ def estimated_model(state_matrix=np.array([]), transition_matrix=np.array([]), n
         next_state=next_state_estimate(current_state, transition_matrix)
 
         current_state=next_state
-        print("\ncurr state\n",current_state)
+        # print("\ncurr state\n",current_state)
 
     estimated_state_matrix[number_of_states-1,:]=current_state
 
