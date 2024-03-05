@@ -20,3 +20,27 @@ print(x)
 y_pred = a + x#b * x
 
 print(y_pred)
+
+
+
+'''
+
+for step in kmax/stepsize
+
+    for k in stepsize
+        calculate loss
+    list of argmins for each step = [autograd of loss of step]
+
+    
+
+
+    
+
+
+
+
+
+
+
+
+'''
