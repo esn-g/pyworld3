@@ -40,13 +40,10 @@ var_str_list=np.array(["al",
 
 
 var_name_matrix=np.empty((world3.n,12), dtype=object) #Init matrix
-
-for var_index, variable_name in enumerate(var_str_list):  #Go through variable names and add to matrix columns
-    #print(var_index, variable_name)
-    var_name_matrix[:,var_index]=variable_name+"["
     
 for k in np.arange(world3.n):   #Go through rows and assign k value
-    var_name_matrix[k,:]+=str(k)+"]:"
+    var_name_matrix[k,:]=var_str_list
+    var_name_matrix[k,:]+="["+str(k)+"]:"
 
 #print(var_name_matrix)    
 ######################################### Create the State Matrix X  ########################################
@@ -105,5 +102,5 @@ A_state_transition_matrix=construct_A_matrix(X_state_matrix)
 #print(var_name_matrix)
 #print("\n\n\n\n\n",var_name_matrix[0:600:100,:], "\n\n\n\n\n")
 #print("\n\n\n\n\n",A_state_transition_matrix[:,:], "\n\n\n\n\n")
-print("\n\n\n\n\n",A_state_transition_matrix, "\n\n\n\n\n")
+#print("\n\n\n\n\n",A_state_transition_matrix, "\n\n\n\n\n")
 
