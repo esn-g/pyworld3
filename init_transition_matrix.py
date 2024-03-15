@@ -104,3 +104,17 @@ A_state_transition_matrix=construct_A_matrix(X_state_matrix)
 #print("\n\n\n\n\n",A_state_transition_matrix[:,:], "\n\n\n\n\n")
 #print("\n\n\n\n\n",A_state_transition_matrix, "\n\n\n\n\n")
 
+# Create the heat map using Matplotlib
+plt.figure(figsize=(8, 6))  # Adjust the figure size as needed
+plt.imshow(A_state_transition_matrix, cmap='viridis', interpolation='nearest')
+
+# Add a color bar for reference
+plt.colorbar()
+
+# Customize axis labels and title
+plt.xlabel('X Label')
+plt.ylabel('Y Label')
+plt.title('12x12 Heat Map')
+
+# Show the plot
+plt.show()

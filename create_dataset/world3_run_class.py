@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
-import json
+
 
 #List of variable names for all variables examined
 var_str_list=np.array(["al",
@@ -19,19 +19,16 @@ var_str_list=np.array(["al",
     "p4",
     "nr"]).T       #Transposes it to get each variable as its own column - X matrix but names
 
+
 class World3_run:
-    #Environment for generating world3-model-values - i.e creating our dataset
+    #Methods and class functions regarding running the model
 
-    def __init__(self, init_values_mod=False, controllable=False, timespan=range(1900,2100), number_of_runs=1 ):
-        self.init_values_mod=init_values_mod
-        self.controllable=controllable
-        self.timespan=timespan
-        #self.var_name_matrix=var_str_list
-        self.number_of_runs=number_of_runs
-        self.world3_objects_array=np.empty(number_of_runs, dtype=object)
+    def __init__(self ):
+        pass
 
-    def run_model(self): #Run the world3 model based on the given parameters
-        if self.init_values_mod==False and self.controllable==False: #Basic run
+    def run_model(init_values=False, controll=False): #Run the world3 model based on the given parameters
+
+        if init_values==False and controll==False: #Basic run
             world3 = World3()
             world3.set_world3_control()
             world3.init_world3_constants()
@@ -39,15 +36,22 @@ class World3_run:
             world3.set_world3_table_functions()
             world3.set_world3_delay_functions()
             world3.run_world3(fast=False)
+        elif init_values!=False:
+            world3 = World3()
+            world3.set_world3_control()
+            world3.init_world3_constants(**init_values) #Pass the dict of all init values passed as keyword arguments
+            world3.init_world3_variables()
+            world3.set_world3_table_functions()
+            world3.set_world3_delay_functions()
+            world3.run_world3(fast=False)
+        else:
+            print("Within World3_run function run_model(): This functionality is not yet here")
         
         return world3
         
-    def generate_models(self):
-        for run in range(self.number_of_runs):
-            self.world3_objects_array[run]=self.run_model()
 
 ######################################### Create the State Matrix X  ########################################
-    def generate_state_matrix(world3_obj):
+    def generate_state_matrix(world3_obj): #Takes in a world3 object and returns its state-matrix
         X_state_matrix=np.array([world3_obj.al,
             world3_obj.pal,
             world3_obj.uil,
@@ -62,6 +66,9 @@ class World3_run:
             world3_obj.nr]).T
         return X_state_matrix
 
+        
+
+
             
 
     def fit_varnames( k_max):
@@ -73,29 +80,40 @@ class World3_run:
 
 
 
-#############################################Currently working with JSON#################################################
-#Will likely switch this later for better efficiency - binary formats like NumPy's .npy or .npz formats, or HDF5, designed for efficient storage and retrieval of numerical data.
-    def save_run(self, current_run, file_path):
+
+
+    def __str__(self):
+        return "World3 run"
+
+
+
+
+######################################### Create the State Transition Matrix A  ########################################
+    #Calculate a row of the theta matrix via linalg.lstsq, least dquare method
+    def calculate_theta_row(var_index=0, row_of_state_var=np.array([]) , state_array= np.array([])):
         
-        data_runs=[World3_run.format_data(run_nr, w3_object) for run_nr, w3_object in enumerate(self.world3_objects_array)]
+        theta, residuals, rank, s = np.linalg.lstsq(state_array, row_of_state_var, rcond=None)
+    
+        return theta
 
-        with open(file_path, "w") as json_file:
-            json.dump(current_run, json_file, indent=4)  # indent parameter for pretty formatting
+    #Construct the State transitions matrix A by calling calculate_theta_row() for each state variable
+    def construct_A_matrix(world3_obj, state_array=np.array([]) ):
 
+        A_matrix=np.empty((12,12), dtype=float)    #Initialize the A-matrix
+        #Goes through row by row of the Transposed state_array (Col by Col), means going through each variable one at a time
+        for var_index, var_row in enumerate(state_array.T): 
 
-    def format_data(run, object):
-        World3_run.fit_varnames(object.n)
+            #Truncate the X matrix and state variable vector according to x1{1-kmax}=X{0-(kmax-1)}*theta_1
+            var_row_truncated=var_row[ 1: ,np.newaxis]
+            #print("var_row_truncated shape: ", var_row_truncated.shape)
+            
+            state_array_truncated=state_array[:(world3_obj.n-1), : ]
+            #print("state_array_truncated shape: ", state_array_truncated.shape)
 
-        formatted_data={
-            "Run_index":run,
-            "Time_span":[object.year_min ,object.year_max],
-            "K_max": object.n,
-            "State_matrix": World3_run.generate_state_matrix(object).tolist()
-            }
-        return formatted_data
+            theta_row=World3_run.calculate_theta_row(var_index, var_row_truncated, state_array_truncated)
 
-
-
+            A_matrix[var_index,:]=theta_row.reshape(-1)
+        return A_matrix
 
 
 
