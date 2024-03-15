@@ -5,7 +5,7 @@ import numpy as np
 from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
 
-from init_transition_matrix import A_state_transition_matrix #Brings transition matrix from default run
+from init_transition_matrix_old import A_state_transition_matrix #Brings transition matrix from default run
 
 
 ########################################### Create a world3-run ########################################
