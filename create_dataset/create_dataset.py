@@ -11,9 +11,13 @@ datasetting.generate_models()
 modded_model=datasetting.world3_objects_array[0]
 
 model=World3_run.run_model()
-print(World3_run.generate_state_matrix(model))
-print(World3_run.generate_state_matrix(modded_model))
+#print(World3_run.generate_state_matrix(model))
+#print(World3_run.generate_state_matrix(modded_model))
+#print(World3_run.generate_state_matrix(modded_model).tolist())
+
+datasetting.save_runs()
+
+print(datasetting)
 
 
-
-
+#create_dataset/dataset_storage/dataset_runs_1_variance_1.json

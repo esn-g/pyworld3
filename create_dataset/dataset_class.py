@@ -72,7 +72,7 @@ class Dataset_class():
 
     #Environment for generating world3-model-values - i.e creating our dataset
 
-    def __init__(self, controllable=False, max_initval_variance_percent=0, timespan=np.arange(1900,2100, 0.5), number_of_runs=1 ):
+    def __init__(self, controllable=False, max_initval_variance_percent=0, timespan=[1900,2100, 0.5], number_of_runs=1 ):
         self.controllable=controllable  #Might take in bool false or control function
         self.max_initval_variance_percent=max_initval_variance_percent  #takes in percentage nr of max variance of initvals
         self.timespan=timespan
@@ -115,28 +115,51 @@ class Dataset_class():
 
 #############################################Currently working with JSON#################################################
 #Will likely switch this later for better efficiency - binary formats like NumPy's .npy or .npz formats, or HDF5, designed for efficient storage and retrieval of numerical data.
-    def save_runs(self, file_path):
-        
-        data_runs=[Dataset_class.format_data(run_nr, w3_object) for run_nr, w3_object in enumerate(self.world3_objects_array)]
+    def save_runs(self, file_path=None):
+        if file_path==None:
+            file_path=f"create_dataset/dataset_storage/dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_percent}.json"
 
+        #dataset_params=self.__str__()    #Add for title, currently causing issues because str doesnt return dict, create a seperate method for this
+        
+        data_runs=[self.format_data(run_nr, w3_object) for run_nr, w3_object in enumerate(self.world3_objects_array)]
+        
         with open(file_path, "w") as json_file:
+            #json.dump(dataset_params, json_file, indent=4)  # indent parameter for pretty formatting   #TITLE
             json.dump(data_runs, json_file, indent=4)  # indent parameter for pretty formatting
 
 
-    def format_data(run, object):
-        Dataset_class.fit_varnames(object.n)
+
+    def format_data(self,run, object):
+        #Dataset_class.fit_varnames(object.n)   #in case one wants to label the matrix elements
 
         formatted_data={
             "Run_index":run,
-            "Time_span":[object.year_min ,object.year_max],
-            "K_max": object.n,
-            "State_matrix": Dataset_class.generate_state_matrix(object).tolist()
+            #"Time_span":[object.year_min ,object.year_max],
+            #"K_max": object.n,
+            #"Max_init_variance": self.max_initval_variance_percent,
+            "State_matrix": World3_run.generate_state_matrix(object).tolist()
             }
         return formatted_data
 
 
     def __str__(self):
-        return "Shape of array of runs: "+str(self.world3_objects_array.shape)
+        '''
+        arguments=( "controllable:" + str(self.controllable) + "\nmax_initval_variance_percent:" 
+                + str(self.max_initval_variance_percent) + "\ntimespan:" + str(self.timespan) 
+                + "\nnumber_of_runs:" + str(self.number_of_runs)     )    #+ "\nworld3_objects_array:" )
+                #+ str(self.world3_objects_array) + "\ninitial_values_dict:" + str(json.dumps(self.initial_values_dict,indent=2))  )
+        '''
+        arguments_dict={ 
+                    "Dataset_parameters": {
+
+                    "controllable:" : str(self.controllable) ,
+                    "max_initval_variance_percent" :  str(self.max_initval_variance_percent) ,
+                    "timespan," : str(self.timespan) ,
+                    "number_of_runs:" : str(self.number_of_runs)   }    }
+        
+        #return "Dataset parameters:\n"+arguments
+
+        return json.dumps(arguments_dict,indent=4)
         
 
 
