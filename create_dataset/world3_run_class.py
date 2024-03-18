@@ -66,6 +66,9 @@ class World3_run:
             world3_obj.nr]).T
         return X_state_matrix
 
+
+    def generate_full_state_matrix():
+        pass        #Matrix of all variables in world3 model - will be used to train NN later
         
 
 

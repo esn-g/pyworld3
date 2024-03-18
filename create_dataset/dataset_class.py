@@ -108,12 +108,8 @@ class Dataset_class():
         
 
 
-    
 
-
-
-
-#############################################Currently working with JSON#################################################
+############################################# Currently working with JSON #################################################
 #Will likely switch this later for better efficiency - binary formats like NumPy's .npy or .npz formats, or HDF5, designed for efficient storage and retrieval of numerical data.
     def save_runs(self, file_path=None):
         if file_path==None:
@@ -161,8 +157,6 @@ class Dataset_class():
 
         return json.dumps(arguments_dict,indent=4)
         
-
-
 
 
 ############################################### Experimental normalization and heat maps ####################################
