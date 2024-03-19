@@ -68,13 +68,13 @@ initial_values_dict={
     "frpm" : 0.02 ,
     "nri" : 1e12 }
 
-class Dataset_class(): 
+class Generate_dataset(): 
 
     #Environment for generating world3-model-values - i.e creating our dataset
 
-    def __init__(self, controllable=False, max_initval_variance_percent=0, timespan=[1900,2100, 0.5], number_of_runs=1 ):
+    def __init__(self, controllable=False, max_initval_variance_ppm=0, timespan=[1900,2100, 0.5], number_of_runs=1 ):
         self.controllable=controllable  #Might take in bool false or control function
-        self.max_initval_variance_percent=max_initval_variance_percent  #takes in percentage nr of max variance of initvals
+        self.max_initval_variance_ppm=max_initval_variance_ppm  #takes in ppm(parts per million - 1/10^-6) nr of max variance of initvals
         self.timespan=timespan
         self.number_of_runs=number_of_runs
         self.world3_objects_array=np.empty(number_of_runs, dtype=object)
@@ -96,9 +96,9 @@ class Dataset_class():
         augmented_init_state_array=np.array(list(self.initial_values_dict.values())) #Takes original init values into array
 
         #Creates a random variance for each respective variable within the range set in the class initiation 
-        percentages = np.random.random_integers(100-self.max_initval_variance_percent, 100+self.max_initval_variance_percent, augmented_init_state_array.shape)
+        ppms = np.random.random_integers(10e-6-self.max_initval_variance_ppm, 10e-6+self.max_initval_variance_ppm, augmented_init_state_array.shape)
         
-        fractions=percentages/100 #Convert percentage to fractions
+        fractions=ppms/(10e-6) #Convert ppm to fractions
         
         augmented_init_state_array=augmented_init_state_array*fractions #Augment the init values 
 
@@ -113,7 +113,7 @@ class Dataset_class():
 #Will likely switch this later for better efficiency - binary formats like NumPy's .npy or .npz formats, or HDF5, designed for efficient storage and retrieval of numerical data.
     def save_runs(self, file_path=None):
         if file_path==None:
-            file_path=f"create_dataset/dataset_storage/dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_percent}.json"
+            file_path=f"create_dataset/dataset_storage/dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_ppm}.json"
 
         #dataset_params=self.__str__()    #Add for title, currently causing issues because str doesnt return dict, create a seperate method for this
         
@@ -123,25 +123,50 @@ class Dataset_class():
             #json.dump(dataset_params, json_file, indent=4)  # indent parameter for pretty formatting   #TITLE
             json.dump(data_runs, json_file, indent=4)  # indent parameter for pretty formatting
 
-
-
     def format_data(self,run, object):
-        #Dataset_class.fit_varnames(object.n)   #in case one wants to label the matrix elements
+        #Generate_dataset.fit_varnames(object.n)   #in case one wants to label the matrix elements
 
         formatted_data={
             "Run_index":run,
             #"Time_span":[object.year_min ,object.year_max],
             #"K_max": object.n,
-            #"Max_init_variance": self.max_initval_variance_percent,
+            #"Max_init_variance": self.max_initval_variance_ppm,
             "State_matrix": World3_run.generate_state_matrix(object).tolist()
             }
         return formatted_data
 
 
+    def fetch_dataset(filepath):
+        # Opening JSON file
+        with open(filepath, "r") as json_file:
+        
+            # returns JSON object as a dictionary
+            data = json.loads(json_file.read())
+            
+            # Iterating through the json list
+            #list_of_runs=data["Run_index"]  #Init a list for storing 
+
+            for i, run in enumerate(data):
+                data[i]["State_matrix"]=np.array(run["State_matrix"])
+            return data
+        
+        
+    def title_dict(self):
+        arguments_dict={ 
+            "Dataset_parameters": {
+
+            "controllable:" : str(self.controllable) ,
+            "max_initval_variance_ppm" :  str(self.max_initval_variance_ppm) ,
+            "timespan," : str(self.timespan) ,
+            "number_of_runs:" : str(self.number_of_runs)   }    }
+        return arguments_dict
+
+
+
     def __str__(self):
         '''
-        arguments=( "controllable:" + str(self.controllable) + "\nmax_initval_variance_percent:" 
-                + str(self.max_initval_variance_percent) + "\ntimespan:" + str(self.timespan) 
+        arguments=( "controllable:" + str(self.controllable) + "\nmax_initval_variance_ppm:" 
+                + str(self.max_initval_variance_ppm) + "\ntimespan:" + str(self.timespan) 
                 + "\nnumber_of_runs:" + str(self.number_of_runs)     )    #+ "\nworld3_objects_array:" )
                 #+ str(self.world3_objects_array) + "\ninitial_values_dict:" + str(json.dumps(self.initial_values_dict,indent=2))  )
         '''
@@ -149,7 +174,7 @@ class Dataset_class():
                     "Dataset_parameters": {
 
                     "controllable:" : str(self.controllable) ,
-                    "max_initval_variance_percent" :  str(self.max_initval_variance_percent) ,
+                    "max_initval_variance_ppm" :  str(self.max_initval_variance_ppm) ,
                     "timespan," : str(self.timespan) ,
                     "number_of_runs:" : str(self.number_of_runs)   }    }
         
