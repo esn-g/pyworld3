@@ -73,7 +73,7 @@ class Generate_dataset():
 
     #Environment for generating world3-model-values - i.e creating our dataset
 
-    def __init__(self, controllable=False, max_initval_variance_ppm=0, timespan=[1900,2100, 0.5], number_of_runs=1 ):
+    def __init__(self, controllable=False, max_initval_variance_ppm=0, timespan=[1900,2200, 0.5], number_of_runs=1 ):
         self.controllable=controllable  #Might take in bool false or control function
         self.max_initval_variance_ppm=max_initval_variance_ppm  #takes in ppm(parts per million - 1/10^-6) nr of max variance of initvals
         self.timespan=timespan
