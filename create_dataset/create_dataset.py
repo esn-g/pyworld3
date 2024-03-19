@@ -4,9 +4,9 @@ import numpy as np
 from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
 from world3_run_class import World3_run
-from dataset_class import Dataset_class
+from generate_dataset_classfile import Generate_dataset
 
-datasetting=Dataset_class(max_initval_variance_percent=1, number_of_runs=2 )
+datasetting=Generate_dataset(max_initval_variance_percent=1, number_of_runs=2 )
 datasetting.generate_models()
 modded_model=datasetting.world3_objects_array[0]
 
