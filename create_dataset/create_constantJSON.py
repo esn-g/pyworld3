@@ -70,7 +70,7 @@ var_str_list=np.array(["al",
 
 def save_data(dict, file_path=None ):
     if file_path==None:
-        file_path=f"create_dataset/dataset_storage/constants_standards.json"
+        file_path=f"create_dataset/constants_standards.json"
 
 
 

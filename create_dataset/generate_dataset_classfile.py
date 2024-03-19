@@ -6,6 +6,7 @@ from pyworld3 import World3, world3
 from pyworld3.utils import plot_world_variables
 import json
 
+
 #List of variable names for all variables examined
 var_str_list=np.array(["al",
     "pal",
@@ -112,28 +113,31 @@ class Generate_dataset():
 ############################################# Currently working with JSON #################################################
 #Will likely switch this later for better efficiency - binary formats like NumPy's .npy or .npz formats, or HDF5, designed for efficient storage and retrieval of numerical data.
     def save_runs(self, file_name=None, norm=False):
-        add_norm_str=""     #Added if not normalized
+        
 
         if norm==2:  #When called recorsively for normalizing
             add_norm_str="_normalized_"
+        else:
+            add_norm_str=""     #Added if not normalized
 
         directory="create_dataset/dataset_storage/"
 
         if file_name==None:
-            file_name=f"dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_ppm}.json"
+            file_name=f"dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_ppm}"
+        file_name=f"{file_name}{add_norm_str}"  #Append normalized or ""
         
-        file_path_full=f"{directory}dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_ppm}{add_norm_str}.json"
+        file_path_full=f"{directory}{file_name}.json"
         
-        title=f"{add_norm_str}World3 runs from file {file_path_full}"   #Add for title
+        title=f"{add_norm_str} World3 runs from file {file_path_full}"   #Add for title
 
-        
+    
+        dataset_params=self.parameters_dict()      #Dataset parameters
 
-        dataset_params=self.parameters_dict()    
-
-        data_runs=self.format_data()
+        data_runs=self.format_data()    #Fetch dict of state matrices
 
         if norm==2:
-            data_runs=normalize(data_runs)
+            for run_key, run_matrix in data_runs.items():   #each state_matrix is normalized 
+                data_runs[run_key]=Generate_dataset.min_max_normalization(np.array(run_matrix)).tolist()   #sends matrix for normalizing
         
         dataset_dict={
             "Title": title ,
@@ -145,7 +149,7 @@ class Generate_dataset():
             json.dump(dataset_dict, json_file, indent=8)  # indent parameter for pretty formatting
 
         if norm==True:      ######### If norm true, it creates another save_run 
-            self.save_runs(file_path=file_path_full, norm=2) #Runs again with new path and norm=0 for normalizing input
+            self.save_runs(file_name=file_name, norm=2) #Runs again with new path and norm=0 for normalizing input
 
     def format_data(self):
         #Generate_dataset.fit_varnames(object.n)   #in case one wants to label the matrix elements
@@ -156,25 +160,7 @@ class Generate_dataset():
         for run_index, world3_object in enumerate(self.world3_objects_array):
             formatted_data_of_runs[f"Run_{run_index}_State_matrix"]=World3_run.generate_state_matrix(world3_object).tolist()
         return formatted_data_of_runs
-
-
-    def fetch_dataset(filepath):    #General fetching of dataset from jsonfile
-        
-        #Fetch nr of runs and k_max from title in json file
-        #Then fetch all matrices and append to a tensor
-        with open(filepath, "r") as json_file:
-            # returns JSON object as a dictionary
-            dataset_dict = json.loads(json_file.read())
-        '''
-        title=dataset_dict["Title"]
-
-        parameters_dict=dataset_dict["Parameters"]   #Dict of datasetparameters for saving nr of runs and timespan
-        nr_of_runs=parameters_dict["number_of_runs"]   
-        timespan=parameters_dict["timespan"] #List on form [start year, end year, step size]
-
-        state_matrices_arraylist=dataset_dict["Model_runs"].values() #fetches a list of all state_arrays (nested lists)
-        '''
-        return dataset_dict  
+ 
         
     def parameters_dict(self):
         Dataset_parameters= {
@@ -206,13 +192,40 @@ class Generate_dataset():
 
         return json.dumps(arguments_dict,indent=4)
         
+    def fetch_dataset(filepath):    #General fetching of dataset from jsonfile
+        
+        #Fetch nr of runs and k_max from title in json file
+        #Then fetch all matrices and append to a tensor
+        with open(filepath, "r") as json_file:
+            # returns JSON object as a dictionary
+            dataset_dict = json.loads(json_file.read())
+        '''
+        title=dataset_dict["Title"]
 
+        parameters_dict=dataset_dict["Parameters"]   #Dict of datasetparameters for saving nr of runs and timespan
+        nr_of_runs=parameters_dict["number_of_runs"]   
+        timespan=parameters_dict["timespan"] #List on form [start year, end year, step size]
+
+        state_matrices_arraylist=dataset_dict["Model_runs"].values() #fetches a list of all state_arrays (nested lists)
+        '''
+        return dataset_dict 
 
 ############################################### Experimental normalization and heat maps ####################################
-    def test_normalization(matrix, orig_matrix):  #https://en.wikipedia.org/wiki/Normalization_(statistics)
-        for i,var in enumerate(matrix.T):
-            scope=max(orig_matrix[:,i])-min(orig_matrix[:,i])
-            diff=var-min(orig_matrix[:,i])
+    def min_max_normalization(matrix):  #https://en.wikipedia.org/wiki/Normalization_(statistics)
+        #Matrix must be np array
+
+        #matrix - state matrix to be normalized based on min and max from basic run matrix
+        #Fetch dict from constants file, take out "Standard Run MinMax" dict
+        min_max_dict=Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run MinMax"]
+        min_max_list=list(min_max_dict.values())
+
+        for i,var in enumerate(matrix.T):       
+            min,max=min_max_list[i] #gets min and max for current variable in basic run
+            scope=max-min
+            diff=var-min
+            #diff=matrix[:,i]-min
+            #diff=matrix[:][i]-min  #IF Matrix is not array - doesnt work
+            #matrix[:][i]=diff/scope
             matrix[:,i]=diff/scope
         return matrix
     
