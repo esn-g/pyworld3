@@ -2,7 +2,7 @@ from re import A
 import matplotlib.pyplot as plt
 import numpy as np
 from world3_run_class import World3_run
-from pyworld3 import World3
+from pyworld3 import World3, world3
 from pyworld3.utils import plot_world_variables
 import json
 
@@ -111,16 +111,29 @@ class Generate_dataset():
 
 ############################################# Currently working with JSON #################################################
 #Will likely switch this later for better efficiency - binary formats like NumPy's .npy or .npz formats, or HDF5, designed for efficient storage and retrieval of numerical data.
-    def save_runs(self, file_path=None):
-        if file_path==None:
-            file_path=f"create_dataset/dataset_storage/dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_ppm}.json"
+    def save_runs(self, file_name=None, norm=False):
+        add_norm_str=""     #Added if not normalized
 
-        title=f"World3 runs from file {file_path}"
-        #Add for title
+        if norm==2:  #When called recorsively for normalizing
+            add_norm_str="_normalized_"
+
+        directory="create_dataset/dataset_storage/"
+
+        if file_name==None:
+            file_name=f"dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_ppm}.json"
+        
+        file_path_full=f"{directory}dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_ppm}{add_norm_str}.json"
+        
+        title=f"{add_norm_str}World3 runs from file {file_path_full}"   #Add for title
+
+        
 
         dataset_params=self.parameters_dict()    
-        
-        data_runs=[self.format_data(run_nr, w3_object) for run_nr, w3_object in enumerate(self.world3_objects_array)]
+
+        data_runs=self.format_data()
+
+        if norm==2:
+            data_runs=normalize(data_runs)
         
         dataset_dict={
             "Title": title ,
@@ -128,43 +141,47 @@ class Generate_dataset():
             "Model_runs": data_runs
         }
 
-        with open(file_path, "w") as json_file:
-            json.dump(dataset_dict, json_file, indent=4)  # indent parameter for pretty formatting
+        with open(file_path_full, "w") as json_file:
+            json.dump(dataset_dict, json_file, indent=8)  # indent parameter for pretty formatting
 
-    def format_data(self,run, object):
+        if norm==True:      ######### If norm true, it creates another save_run 
+            self.save_runs(file_path=file_path_full, norm=2) #Runs again with new path and norm=0 for normalizing input
+
+    def format_data(self):
         #Generate_dataset.fit_varnames(object.n)   #in case one wants to label the matrix elements
 
-        formatted_data={
-            "Run_index":run,
-            #"Time_span":[object.year_min ,object.year_max],
-            #"K_max": object.n,
-            #"Max_init_variance": self.max_initval_variance_ppm,
-            "State_matrix": World3_run.generate_state_matrix(object).tolist()
-            }
-        return formatted_data
+        #Create a dict for all runs
+        formatted_data_of_runs={}
+        
+        for run_index, world3_object in enumerate(self.world3_objects_array):
+            formatted_data_of_runs[f"Run_{run_index}_State_matrix"]=World3_run.generate_state_matrix(world3_object).tolist()
+        return formatted_data_of_runs
 
 
-    def fetch_dataset(filepath):
-        # Opening JSON file
+    def fetch_dataset(filepath):    #General fetching of dataset from jsonfile
+        
+        #Fetch nr of runs and k_max from title in json file
+        #Then fetch all matrices and append to a tensor
         with open(filepath, "r") as json_file:
-        
             # returns JSON object as a dictionary
-            data = json.loads(json_file.read())
-            
-            # Iterating through the json list
-            #list_of_runs=data["Run_index"]  #Init a list for storing 
+            dataset_dict = json.loads(json_file.read())
+        '''
+        title=dataset_dict["Title"]
 
-            for i, run in enumerate(data):
-                data[i]["State_matrix"]=np.array(run["State_matrix"])
-            return data
-        
+        parameters_dict=dataset_dict["Parameters"]   #Dict of datasetparameters for saving nr of runs and timespan
+        nr_of_runs=parameters_dict["number_of_runs"]   
+        timespan=parameters_dict["timespan"] #List on form [start year, end year, step size]
+
+        state_matrices_arraylist=dataset_dict["Model_runs"].values() #fetches a list of all state_arrays (nested lists)
+        '''
+        return dataset_dict  
         
     def parameters_dict(self):
         Dataset_parameters= {
-            "timespan," : self.timespan ,
-            "number_of_runs:" : self.number_of_runs ,
+            "timespan" : self.timespan ,
+            "number_of_runs" : self.number_of_runs ,
             "max_initval_variance_ppm" :  self.max_initval_variance_ppm ,
-            "controllable:" : self.controllable }                    
+            "controllable" : self.controllable }                    
               
         return Dataset_parameters
 

@@ -6,26 +6,32 @@ from torch.utils.data import Dataset, DataLoader, Sampler
 
 import json
 
+#from symbol import parameters
+
 class CustomDataset(Dataset):
-    def __init__(self,  fetch_data_path="create_dataset/dataset_storage/dataset_runs_1_variance_1.json"):
+    #init might be made into a fetch json function
+    def __init__(self, fetch_data_path="create_dataset/dataset_storage/dataset_runs_1_variance_1.json"):
         
         #Fetch nr of runs and k_max from title in json file
         #Then fetch all matrices and append to a tensor
         with open(fetch_data_path, "r") as json_file:
             # returns JSON object as a dictionary
-            list_of_dicts = json.loads(json_file.read())
+            dataset_dict = json.loads(json_file.read())
 
-            data_tensor=torch.empty((len(list_of_dicts)))
-            for run in list_of_dicts:
-                run["State_matrix"]=torch.tensor(run["State_matrix"]) #Makes each statematrix (list) into tensors and saves in a tensor 
+        self.title=dataset_dict["Title"]
 
-            #data=tensor_of_state_tensors
+        parameters_dict=dataset_dict["Parameters"]   #Dict of datasetparameters for saving nr of runs and timespan
+        self.nr_of_runs=parameters_dict["number_of_runs"]   
+        self.timespan=parameters_dict["timespan"] #List on form [start year, end year, step size]
 
+        state_matrices_arraylist=dataset_dict["Model_runs"].values() #fetches a list of all state_arrays (nested lists)
 
-        self.data = data  # Assuming data is a list of arrays for different time steps
+        self.state_matrices_dataset=torch.tensor(state_matrices_arraylist) #Makes each statematrix (list) into tensors and saves in a tensor 
+                    
 
     def __len__(self):
-        return len(self.data)
+
+        return torch.numel(self.state_matrices_dataset) #numel returns amount of objects
 
     def __getitem__(self, index):
         #want to fetch the state at a given k and k+1 at a given run - index refers to the n:th state-vector
