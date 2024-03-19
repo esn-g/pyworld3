@@ -96,9 +96,9 @@ class Generate_dataset():
         augmented_init_state_array=np.array(list(self.initial_values_dict.values())) #Takes original init values into array
 
         #Creates a random variance for each respective variable within the range set in the class initiation 
-        ppms = np.random.random_integers(10e-6-self.max_initval_variance_ppm, 10e-6+self.max_initval_variance_ppm, augmented_init_state_array.shape)
+        ppms = np.random.random_integers(10e6-self.max_initval_variance_ppm, 10e6+self.max_initval_variance_ppm, augmented_init_state_array.shape)
         
-        fractions=ppms/(10e-6) #Convert ppm to fractions
+        fractions=ppms/(10e6) #Convert ppm to fractions
         
         augmented_init_state_array=augmented_init_state_array*fractions #Augment the init values 
 
@@ -115,13 +115,21 @@ class Generate_dataset():
         if file_path==None:
             file_path=f"create_dataset/dataset_storage/dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_ppm}.json"
 
-        #dataset_params=self.__str__()    #Add for title, currently causing issues because str doesnt return dict, create a seperate method for this
+        title=f"World3 runs from file {file_path}"
+        #Add for title
+
+        dataset_params=self.parameters_dict()    
         
         data_runs=[self.format_data(run_nr, w3_object) for run_nr, w3_object in enumerate(self.world3_objects_array)]
         
+        dataset_dict={
+            "Title": title ,
+            "Parameters": dataset_params ,
+            "Model_runs": data_runs
+        }
+
         with open(file_path, "w") as json_file:
-            #json.dump(dataset_params, json_file, indent=4)  # indent parameter for pretty formatting   #TITLE
-            json.dump(data_runs, json_file, indent=4)  # indent parameter for pretty formatting
+            json.dump(dataset_dict, json_file, indent=4)  # indent parameter for pretty formatting
 
     def format_data(self,run, object):
         #Generate_dataset.fit_varnames(object.n)   #in case one wants to label the matrix elements
@@ -151,15 +159,14 @@ class Generate_dataset():
             return data
         
         
-    def title_dict(self):
-        arguments_dict={ 
-            "Dataset_parameters": {
-
-            "controllable:" : str(self.controllable) ,
-            "max_initval_variance_ppm" :  str(self.max_initval_variance_ppm) ,
-            "timespan," : str(self.timespan) ,
-            "number_of_runs:" : str(self.number_of_runs)   }    }
-        return arguments_dict
+    def parameters_dict(self):
+        Dataset_parameters= {
+            "timespan," : self.timespan ,
+            "number_of_runs:" : self.number_of_runs ,
+            "max_initval_variance_ppm" :  self.max_initval_variance_ppm ,
+            "controllable:" : self.controllable }                    
+              
+        return Dataset_parameters
 
 
 
