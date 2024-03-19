@@ -78,8 +78,6 @@ class Neural_Network(nn.Module):
         print("after output")
         return x
 
-<<<<<<< HEAD
-=======
 
 def validate_model(model, val_loader, criterion, device):
     """
@@ -154,4 +152,3 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
 # train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, device)
 
->>>>>>> 2c9bf465927d0ebfacad726f11388f4bf35639b0
