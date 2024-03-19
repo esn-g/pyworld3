@@ -16,7 +16,7 @@ modded_model=datasetting.world3_objects_array[0]
 #print(World3_run.generate_state_matrix(modded_model))
 #print(World3_run.generate_state_matrix(modded_model).tolist())
 
-datasetting.save_runs()
+datasetting.save_runs(norm=True)
 
 print(datasetting)
 
