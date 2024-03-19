@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
+from scipy.io import savemat
 from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
 
@@ -63,6 +64,8 @@ X_state_matrix=np.array([world3.al,
     world3.p3,
     world3.p4,
     world3.nr]).T
+
+
 
 
 
@@ -135,3 +138,8 @@ A_state_transition_matrix_N = construct_A_matrix_N(X_state_matrix)
 
 plt.imshow(A_state_transition_matrix_N, cmap='hot', interpolation='nearest')
 plt.show()
+
+
+
+# Save the arrays to a .mat file
+savemat('arrays.mat', {'arr1': X_state_matrix})

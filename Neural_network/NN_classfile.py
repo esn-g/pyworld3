@@ -73,12 +73,28 @@ class NeuralNetwork(nn.Module):
             raise ValueError(f'Unknown activation function: {act}')
 
 # Example usage:
-input_size = 10
+input_size = 12
 hidden_size = 20
-output_size = 1
+output_size = 12
 depth = 3
 act = 'relu'
+
+torch.cuda.is_available()
+
+device = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "cpu"
+)
+print(f"Using {device} device")
+
 
 # Create an instance of the NeuralNetwork class
 model = NeuralNetwork(input_size, hidden_size, output_size, depth, act)
 print(model)
+
+x = torch.tensor(0) # indata, 12 vektorer
+# n_points = len()
+with torch.no_grad():
+    next_estimation = model.forward(x)
+    
