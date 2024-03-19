@@ -2,7 +2,7 @@ import os
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
+from torchvision import datasets, transforms 
 
 
 device = (
@@ -14,9 +14,6 @@ device = (
 )
 print(f"Using {device} device")
 
-
-import torch
-import torch.nn as nn
 
 class Neural_Network(nn.Module):
     def __init__(self, input_size=12, hidden_sizes=[20,20,20], output_size=12, activation=nn.ReLU()):
@@ -68,16 +65,46 @@ class Neural_Network(nn.Module):
         return x
 
 
-def train_model(model, train_loader, criterion, optimizer, num_epochs):
+def validate_model(model, val_loader, criterion, device):
+    """
+    Validate the neural network model.
+
+    Parameters:
+        model (torch.nn.Module): The neural network model to be validated.
+        val_loader (torch.utils.data.DataLoader): DataLoader containing the validation dataset.
+        criterion: The loss function used for validation.
+        device: The device used.
+
+    Returns:
+        float: Average validation loss.
+    """
+    model.eval()  # Set model to evaluation mode
+    val_running_loss = 0.0
+    with torch.no_grad():
+        for inputs, labels in val_loader:
+            inputs = inputs.float().to(device)  # Convert inputs to float tensor
+            labels = labels.long().to(device)    # Convert labels to long tensor
+
+            outputs = model(inputs)  # Forward pass
+            loss = criterion(outputs, labels)  # Compute validation loss
+
+            val_running_loss += loss.item() * inputs.size(0)
+
+    val_loss = val_running_loss / len(val_loader.dataset)
+    return val_loss
+
+def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, device):
     """
     Train the neural network model.
 
     Parameters:
         model (torch.nn.Module): The neural network model to be trained.
         train_loader (torch.utils.data.DataLoader): DataLoader containing the training dataset.
+        val_loader (torch.utils.data.DataLoader): DataLoader containing the validation dataset.
         criterion: The loss function used for training.
         optimizer: The optimizer used for updating model parameters.
         num_epochs (int): The number of epochs to train the model.
+        device: The device used.
 
     Returns:
         None
@@ -86,21 +113,28 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs):
         model.train()  # Set model to training mode
         running_loss = 0.0
         for inputs, labels in train_loader:
-            inputs = inputs.float()  # Convert inputs to float tensor
-            labels = labels.long()    # Convert labels to long tensor
+            inputs = inputs.float().to(device)  # Convert inputs to float tensor
+            labels = labels.long().to(device)    # Convert labels to long tensor
             
-            # Zero the parameter gradients
-            optimizer.zero_grad()
+            optimizer.zero_grad()  # Zero the parameter gradients
 
-            # Forward pass
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
+            outputs = model(inputs)  # Forward pass
+            loss = criterion(outputs, labels)  # Compute training loss
 
-            # Backward pass and optimization
-            loss.backward()
-            optimizer.step()
+            loss.backward()  # Backward pass
+            optimizer.step()  # Optimize
 
-            # Print statistics
             running_loss += loss.item() * inputs.size(0)
         epoch_loss = running_loss / len(train_loader.dataset)
-        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.4f}")
+        print(f"Epoch {epoch+1}/{num_epochs}, Training Loss: {epoch_loss:.4f}")
+
+        # Validate the model after each epoch
+        val_loss = validate_model(model, val_loader, criterion, device)
+        print(f"Validation Loss: {val_loss:.4f}")
+
+# Example usage:
+# train_loader and val_loader should be DataLoader instances containing your training and validation datasets
+# model, criterion, optimizer, num_epochs, and device should be defined as in your existing code
+
+# train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, device)
+
