@@ -34,9 +34,9 @@ standard_state_matrix=np.array(
     )
 
 print(standard_state_matrix)
-normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix.copy())
+normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix)
 print(standard_state_matrix)
-print(normalized_state_matrix)
+print("normstandardrun:\n",normalized_state_matrix)
 
 def next_state_estimate(model,current_state=torch.empty([]) ):
     next_state=model(current_state)
@@ -53,6 +53,11 @@ def estimated_model(model, state_matrix=np.empty([]),  number_of_states=601, sta
     estimated_state_matrix=np.empty( (number_of_states, 12))
     
     for k, state_vector in enumerate(state_matrix):
+        sum=0
+        for i in state_vector:
+            sum+=state_vector-current_state
+
+        print("Sum of error at run k=",k," SUM=",sum)
         estimated_state_matrix[k,:]=current_state
         current_state=torch.tensor(current_state).float()   #Format for NN forward
         next_state=next_state_estimate(model=model, current_state=current_state)
@@ -70,9 +75,12 @@ def estimated_model(model, state_matrix=np.empty([]),  number_of_states=601, sta
 
 normalized_states_estimated=estimated_model(model=model, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
 
-states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
+print("normestimaterun:\n",normalized_state_matrix)
+states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated)
 
-error_matrix=standard_state_matrix-states_estimated.copy()
+error_matrix=standard_state_matrix-states_estimated
+
+print("estimaterun:\n",states_estimated)
 
 print("Error matrix: \n", error_matrix)
 
