@@ -37,8 +37,8 @@ for batch in train_loader:
 
 
 #Hyperparameters
-learning_rate = 1e-3
-batch_size = 64
+learning_rate = 1e-6
+batch_size = 32
 epochs = 5
 
 criterion=nn.MSELoss()    #Saves lossfunc
@@ -83,7 +83,7 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs):
             running_loss += loss.item() * inputs.size(0)
         epoch_loss = running_loss / len(train_loader.dataset)
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.4f}")
-    torch.save(model, "Neural_network/model/model_5_epoch_test.pt" )
+    torch.save(model, "Neural_network/model/model_gen1_bsize_"+ batch_size + "_lr_"+ learning_rate + "_epochs_" + num_epochs + ".pt")
 
 train_model(model=model, train_loader=train_loader, criterion=criterion, optimizer=optimizer, num_epochs=5)
 
