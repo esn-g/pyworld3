@@ -56,26 +56,23 @@ class Neural_Network(nn.Module):
             torch.Tensor: Output tensor.
         """
 
-        print("\nEnters forward()/model()\n")
+        #print("\nEnters forward()/model()\n")
 
         # Input layer
         x = self.input_layer(x)
         x = self.activation(x)
         
-        print("x=",x)
 
         # Hidden layers
         for hidden_layer in self.hidden_layers:
             x = hidden_layer(x)
             x = self.activation(x)
-            print("x=",x)
         
         # Output layer
         
-        print("before output")
+        
         x = self.output_layer(x)
-        print("x=",x)
-        print("after output")
+
         return x
 
 

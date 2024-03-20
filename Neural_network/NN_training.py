@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os
 import torch
 from torch import nn
@@ -47,10 +46,6 @@ optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 #GPT model trainer 
 def train_model(model, train_loader, criterion, optimizer, num_epochs):
-=======
-
-def train_model(model, train_loader, criterion, optimizer, num_epochs, device):
->>>>>>> 2c9bf465927d0ebfacad726f11388f4bf35639b0
     """
     Train the neural network model.
 
@@ -68,17 +63,10 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, device):
         model.train()  # Set model to training mode
         running_loss = 0.0
         for inputs, labels in train_loader:
-<<<<<<< HEAD
 
             inputs = inputs.float()  # Convert inputs to float tensor
             labels = labels.float()#.long()    # Convert labels to long tensor
             print("Input: ",inputs, "\nShape: ", inputs.shape)
-=======
-            inputs = inputs.float().to(device)  # Convert inputs to float tensor
-            labels = labels.long().to(device)    # Convert labels to long tensor
-            
-
->>>>>>> 2c9bf465927d0ebfacad726f11388f4bf35639b0
             
             # Zero the parameter gradients
             optimizer.zero_grad()
@@ -94,9 +82,8 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, device):
             # Print statistics
             running_loss += loss.item() * inputs.size(0)
         epoch_loss = running_loss / len(train_loader.dataset)
-<<<<<<< HEAD
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.4f}")
-    torch.save(model, )
+    torch.save(model, "Neural_network/model/model_5_epoch_test.pt" )
 
 train_model(model=model, train_loader=train_loader, criterion=criterion, optimizer=optimizer, num_epochs=5)
 
@@ -152,6 +139,3 @@ for t in range(epochs):
     test_loop(test_dataloader, model, loss_fn)
 print("Done!")
 '''
-=======
-        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.4f}")
->>>>>>> 2c9bf465927d0ebfacad726f11388f4bf35639b0

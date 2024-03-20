@@ -229,6 +229,26 @@ class Generate_dataset():
             matrix[:,i]=diff/scope
         return matrix
     
+    def min_max_DEnormalization(matrix):  #https://en.wikipedia.org/wiki/Normalization_(statistics)
+        #Matrix must be np array
+
+        #matrix - state matrix to be normalized based on min and max from basic run matrix
+        #Fetch dict from constants file, take out "Standard Run MinMax" dict
+        min_max_dict=Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run MinMax"]
+        min_max_list=list(min_max_dict.values())
+
+        for i,var in enumerate(matrix.T):       
+            min,max=min_max_list[i] #gets min and max for current variable in basic run
+
+            scope=max-min   #Get scope
+            #normalized_var=var  #Get normalized variable vector k: 0 to kmax
+            normalized_var=matrix[:,i]
+            
+            diff=normalized_var*scope   #UNDO NORMALIZATION FROM THIS: normalized_var=diff/scope
+            real_var=diff+min     #UNDO THIS: diff=real_var-min
+            matrix[:,i]=real_var
+        return matrix
+    
     '''
     X=World3_run.generate_state_matrix(runs[0])
 normalized_x=test_normalization(X,X)
