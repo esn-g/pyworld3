@@ -6,7 +6,7 @@ from pyworld3.utils import plot_world_variables
 from world3_run_class import World3_run
 from generate_dataset_classfile import Generate_dataset
 
-datasetting=Generate_dataset(max_initval_variance_ppm=1, number_of_runs=2 )
+datasetting=Generate_dataset(max_initval_variance_ppm=0, number_of_runs=1 )
 datasetting.generate_models()
 modded_model=datasetting.world3_objects_array[0]
 

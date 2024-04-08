@@ -20,7 +20,12 @@ sys.path.append("create_dataset")
 from generate_dataset_classfile import Generate_dataset
 
 
-model=torch.load("Neural_network/model/model_5_epoch_test.pt")
+
+#dataset = CustomDataset("create_dataset/dataset_storage/dataset_runs_2_variance_1_normalized_.json") # Create an instance of your map-style dataset
+model=torch.load("Neural_network/model/model_gen1_bsize_100_lr_0.0001_epochs_1000.pt")  #Funkar inte helt kefft
+
+#model=torch.load("Neural_network/model/model_gen1_bsize_50_lr_0.0001_epochs_1500.pt")  #Funkar kefft
+#model=torch.load("Neural_network/model/model_gen1_bsize_50_lr_0.0001_epochs_1000.pt")   #Funkar asbra -tur med init kanske
 model.eval()
 
 
@@ -33,10 +38,11 @@ standard_state_matrix=np.array(
     Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
     )
 
-print(standard_state_matrix)
-normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix)
-print(standard_state_matrix)
-print("normstandardrun:\n",normalized_state_matrix)
+##print(standard_state_matrix)
+normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix.copy())
+
+#print(standard_state_matrix)
+#print("normstandardrun:\n",normalized_state_matrix)
 
 def next_state_estimate(model,current_state=torch.empty([]) ):
     next_state=model(current_state)
@@ -74,13 +80,21 @@ def estimated_model(model, state_matrix=np.empty([]),  number_of_states=601, sta
 
 
 normalized_states_estimated=estimated_model(model=model, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
+#print("normestimaterun:\n",normalized_states_estimated)
 
-print("normestimaterun:\n",normalized_state_matrix)
-states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated)
+
+states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
+#states_estimated=Generate_dataset.min_max_DEnormalization(normalized_state_matrix.copy())
+#standard_state_matrix=normalized_state_matrix
+
+#print("normestimaterun:\n",normalized_states_estimated)
+#print("normrun:\n",normalized_state_matrix)
+#states_estimated=normalized_states_estimated
+#standard_state_matrix=normalized_state_matrix
 
 error_matrix=standard_state_matrix-states_estimated
 
-print("estimaterun:\n",states_estimated)
+#print("estimaterun:\n",states_estimated)
 
 print("Error matrix: \n", error_matrix)
 

@@ -82,8 +82,9 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs):
             # Print statistics
             running_loss += loss.item() * inputs.size(0)
         epoch_loss = running_loss / len(train_loader.dataset)
+        print("Loss.item()=",loss.item())
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.4f}")
-    torch.save(model, "Neural_network/model/model_gen1_bsize_"+ batch_size + "_lr_"+ learning_rate + "_epochs_" + num_epochs + ".pt")
+    torch.save(model, "Neural_network/model/model_gen1_bsize_"+ str(batch_size) + "_lr_"+ str(learning_rate) + "_epochs_" + str(num_epochs) + ".pt")
 
 train_model(model=model, train_loader=train_loader, criterion=criterion, optimizer=optimizer, num_epochs=5)
 

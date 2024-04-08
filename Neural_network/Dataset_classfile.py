@@ -43,7 +43,8 @@ class CustomDataset(Dataset):
 
         # Convert state matrix and label to tensors if necessary
         #state_matrix_tensor = torch.tensor(state_matrix, dtype=torch.float32)
-        print("Sample_index: ",index)
+        #print("Sample_index: ", index) if index % 200 == 0 else None
+
 
         
         quotient, remainder = divmod(index, self.k_max)
