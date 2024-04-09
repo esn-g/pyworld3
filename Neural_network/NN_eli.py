@@ -4,19 +4,10 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms 
 
-
-device = (
-    "cuda"
-    if torch.cuda.is_available()
-    else "mps"
-    if torch.backends.mps.is_available()
-    else "cpu"
-)
-print(f"Using {device} device")
-
+activation = nn.LeakyReLU()
 
 class Neural_Network(nn.Module):
-    def __init__(self, input_size=12, hidden_sizes=[20,20,20], output_size=12, activation=nn.ReLU()):
+    def __init__(self, input_size=12, hidden_sizes=[20,20,20,20,20], output_size=12, activation=activation):
         """
         Constructor for the Neural_Network class.
 
@@ -46,6 +37,9 @@ class Neural_Network(nn.Module):
 
         # Activation function
         self.activation = activation
+    
+    def __str__(self) -> str:
+        return super().__str__()
 
     def forward(self, x):
         """
@@ -56,12 +50,9 @@ class Neural_Network(nn.Module):
             torch.Tensor: Output tensor.
         """
 
-        #print("\nEnters forward()/model()\n")
-
         # Input layer
         x = self.input_layer(x)
         x = self.activation(x)
-        
 
         # Hidden layers
         for hidden_layer in self.hidden_layers:
@@ -69,7 +60,6 @@ class Neural_Network(nn.Module):
             x = self.activation(x)
         
         # Output layer
-        
         
         x = self.output_layer(x)
 
