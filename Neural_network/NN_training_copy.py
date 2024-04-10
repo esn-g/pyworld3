@@ -11,6 +11,8 @@ from Dataset_classfile import CustomDataset
 import matplotlib.pyplot as plt
 import numpy as np
 
+import itertools    #For creating hyperparameterspace
+
 import sys
 sys.path.append("create_dataset")
 from generate_dataset_classfile import Generate_dataset
@@ -56,7 +58,8 @@ class NN_training_run():
     
         #model,   # MAYBE DO THIS WITHIN THE INIT AND SIMPLY PASS THE SHAPE    
     def __init__(self, 
-                dataset, 
+                dataset,
+                model_load=False, 
                 num_epochs=1000, 
                 criterion='sum', 
                 learning_rate=1e-4,
@@ -226,11 +229,15 @@ class NN_hyperparameters_optimization():
     #Class for training the NN network, 
     # either for to train a model to be used 
     # or to test which model is most effective
+
+    # Add load option - load a previous model to further train
+
     def __init__(self, dataset_path="create_dataset/dataset_storage/dataset_runs_1_variance_0_normalized_.json", fetch_hyperparams_path="hyperparams.json"):  #train=False, test=False, save=False,
         #self.train=train
         #self.test=test
         #self.save=save
 
+        
 
         '''  This is done in the other class
         #Start with this as basic, maybe test changing later
@@ -303,28 +310,40 @@ class NN_hyperparameters_optimization():
 
     def hyperparameter_space(self):
 
-        Learning_rate_stepsize=5e-6
-        batch_size_stepsize=5
-        NN_depth_stepsize=1
-        NN_width_stepsize=1
-
-        Learning_rate_num_steps=2
-        batch_size_num_steps=2
-        NN_depth_num_steps=1
-        NN_width_num_steps=1
         
 
-        Learning_rate_steps=np.linspace(self.hyperparams_dict["learning_rate"])
-        batch_size_steps=np.linspace(self.hyperparams_dict["batch_size"])
-        NN_depth_steps=np.linspace(self.hyperparams_dict["NN_depth"])
-        NN_width_steps=np.linspace(self.hyperparams_dict["NN_width"])
+        # Define the range of hyperparameters
+        criterion_options = ["mean", "sum"]
+        learning_rate_options = [1e-4, 1e-3, 1e-2]
+        batch_size_options = range(1, 200, 50)
+        NN_depth_options = [2, 3, 4]
+        NN_width_options = [15, 20, 25]
+        activation_function_options = [nn.ReLU(), nn.Tanh(), nn.Sigmoid()]
 
-        for lr_val in np.arange(Learning_rate_steps):
-            pass
+        # Create a dictionary containing all possible combinations of hyperparameters
+        hyperparams_space = []
 
-        for i in self.hyperparams_stepsize.keys():
-            #self.hyperparams_stepsize(i)[2]
-            pass
+        for criterion, learning_rate, batch_size, NN_depth, NN_width, activation_function in itertools.product(criterion_options, 
+                                                                                                            learning_rate_options, 
+                                                                                                            batch_size_options, 
+                                                                                                            NN_depth_options, 
+                                                                                                            NN_width_options, 
+                                                                                                            activation_function_options):
+            hyperparams_dict = {
+                "criterion": criterion,
+                "learning_rate": learning_rate,
+                "batch_size": batch_size,
+                "NN_depth": NN_depth,
+                "NN_width": NN_width,
+                "activation_function": activation_function
+            }
+            hyperparams_space.append(hyperparams_dict)
+
+        # Now you have a list of dictionaries containing all possible combinations of hyperparameters
+        # You can iterate over this list and train your neural network with each combination
+
+
+        
 
         
         
