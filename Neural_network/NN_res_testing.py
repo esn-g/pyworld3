@@ -21,16 +21,12 @@ sys.path.append("create_dataset")
 
 from generate_dataset_classfile import Generate_dataset
 
-modelstring = "Neural_network/model/model_res_gen2_bsize_20_lr_1e-05_epochs_800x.pt"
+modelstring = "Neural_network/model/gold2000.pt"
 
 #dataset = CustomDataset("create_dataset/dataset_storage/dataset_runs_2_variance_1_normalized_.json") # Create an instance of your map-style dataset
-model=torch.load(modelstring)  #Funkar inte helt kefft
-
-#model=torch.load("Neural_network/model/model_gen1_bsize_50_lr_0.0001_epochs_1500.pt")  #Funkar kefft
-#model=torch.load("Neural_network/model/model_gen1_bsize_50_lr_0.0001_epochs_1000.pt")   #Funkar asbra -tur med init kanske
-#N                 Neural_network/model/model_res_gen1_bsize_20_lr_1e-05_epochs_200.pt  #resnet, lovande resultat
-#                  Neural_network/model/model_res_gen1_bsize_20_lr_1e-06_epochs_400.pt  # bäst hittils, figur sparad
-#                  Neural_network/model/model_res_gen1_bsize_20_lr_1e-06_epochs_800.pt
+model=torch.load(modelstring)  
+model.plot_weights_heatmap()
+# Neural_network/model/model_res_gen4_bsize_20_lr_0.001_epochs_600x.pt
 
 # set model to evaluation mode, required for testing
 model.eval()
@@ -54,7 +50,7 @@ def estimated_model(model, state_matrix=np.empty([]),  number_of_states=601, sta
     estimated_state_matrix=np.empty( (number_of_states, 12))
     
     for k, state_vector in enumerate(state_matrix):
-        # # # #  ## # #  
+        # # # # # # # #  
         sum=0
         for i in state_vector:
             sum+=state_vector-current_state
@@ -80,12 +76,10 @@ def estimated_model(model, state_matrix=np.empty([]),  number_of_states=601, sta
 
 normalized_states_estimated=estimated_model(model=model, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
 
-# 
+#
 states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
-
-error_matrix=standard_state_matrix-states_estimated
-
-print("Error matrix: \n", error_matrix)
+#error_matrix=standard_state_matrix-states_estimated
+#print("Error matrix: \n", error_matrix)
 
 al_est_full=states_estimated[:,0]
 pal_est_full=states_estimated[:,1]
@@ -112,7 +106,7 @@ plot_world_variables(
     title='Model: ' + modelstring,
 )
 plt.show()
-# plt.savefig('TEST_AGRIC_SEC_' + modelstring)
+# plt.savefig(modelstring +'TEST_AGRIC_SEC_Lr_SCHED.pdf')
 
 # funkar ej
 # x =input('Save? <any>=save, <n> =no)')
