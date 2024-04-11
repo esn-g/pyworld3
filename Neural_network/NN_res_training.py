@@ -1,18 +1,41 @@
 import os
+from sympy import Min
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+import matplotlib.pyplot as plt
 
 from NN_classfile_clean_eli import Neural_Network
 from Dataset_classfile import CustomDataset
 
+########################### --- Model --- ##########################
+
+hidden_sizes = [20,20,20,20,20]
+model=Neural_Network(hidden_sizes=hidden_sizes, activation=nn.PReLU())
+
+########################### --- Hyperparameters --- #################
+# Larger batch sizes usually require larger learning rates, and smaller batch sizes usually require smaller learning rates to achieve convergence.
+# When using larger batch sizes, you might need to increase the learning rate to compensate for the reduced noise in parameter updates.
+# Conversely, when using smaller batch sizes, you might need to decrease the learning rate to prevent overshooting the minimum.
+
+learning_rate = 1e-3 # 1e-6 bra början utan scheduler, 1e-3?
+batch_size = 20
+epochs = 2000
+criterion=nn.MSELoss()    #Saves lossfunc
+optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+# Adaptive LR
+gamma = 0.9 # stock value 0.9? exponential 
+
+# scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-8, last_epoch=(-1), verbose='deprecated')
+
+########## --- dataset --- #######################
 dataset = CustomDataset("create_dataset/dataset_storage/dataset_runs_2_variance_1_normalized_.json") # Create an instance of your map-style dataset
+train_loader = DataLoader(dataset, batch_size=batch_size)
 
-# Instantiate DataLoader with the dataset and sampler
-batch_size = 32  # Define your desired batch size
-train_loader = DataLoader(dataset)#, batch_size=batch_size)#, sampler="RandomSampler")
-
+########## --- Device --- ########################
 # small batch size ->> cpu
 # small < 1000
 # large batch size ->> mps/gpu
@@ -27,29 +50,9 @@ device = (
     else "cpu"
 )
 print(f"Device: {device}")
-model=Neural_Network(hidden_sizes=[20,20,20,20,20,20,20,20,20,20,20])
 model.to(device)
 
-'''
-# Iterate over batches of data
-for batch in train_loader:
-    # Process each batch as needed
-    print("\n\nBatch:\n",batch,"\n\n\n")  # Example: Printing each batch of data
-'''
-
-#Hyperparameters
-# Larger batch sizes usually require larger learning rates, and smaller batch sizes usually require smaller learning rates to achieve convergence.
-# When using larger batch sizes, you might need to increase the learning rate to compensate for the reduced noise in parameter updates.
-# Conversely, when using smaller batch sizes, you might need to decrease the learning rate to prevent overshooting the minimum.
-
-learning_rate = 10e-6
-batch_size = 20
-epochs = 800
-
-criterion=nn.MSELoss()    #Saves lossfunc
-optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
-
-#GPT model trainer 
+########################## --- GPT model trainer --- ######################
 def train_model(model, train_loader, criterion, optimizer, num_epochs):
     """
     Train the neural network model.
@@ -64,6 +67,10 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs):
     Returns:
         None
     """
+    # For plotting
+    epoch_losses = []  # To store epoch losses
+    epoch_learning_rates = []  # To store epoch learning rates
+
     for epoch in range(num_epochs):
         model.train()  # Set model to training mode
         running_loss = 0.0
@@ -89,30 +96,39 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs):
 
             # Print statistics
             running_loss += loss.item() * inputs.size(0)
+
+        # scheduler update per epoch.
+        scheduler.step()
+        learning_rate_print = scheduler.get_lr()
         epoch_loss = running_loss / len(train_loader.dataset)
+
+        # Append epoch loss and learning rate for plotting
+        epoch_losses.append(epoch_loss)
+        epoch_learning_rates.append(learning_rate_print[0])
+
+        # prints to monitor
+        print('[Epoch Learning rate]: ')
+        print(learning_rate_print)
         print("Loss.item()=",loss.item())
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.8f}")
-    torch.save(model, "Neural_network/model/model_res_gen2_bsize_"+ str(batch_size) + "_lr_"+ str(learning_rate) + "_epochs_" + str(num_epochs) + 'x' +".pt")
+    
+    # after run, save the model
+    torch.save(model, "Neural_network/model/model_goldGen_bsize_" + str(batch_size) + "_lr_"+ str(learning_rate) + "_epochs_" + str(num_epochs) + 'x' +".pt")
+
+    # Plotting epoch loss
+    plt.plot(range(1, num_epochs + 1), epoch_losses)
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Epoch Loss')
+    plt.show()
+    
+    # Plotting epoch learning rate
+    plt.plot(range(1, num_epochs + 1), epoch_learning_rates)
+    plt.xlabel('Epoch')
+    plt.ylabel('Learning Rate')
+    plt.title('Epoch Learning Rate')
+    plt.show()
 
 train_model(model=model, train_loader=train_loader, criterion=criterion, optimizer=optimizer, num_epochs=epochs)
 
-def test_loop(dataloader, model, loss_fn):
-    # Set the model to evaluation mode - important for batch normalization and dropout layers
-    # Unnecessary in this situation but added for best practices
-    model.eval()
-    size = len(dataloader.dataset)
-    num_batches = len(dataloader)
-    test_loss, correct = 0, 0
-
-    # Evaluating the model with torch.no_grad() ensures that no gradients are computed during test mode
-    # also serves to reduce unnecessary gradient computations and memory usage for tensors with requires_grad=True
-    with torch.no_grad():
-        for X, y in dataloader:
-            pred = model(X)
-            test_loss += loss_fn(pred, y).item()
-            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
-
-    test_loss /= num_batches
-    correct /= size
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
