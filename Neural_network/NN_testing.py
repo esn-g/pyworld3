@@ -26,7 +26,7 @@ from generate_dataset_classfile import Generate_dataset
 
 #model=torch.load("Neural_network/model/model_gen1_bsize_50_lr_0.0001_epochs_1500.pt")  #Funkar kefft
 model=torch.load("Neural_network/model/model_gen1_bsize_50_lr_0.0001_epochs_1000.pt")   #Funkar asbra -tur med init kanske
-model.eval()
+model.eval()    #eval mode
 
 
 
@@ -34,43 +34,60 @@ model.eval()
 #standard_state_matrix=torch.tensor(     
 #    Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
 #    )
+
+#Fetches the standard run
 standard_state_matrix=np.array(     
     Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
     )
 
-##print(standard_state_matrix)
+
+# Normalizes the standard run and saves without altering original matrix
 normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix.copy())
 
-#print(standard_state_matrix)
-#print("normstandardrun:\n",normalized_state_matrix)
 
 def next_state_estimate(model,current_state=torch.empty([]) ):
     next_state=model(current_state)
     return next_state
 
-#state_1=next_state_estimate(X_state_matrix[0,:], A_state_transition_matrix )
-#print("\nreal state 1: \n", X_state_matrix[1,:] ,"\nestimated state_1: \n", state_1[:])
-
 
 def estimated_model(model, state_matrix=np.empty([]),  number_of_states=601, start_state_index=0):
+    ''' estimated_model function to generate the estimated state-matrix based on the NN-model
+    Takes in arguments: 
+    model - the NN model to estimate the states
+    state_matrix - the original normalized matrix to compare to
+    number_of_states - how many states should be estimated
+    start_state_index - from which k the estimation starts
+
+    The state_matrix of k=[starts_state_index] gives the initial value to the model which is passed forward to generate the next
+    this is then repeated for the entire state-matrix
+
+    '''
     
     current_state=state_matrix[start_state_index,:]
 
     estimated_state_matrix=np.empty( (number_of_states, 12))
     
     for k, state_vector in enumerate(state_matrix):
-        sum=0
+        '''sum=0
+        
         for i in state_vector:
             sum+=state_vector-current_state
-
         print("Sum of error at run k=",k," SUM=",sum)
+        '''
         estimated_state_matrix[k,:]=current_state
-        current_state=torch.tensor(current_state).float()   #Format for NN forward
+
+        #Format into tensor for NN forward
+        current_state=torch.tensor(current_state).float()   
+
+        #Estimate the next state via helper function
         next_state=next_state_estimate(model=model, current_state=current_state)
 
+        #Reformat as numpy array
         next_state = next_state.detach().numpy()
 
+        # Step forward
         current_state=next_state
+
         #print("\ncurr state\n",current_state)
 
     estimated_state_matrix[number_of_states-1,:]=current_state
@@ -78,25 +95,63 @@ def estimated_model(model, state_matrix=np.empty([]),  number_of_states=601, sta
     return estimated_state_matrix
     
 
-
+# Estimates the normalized state-matrix
 normalized_states_estimated=estimated_model(model=model, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
 #print("normestimaterun:\n",normalized_states_estimated)
 
 
+# Denormalizes the estimated state matrix
 states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
-#states_estimated=Generate_dataset.min_max_DEnormalization(normalized_state_matrix.copy())
-#standard_state_matrix=normalized_state_matrix
+
+
 
 #print("normestimaterun:\n",normalized_states_estimated)
 #print("normrun:\n",normalized_state_matrix)
 #states_estimated=normalized_states_estimated
 #standard_state_matrix=normalized_state_matrix
 
-error_matrix=standard_state_matrix-states_estimated
 
-#print("estimaterun:\n",states_estimated)
 
-print("Error matrix: \n", error_matrix)
+def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated):
+    ''' Generate error matrix
+    Takes in arguments - real and estimated matrix, original and normalized
+    All arrays are on the form: each row corresponds to a state at value k
+    the columns are the different variables
+    '''
+        
+    # Generate the total error matrix
+    print("\nsum of standard matrix: ",np.sum(standard_state_matrix),"\n\n")
+    print("\nsum of estimated matrix: ",np.sum(states_estimated),"\n\n")
+    print("estimate run:\n",states_estimated)
+    print("standard run:\n",standard_state_matrix)
+    error_matrix=standard_state_matrix-states_estimated
+
+    print("\nsum of standard matrix: ",np.sum(standard_state_matrix),"\n\n")
+    print("\nsum of estimated matrix: ",np.sum(states_estimated),"\n\n")
+
+    print("Error matrix: \n", error_matrix)
+
+    ### Generate the NORMALIZED VERSION error matrix 
+    print("\nsum of normalized standard matrix: ",np.sum(normalized_state_matrix),"\n\n")
+    print("\nsum of normalized estimated matrix: ",np.sum(normalized_states_estimated),"\n\n")
+    print("normalized estimate run:\n",normalized_states_estimated)
+    print("normalized standard run:\n",normalized_state_matrix)
+    normalized_error_matrix=normalized_state_matrix-normalized_states_estimated
+
+    print("\nsum of normalized standard matrix: ",np.sum(normalized_state_matrix),"\n\n")
+    print("\nsum of normalized estimated matrix: ",np.sum(normalized_states_estimated),"\n\n")
+
+    print("Normalized error matrix: \n", normalized_error_matrix)
+    #print("estimaterun:\n",states_estimated)
+
+    mean_of_variable_errors=np.mean(normalized_error_matrix, axis=0)
+    print("mean vector: \n",mean_of_variable_errors)
+    mean_of_variable_errors=np.mean(abs(normalized_error_matrix), axis=0)
+    print("abs mean vector: \n",mean_of_variable_errors)
+
+    return error_matrix , normalized_error_matrix
+
+generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
 
 al_est_full=states_estimated[:,0]
 pal_est_full=states_estimated[:,1]
@@ -125,4 +180,4 @@ plot_world_variables(
 plt.show()
 #plt.savefig("fig_world3_AR_test_poli1_diff_big.png")
 
-
+#Fixa error för hela variablerna, över hela, typ sum eller mean

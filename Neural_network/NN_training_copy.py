@@ -13,9 +13,9 @@ import numpy as np
 
 import itertools    #For creating hyperparameterspace
 
-import sys
-sys.path.append("create_dataset")
-from generate_dataset_classfile import Generate_dataset
+#import sys
+#sys.path.append("create_dataset")
+#from generate_dataset_classfile import Generate_dataset
 # Or:
 import json
 
@@ -535,5 +535,207 @@ def test_loop(dataloader, model, loss_fn):
             torch.save(model, "Neural_network/model/"+savename)
         return batch_loss_evolution, epoch_loss_evolution
 
+
+'''
+
+
+
+
+
+
+'''
+
+
+    #################################### AGRICULTURE VARIABLES: #################################### 
+        Initialize the state and rate variables of the agriculture sector
+        (memory allocation). Variables and their unit are documented above at
+        the class level.
+
+     
+        # loop 1 - food from investment in land development
+        self.al = np.full((self.n,), np.nan)
+        self.pal = np.full((self.n,), np.nan)
+        self.dcph = np.full((self.n,), np.nan)
+        self.f = np.full((self.n,), np.nan)
+        self.fpc = np.full((self.n,), np.nan)
+        self.fioaa = np.full((self.n,), np.nan)
+        self.ifpc = np.full((self.n,), np.nan)
+        self.ldr = np.full((self.n,), np.nan)
+        self.lfc = np.full((self.n,), np.nan)
+        self.tai = np.full((self.n,), np.nan)
+
+        # loop 2 - food from investment in agricultural inputs
+        self.ai = np.full((self.n,), np.nan)
+        self.aiph = np.full((self.n,), np.nan)
+        self.alai = np.full((self.n,), np.nan)
+        self.cai = np.full((self.n,), np.nan)
+        self.ly = np.full((self.n,), np.nan)
+        self.lyf = np.full((self.n,), np.nan)
+        self.lymap = np.full((self.n,), np.nan)
+        self.lymc = np.full((self.n,), np.nan)
+
+        # loop 1 & 2 - the investment allocation decision
+        self.fiald = np.full((self.n,), np.nan)
+        self.mlymc = np.full((self.n,), np.nan)
+        self.mpai = np.full((self.n,), np.nan)
+        self.mpld = np.full((self.n,), np.nan)
+
+        # loop 3 -land erosion and urban-industrial use
+        self.uil = np.full((self.n,), np.nan)
+        self.all = np.full((self.n,), np.nan)
+        self.llmy = np.full((self.n,), np.nan)
+        self.ler = np.full((self.n,), np.nan)
+        self.lrui = np.full((self.n,), np.nan)
+        self.uilpc = np.full((self.n,), np.nan)
+        self.uilr = np.full((self.n,), np.nan)
+
+        # loop 4 - land fertility degradation
+        self.lfert = np.full((self.n,), np.nan)
+        self.lfd = np.full((self.n,), np.nan)
+        self.lfdr = np.full((self.n,), np.nan)
+
+        # loop 5 - land fertility regeneration
+        self.lfr = np.full((self.n,), np.nan)
+        self.lfrt = np.full((self.n,), np.nan)
+
+        # loop 6 - discontinuing land maintenance
+        self.falm = np.full((self.n,), np.nan)
+        self.fr = np.full((self.n,), np.nan)
+        self.pfr = np.full((self.n,), np.nan)
+
+
+        #################################### CAPITAL VARIABLES: #################################### 
+
+        Initialize the state and rate variables of the capital sector
+        (memory allocation). Variables and their unit are documented above at
+        the class level.
+
+        
+        # industrial sector
+        self.ic = np.full((self.n,), np.nan)
+        self.io = np.full((self.n,), np.nan)
+        self.icdr = np.full((self.n,), np.nan)
+        self.icir = np.full((self.n,), np.nan)
+        self.icor = np.full((self.n,), np.nan)
+        self.iopc = np.full((self.n,), np.nan)
+        self.alic = np.full((self.n,), np.nan)
+        self.fioac = np.full((self.n,), np.nan)
+        self.fioai = np.full((self.n,), np.nan)
+        self.fioacv = np.full((self.n,), np.nan)
+
+        # service subsector
+        self.sc = np.full((self.n,), np.nan)
+        self.so = np.full((self.n,), np.nan)
+        self.scdr = np.full((self.n,), np.nan)
+        self.scir = np.full((self.n,), np.nan)
+        self.scor = np.full((self.n,), np.nan)
+        self.sopc = np.full((self.n,), np.nan)
+        self.alsc = np.full((self.n,), np.nan)
+        self.isopc = np.full((self.n,), np.nan)
+        self.fioas = np.full((self.n,), np.nan)
+
+        # job subsector
+        self.cuf = np.full((self.n,), np.nan)
+        self.j = np.full((self.n,), np.nan)
+        self.jph = np.full((self.n,), np.nan)
+        self.jpicu = np.full((self.n,), np.nan)
+        self.jpscu = np.full((self.n,), np.nan)
+        self.lf = np.full((self.n,), np.nan)
+        self.luf = np.full((self.n,), np.nan)
+        self.lufd = np.full((self.n,), np.nan)
+        self.pjas = np.full((self.n,), np.nan)
+        self.pjis = np.full((self.n,), np.nan)
+        self.pjss = np.full((self.n,), np.nan)
+        
+    #################################### POLLUTION VARIABLES: #################################### 
+        Initialize the state and rate variables of the pollution sector
+        (memory allocation). Variables and their unit are documented above at
+        the class level.
+
+        self.ppol = np.full((self.n,), np.nan)
+        self.ppolx = np.full((self.n,), np.nan)
+        self.ppgao = np.full((self.n,), np.nan)
+        self.ppgio = np.full((self.n,), np.nan)
+        self.ppgf = np.full((self.n,), np.nan)
+        self.ppgr = np.full((self.n,), np.nan)
+        self.ppapr = np.full((self.n,), np.nan)
+        self.ppasr = np.full((self.n,), np.nan)
+        self.pptd = np.full((self.n,), np.nan)
+        self.ahlm = np.full((self.n,), np.nan)
+        self.ahl = np.full((self.n,), np.nan)
+    #################################### POPULATION VARIABLES: #################################### 
+
+        Initialize the state and rate variables of the population sector
+        (memory allocation). Variables and their unit are documented above at
+        the class level.
+
+ 
+        # population sector
+        self.pop = np.full((self.n,), np.nan)
+        self.p1 = np.full((self.n,), np.nan)
+        self.p2 = np.full((self.n,), np.nan)
+        self.p3 = np.full((self.n,), np.nan)
+        self.p4 = np.full((self.n,), np.nan)
+        self.d1 = np.full((self.n,), np.nan)
+        self.d2 = np.full((self.n,), np.nan)
+        self.d3 = np.full((self.n,), np.nan)
+        self.d4 = np.full((self.n,), np.nan)
+        self.mat1 = np.full((self.n,), np.nan)
+        self.mat2 = np.full((self.n,), np.nan)
+        self.mat3 = np.full((self.n,), np.nan)
+
+        # death rate subsector
+        self.d = np.full((self.n,), np.nan)
+        self.cdr = np.full((self.n,), np.nan)
+        self.fpu = np.full((self.n,), np.nan)
+        self.le = np.full((self.n,), np.nan)
+        self.lmc = np.full((self.n,), np.nan)
+        self.lmf = np.full((self.n,), np.nan)
+        self.lmhs = np.full((self.n,), np.nan)
+        self.lmhs1 = np.full((self.n,), np.nan)
+        self.lmhs2 = np.full((self.n,), np.nan)
+        self.lmp = np.full((self.n,), np.nan)
+        self.m1 = np.full((self.n,), np.nan)
+        self.m2 = np.full((self.n,), np.nan)
+        self.m3 = np.full((self.n,), np.nan)
+        self.m4 = np.full((self.n,), np.nan)
+        self.ehspc = np.full((self.n,), np.nan)
+        self.hsapc = np.full((self.n,), np.nan)
+
+        # birth rate subsector
+        self.b = np.full((self.n,), np.nan)
+        self.cbr = np.full((self.n,), np.nan)
+        self.cmi = np.full((self.n,), np.nan)
+        self.cmple = np.full((self.n,), np.nan)
+        self.tf = np.full((self.n,), np.nan)
+        self.dtf = np.full((self.n,), np.nan)
+        self.dcfs = np.full((self.n,), np.nan)
+        self.fce = np.full((self.n,), np.nan)
+        self.fie = np.full((self.n,), np.nan)
+        self.fm = np.full((self.n,), np.nan)
+        self.frsn = np.full((self.n,), np.nan)
+        self.mtf = np.full((self.n,), np.nan)
+        self.nfc = np.full((self.n,), np.nan)
+        self.ple = np.full((self.n,), np.nan)
+        self.sfsn = np.full((self.n,), np.nan)
+        self.aiopc = np.full((self.n,), np.nan)
+        self.diopc = np.full((self.n,), np.nan)
+        self.fcapc = np.full((self.n,), np.nan)
+        self.fcfpc = np.full((self.n,), np.nan)
+        self.fsafc = np.full((self.n,), np.nan)
+
+    #################################### RESOURCE VARIABLES: #################################### 
+        Initialize the state and rate variables of the resource sector
+        (memory allocation). Variables and their unit are documented above at
+        the class level.
+
+        self.nr = np.full((self.n,), np.nan)
+        self.nrfr = np.full((self.n,), np.nan)
+        self.nruf = np.full((self.n,), np.nan)
+        self.nrur = np.full((self.n,), np.nan)
+        self.pcrum = np.full((self.n,), np.nan)
+        self.fcaor = np.full((self.n,), np.nan)
+    
+        
 
 '''
