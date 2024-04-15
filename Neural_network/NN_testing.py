@@ -20,8 +20,11 @@ from pyworld3.utils import plot_world_variables
 import sys
 sys.path.append("create_dataset")
 
-from generate_dataset_classfile import Generate_dataset
+from create_dataset import Generate_dataset
+#from generate_dataset_classfile import Generate_dataset
 
+#pip install git+file:///Users/elliottapperkarlsson/Github/pyworld3@AR_data_extraction
+#/Users/elliottapperkarlsson/Github/pyworld3@AR_data_extraction
 
 
 #dataset = CustomDataset("create_dataset/dataset_storage/dataset_runs_2_variance_1_normalized_.json") # Create an instance of your map-style dataset
@@ -172,9 +175,11 @@ start_state_index=0
 test_time=np.arange(0,300+.5,0.5)
 
 
-#print(pyworld3.__file__)
 
-print(sys.path)
+
+
+
+
 
 plot_world_variables(
     test_time,
@@ -190,3 +195,78 @@ plt.show()
 #plt.savefig("fig_world3_AR_test_poli1_diff_big.png")
 
 #Fixa error för hela variablerna, över hela, typ sum eller mean
+
+'''
+
+Jacobian  - (TORCH.AUTOGRAD.FUNCTIONAL.JACOBIAN ?)
+using only how inputs influence the outputs, gradient on xi
+
+Then heatmap on jacobian
+
+x=f(x0+delta_xi)
+grad( f(x) ) med avseende på xi
+
+Jk
+mean of J=1/n * [J1+J2]
+variance of J=1/n * (J1-mean of J)^2
+
+
+
+Hurwitz- stability
+
+
+Loss function using L1 regulariziation
+Loss= Sum(y-f(x))^2 + |theta|
+
+
+Do the learning convergence plot using logarithmic scale - how it is generally done
+
+Log(loss)
+^
+ |
+ |
+ |
+_|____________> k steps
+ |
+
+or 
+
+|theta_k - theta_k-1|^2
+^
+ |
+ |
+ |
+_|_________________> k_steps
+ |
+
+
+ Do everything for standard run
+ - hypothesis for the correlatins
+
+ Then create varied dataset
+ use it to verify
+
+ 
+
+
+
+To do list 
+
+
+    - Spruta ut varied dataset
+
+    - Log för convergence
+
+    - Add get ppmvar in dataset classfile - use to name our trained models
+
+    - Kolla upp Jacobian - hur gör man på bästa sätt
+        - extrahera J och gör heatmap för ett visst k - k=0 eller 1 
+        - gör för flera k , kanske stega igenom standard run, J för alla k%50=0
+        - ta mean och var 
+
+    - L1 regularization
+        -Gör Jacobian igen
+
+    - L1 och varied dataset
+        -Gör J igen
+'''
