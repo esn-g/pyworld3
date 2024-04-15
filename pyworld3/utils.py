@@ -115,6 +115,9 @@ def requires(outputs=None, inputs=None, check_at_init=True, check_after_init=Tru
     return requires_decorator
 
 
+
+################################ Added line_styles ######################################
+
 def plot_world_variables(
     time,
     var_data,
@@ -125,16 +128,20 @@ def plot_world_variables(
     figsize=None,
     dist_spines=0.09,
     grid=False,
+    line_styles=["-"],  # New parameter for line styles
 ):
     """
     Plots world state from an instance of World3 or any single sector.
 
     """
+    # Get default color cycle for plot lines
     prop_cycle = plt.rcParams["axes.prop_cycle"]
     colors = prop_cycle.by_key()["color"]
 
+    # Determine the number of variables
     var_number = len(var_data)
 
+    # Create subplots with shared x-axis and multiple y-axes
     fig, host = plt.subplots(figsize=figsize)
     axs = [
         host,
@@ -142,6 +149,7 @@ def plot_world_variables(
     for i in range(var_number - 1):
         axs.append(host.twinx())
 
+    # Adjust spacing between subplots
     fig.subplots_adjust(left=dist_spines * 2)
     for i, ax in enumerate(axs[1:]):
         ax.spines["left"].set_position(("axes", -(i + 1) * dist_spines))
@@ -149,6 +157,7 @@ def plot_world_variables(
         ax.yaxis.set_label_position("left")
         ax.yaxis.set_ticks_position("left")
 
+    # Add background image if provided
     if img_background is not None:
         im = imread(img_background)
         axs[0].imshow(
@@ -158,22 +167,27 @@ def plot_world_variables(
             cmap="gray",
         )
 
+    # Plot data for each variable
     ps = []
-    for ax, label, ydata, color in zip(axs, var_names, var_data, colors):
-        ps.append(ax.plot(time, ydata, label=label, color=color)[0])
+    for ax, label, ydata, color, line_style in zip(axs, var_names, var_data, colors, line_styles): #Added line styles
+        # Plot augmented lines with decided line style
+        ps.append(ax.plot(time, ydata, label=label, color=color, linestyle=line_style)[0])
     axs[0].grid(grid)
     axs[0].set_xlim(time[0], time[-1])
 
+    # Set y-axis limits for each subplot
     for ax, lim in zip(axs, var_lims):
         if lim is not None:
             ax.set_ylim(lim[0], lim[1])
 
+    # Format y-axis labels and ticks
     for ax_ in axs:
         formatter_ = EngFormatter(places=0, sep="\N{THIN SPACE}")
         ax_.tick_params(axis="y", rotation=90)
         ax_.yaxis.set_major_locator(plt.MaxNLocator(5))
         ax_.yaxis.set_major_formatter(formatter_)
 
+    # Format x-axis labels and ticks
     tkw = dict(size=4, width=1.5)
     axs[0].set_xlabel("time [years]")
     axs[0].tick_params(axis="x", **tkw)
@@ -183,7 +197,9 @@ def plot_world_variables(
         ax.tick_params(axis="y", colors=p.get_color(), **tkw)
         ax.yaxis.set_label_coords(-i * dist_spines, 1.01)
 
+    # Add title if provided
     if title is not None:
         fig.suptitle(title, x=0.95, ha="right", fontsize=10)
 
+    # Adjust layout for better visualization
     plt.tight_layout()

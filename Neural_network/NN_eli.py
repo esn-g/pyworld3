@@ -7,7 +7,7 @@ from torchvision import datasets, transforms
 activation = nn.LeakyReLU()
 
 class Neural_Network(nn.Module):
-    def __init__(self, input_size=12, hidden_sizes=[20,20,20,20,20], output_size=12, activation=nn.LeakyReLU()):
+    def __init__(self, input_size=12, hidden_sizes=[20,20,20,20,20], output_size=12, activation=nn.ReLU()):
         """
         Constructor for the Neural_Network class.
 
@@ -38,8 +38,8 @@ class Neural_Network(nn.Module):
         # Activation function
         self.activation = activation
     
-    def __str__(self) -> str:
-        return super().__str__()
+    def __str__(self):
+        return "input: "+self.input_layer+" - hidden layers: "+self.hidden_layers+" - output: "+self.output_layer
 
     def forward(self, x):
         """

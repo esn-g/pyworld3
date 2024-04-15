@@ -1,3 +1,4 @@
+from email import utils
 import os
 import torch
 from torch import nn
@@ -10,8 +11,10 @@ from Dataset_classfile import CustomDataset
 from re import A
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
+print("\nsyspath\n: ",sys.path,"\n")
+from pyworld3 import World3, world3
 
-from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
 
 import sys
@@ -168,6 +171,11 @@ number_of_states=601
 start_state_index=0
 test_time=np.arange(0,300+.5,0.5)
 
+
+#print(pyworld3.__file__)
+
+print(sys.path)
+
 plot_world_variables(
     test_time,
     [al, pal, uil, lfert, al_est_full, pal_est_full, uil_est_full, lfert_est_full ],
@@ -176,6 +184,7 @@ plot_world_variables(
     img_background=None,
     figsize=(7, 5),
     title="Test NN model 1ppm 2 runs",
+    line_styles=["-", "-", "-", "-", "--", "--", "--", "--"],
 )
 plt.show()
 #plt.savefig("fig_world3_AR_test_poli1_diff_big.png")
