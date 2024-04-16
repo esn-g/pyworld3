@@ -20,12 +20,13 @@ import sys
 sys.path.append("create_dataset")
 
 from generate_dataset_classfile import Generate_dataset
-
-modelstring = "Neural_network/model/gold2000.pt"
+modelstring =input('Copy relative path to model:')
+#modelstring = "Neural_network/model/L1_lambda:1_PReLU_hiddenSz:10_BSz:20_COSAnn_Start:0.001_epochs_2000Last_Loss:819.3883056640625.pt"
 
 #dataset = CustomDataset("create_dataset/dataset_storage/dataset_runs_2_variance_1_normalized_.json") # Create an instance of your map-style dataset
 model=torch.load(modelstring)  
-model.plot_weights_heatmap()
+
+# FUNKAR EJ model.plot_weights_heatmap()
 # Neural_network/model/model_res_gen4_bsize_20_lr_0.001_epochs_600x.pt
 
 # set model to evaluation mode, required for testing
@@ -78,8 +79,8 @@ normalized_states_estimated=estimated_model(model=model, state_matrix=normalized
 
 #
 states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
-#error_matrix=standard_state_matrix-states_estimated
-#print("Error matrix: \n", error_matrix)
+error_matrix=standard_state_matrix-states_estimated
+print("Error matrix: \n", error_matrix)
 
 al_est_full=states_estimated[:,0]
 pal_est_full=states_estimated[:,1]
