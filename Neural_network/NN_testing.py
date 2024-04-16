@@ -235,8 +235,9 @@ var_names= list( state_vars_dict.keys() ) + list( est_state_vars_dict.keys() )
 
 var_limits= np.amax( orig_est_data, axis=1 )
 
-np.amax( state_vars_dict.values().extend( state_vars_dict.values() )
-        
+#np.amax( state_vars_dict.values().extend( state_vars_dict.values() )
+
+len(state_vars_dict.values())
 
 
 dict_of_plotvars= {
