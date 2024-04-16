@@ -49,6 +49,20 @@
             1000000000000.0
         ]
     },
+    
+    "var_str_list":["al",
+                    "pal",
+                    "uil",
+                    "lfert",
+                    "ic",
+                    "sc",
+                    "ppol",
+                    "p1",
+                    "p2",
+                    "p3",
+                    "p4",
+                    "nr"]
+    ,
     "Standard Run Initial Values": {
         "p1i": 650000000.0,
         "p2i": 700000000.0,

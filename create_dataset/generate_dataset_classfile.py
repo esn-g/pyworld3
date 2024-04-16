@@ -88,6 +88,9 @@ class Generate_dataset():
         for run in range(self.number_of_runs):
             initial_vals=self.randomize_init_state()
             self.world3_objects_array[run]=World3_run.run_model(init_values=initial_vals)
+            #if run%10==0:
+            #    print("completed run ",run)
+            print("completed run ",run)
         
 
 
@@ -116,14 +119,14 @@ class Generate_dataset():
         
 
         if norm==2:  #When called recorsively for normalizing
-            add_norm_str="_normalized_"
+            add_norm_str="_norm"
         else:
             add_norm_str=""     #Added if not normalized
 
         directory="create_dataset/dataset_storage/"
 
         if file_name==None:
-            file_name=f"dataset_runs_{self.number_of_runs}_variance_{self.max_initval_variance_ppm}"
+            file_name=f"W3data_len{self.number_of_runs}_ppmvar{self.max_initval_variance_ppm}"
         file_name=f"{file_name}{add_norm_str}"  #Append normalized or ""
         
         file_path_full=f"{directory}{file_name}.json"

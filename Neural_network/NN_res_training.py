@@ -35,6 +35,9 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, 
 dataset = CustomDataset("create_dataset/dataset_storage/dataset_runs_2_variance_1_normalized_.json") # Create an instance of your map-style dataset
 train_loader = DataLoader(dataset, batch_size=batch_size)
 
+#   Gather the variance:            ADDED BY ELI 16/APR
+ppm_variance=dataset.ppmvar
+
 ########## --- Device --- ########################
 # small batch size ->> cpu
 # small < 1000
@@ -53,7 +56,7 @@ print(f"Device: {device}")
 model.to(device)
 
 ########################## --- GPT model trainer --- ######################
-def train_model(model, train_loader, criterion, optimizer, num_epochs):
+def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-"):
     """
     Train the neural network model.
 
@@ -129,6 +132,6 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs):
     plt.title('Epoch Learning Rate')
     plt.show()
 
-train_model(model=model, train_loader=train_loader, criterion=criterion, optimizer=optimizer, num_epochs=epochs)
+train_model(model=model, train_loader=train_loader, criterion=criterion, optimizer=optimizer, num_epochs=epochs, ppmvar=ppm_variance)
 
 

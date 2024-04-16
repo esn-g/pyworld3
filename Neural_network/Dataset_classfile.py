@@ -23,6 +23,7 @@ class CustomDataset(Dataset):
         parameters_dict=dataset_dict["Parameters"]   #Dict of datasetparameters for saving nr of runs and timespan
         self.nr_of_runs=parameters_dict["number_of_runs"]   
         self.timespan=parameters_dict["timespan"] #List on form [start year, end year, step size]
+        self.ppmvar=parameters_dict["max_initval_variance_ppm"]
         self.k_max=((self.timespan[1]-self.timespan[0])/self.timespan[2])+1 #List on form [start year, end year, step size]
 
         state_matrices_arraylist=list(dataset_dict["Model_runs"].values()) #fetches a list of all state_arrays (nested lists)
