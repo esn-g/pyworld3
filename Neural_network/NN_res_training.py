@@ -37,10 +37,10 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, 
 l1_lambda = 0.000001
 
 ########## --- dataset --- #######################
-dataset = CustomDataset("create_dataset/dataset_storage/dataset_runs_2_variance_1_normalized_.json") # Create an instance of your map-style dataset
+dataset = CustomDataset("create_dataset/dataset_storage/W3data_len10_ppmvar10000_norm.json") # Create an instance of your map-style dataset
 train_loader = DataLoader(dataset, batch_size=batch_size)
 
-#   Gather the variance:            ADDED BY ELI 16/APR
+#   Gather the variance:            ADDED BY ELI 16/APR // Thanks Dawg 
 ppm_variance=dataset.ppmvar
 
 ########## --- Device --- ########################
