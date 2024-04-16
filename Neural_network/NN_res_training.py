@@ -11,8 +11,9 @@ from Dataset_classfile import CustomDataset
 
 ########################### --- Model --- ##########################
 
-hidden_sizes = [20,20,20,20,20]
-model=Neural_Network(hidden_sizes=hidden_sizes, activation=nn.PReLU())
+hidden_sizes = [20,20,20,20,20,20,20,20,20,20]
+activation=nn.PReLU()
+model=Neural_Network(hidden_sizes=hidden_sizes, activation=activation)
 
 ########################### --- Hyperparameters --- #################
 # Larger batch sizes usually require larger learning rates, and smaller batch sizes usually require smaller learning rates to achieve convergence.
@@ -30,6 +31,10 @@ gamma = 0.9 # stock value 0.9? exponential
 
 # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-8, last_epoch=(-1), verbose='deprecated')
+
+#L1 regularization parameter
+# for gold2000 parameters, lamda 0.00001 is too bad? lambda 0.0000001 Standard result
+l1_lambda = 0.000001
 
 ########## --- dataset --- #######################
 dataset = CustomDataset("create_dataset/dataset_storage/dataset_runs_2_variance_1_normalized_.json") # Create an instance of your map-style dataset
@@ -92,6 +97,14 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
             outputs = inputs + delta_outputs
             
             loss = criterion(outputs, labels)
+            # L1 Regularization - after loss, before lossBACKWARD
+            l1_reg = 0
+            for param in model.parameters():
+                l1_reg += torch.sum(abs(param))
+            l1_reg /= len(list(model.parameters()))
+            
+            # Append l1 loss to total loss
+            loss = loss + (l1_lambda*l1_reg)
 
             # Backward pass and optimization
             loss.backward()
@@ -116,22 +129,29 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.8f}")
     
     # after run, save the model
-    torch.save(model, "Neural_network/model/model_goldGen_bsize_" + str(batch_size) + "_lr_"+ str(learning_rate) + "_epochs_" + str(num_epochs) + 'x' +".pt")
+    torch.save(model, "Neural_network/model/L1X_lambda:" + str(l1_lambda) + "_PReLU_hiddenSz:"+ str(len(hidden_sizes)) +'_BSz:'+ str(batch_size) + "_COSAnn_Start:"+ str(learning_rate) + "_epochs_" + str(num_epochs)+'Last_Loss:' + str(epoch_loss) + ".pt")
+
+    fig, axs = plt.subplots(2, 1, figsize=(10, 8))
 
     # Plotting epoch loss
-    plt.plot(range(1, num_epochs + 1), epoch_losses)
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.title('Epoch Loss')
-    plt.show()
-    
+    axs[0].plot(range(1, num_epochs + 1), epoch_losses)
+    axs[0].set_yscale('log')  # Set y-axis to logarithmic scale
+    axs[0].set_xlabel('Epoch')
+    axs[0].set_ylabel('Log Loss')
+    axs[0].set_title('Epoch Log Loss')
+
     # Plotting epoch learning rate
-    plt.plot(range(1, num_epochs + 1), epoch_learning_rates)
-    plt.xlabel('Epoch')
-    plt.ylabel('Learning Rate')
-    plt.title('Epoch Learning Rate')
+    axs[1].plot(range(1, num_epochs + 1), epoch_learning_rates)
+    axs[1].set_xlabel('Epoch')
+    axs[1].set_ylabel('Learning Rate')
+    axs[1].set_title('Epoch Learning Rate')
+
+    plt.tight_layout()  # Adjust layout to prevent overlap
     plt.show()
 
 train_model(model=model, train_loader=train_loader, criterion=criterion, optimizer=optimizer, num_epochs=epochs, ppmvar=ppm_variance)
+
+
+
 
 

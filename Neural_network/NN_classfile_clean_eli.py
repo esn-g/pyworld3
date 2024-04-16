@@ -4,7 +4,7 @@ from torch import nn
 import matplotlib.pyplot as plt
 
 class Neural_Network(nn.Module):
-    def __init__(self, input_size=12, hidden_sizes=[20,20,20,20,20], output_size=12, activation=nn.ReLU()):
+    def __init__(self, input_size=12, hidden_sizes=[20,20,20,20,20], output_size=12, activation=nn.PReLU()):
         """
         Constructor for the Neural_Network class.
 
