@@ -129,7 +129,7 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.8f}")
     
     # after run, save the model
-    torch.save(model, "Neural_network/model/L1X_lambda:" + str(l1_lambda) + "_PReLU_hiddenSz:"+ str(len(hidden_sizes)) +'_BSz:'+ str(batch_size) + "_COSAnn_Start:"+ str(learning_rate) + "_epochs_" + str(num_epochs)+'Last_Loss:' + str(epoch_loss) + ".pt")
+    torch.save(model, "Neural_network/model/ppmvar_"+ppmvar+"_L1X_lambda_" + str(l1_lambda) + "_PReLU_hiddenSz_"+ str(len(hidden_sizes)) +'_BSz_'+ str(batch_size) + "_COSAnn_Start_"+ str(learning_rate) + "_epochs_" + str(num_epochs)+'Last_Loss_' + str(epoch_loss) + ".pt")
 
     fig, axs = plt.subplots(2, 1, figsize=(10, 8))
 
