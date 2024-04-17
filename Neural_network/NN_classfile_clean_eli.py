@@ -38,33 +38,6 @@ class Neural_Network(nn.Module):
     def __str__(self) -> str:
         return super().__str__()
     
-    def plot_weights_heatmap(self):
-        """
-        Plot heatmaps of the weights in each layer of the neural network.
-        """
-        plt.figure(figsize=(15, 5))
-
-        # Plot input layer weights
-        plt.subplot(1, len(self.hidden_layers) + 1, 1)
-        plt.imshow(self.input_layer.weight.detach().numpy(), cmap='hot', interpolation='nearest')
-        plt.colorbar()
-        plt.title('Input Layer Weights')
-
-        # Plot hidden layers' weights
-        for i, hidden_layer in enumerate(self.hidden_layers):
-            plt.subplot(1, len(self.hidden_layers) + 1, i + 2)
-            plt.imshow(hidden_layer.weight.detach().numpy(), cmap='hot', interpolation='nearest')
-            plt.colorbar()
-            plt.title(f'Hidden Layer {i+1} Weights')
-
-        # Plot output layer weights
-        plt.subplot(1, len(self.hidden_layers) + 1, len(self.hidden_layers) + 2)
-        plt.imshow(self.output_layer.weight.detach().numpy(), cmap='hot', interpolation='nearest')
-        plt.colorbar()
-        plt.title('Output Layer Weights')
-
-        plt.tight_layout()
-        plt.show()
 
 
     def forward(self, x):

@@ -36,7 +36,7 @@ def weightHeatmap(model):
     vmax = np.max(abs(all_param_values))
 
     for name, param in model.named_parameters():
-        # print('Name: '+ name + '\nParameters: '+ str(param)+ '\nSdim: ' + str(param.dim()) + '\n'+str(param.size(dim=-1)) )
+        print('Name: '+ name + '\nParameters: '+ str(param)+ '\nSdim: ' + str(param.dim()) + '\n'+str(param.size(dim=-1)) )
         if param.dim() == 2:
             im = axes[plot_index].imshow(abs(param), cmap='viridis',vmin=vmin, vmax=vmax)
             axes[plot_index].set_title(name)

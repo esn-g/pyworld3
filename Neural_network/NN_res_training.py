@@ -1,5 +1,5 @@
 import os
-from sympy import Min
+from sympy import N, Min
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -20,9 +20,9 @@ model=Neural_Network(hidden_sizes=hidden_sizes, activation=activation)
 # When using larger batch sizes, you might need to increase the learning rate to compensate for the reduced noise in parameter updates.
 # Conversely, when using smaller batch sizes, you might need to decrease the learning rate to prevent overshooting the minimum.
 
-learning_rate = 1e-3 # 1e-6 bra början utan scheduler, 1e-3?
-batch_size = 20
-epochs = 2000
+learning_rate = 1e-2 # 1e-6 bra början utan scheduler, 1e-3?
+batch_size = 2400
+epochs = 4000
 criterion=nn.MSELoss()    #Saves lossfunc
 optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -30,14 +30,14 @@ optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
 gamma = 0.9 # stock value 0.9? exponential 
 
 # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-8, last_epoch=(-1), verbose='deprecated')
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-9, last_epoch=(-1), verbose='deprecated')
 
 #L1 regularization parameter
 # for gold2000 parameters, lamda 0.00001 is too bad? lambda 0.0000001 Standard result
-l1_lambda = 0.000001
+l1_lambda = 0.0000001
 
 ########## --- dataset --- #######################
-dataset = CustomDataset("create_dataset/dataset_storage/W3data_len10_ppmvar10000_norm.json") # Create an instance of your map-style dataset
+dataset = CustomDataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000_norm.json") # Create an instance of your map-style dataset
 train_loader = DataLoader(dataset, batch_size=batch_size)
 
 #   Gather the variance:            ADDED BY ELI 16/APR // Thanks Dawg 
@@ -54,14 +54,14 @@ device = (
     "cuda"
     if torch.cuda.is_available()
     else "mps"
-    if torch.backends.mps.is_available() and batch_size > 1000
+    if torch.backends.mps.is_available() and batch_size > 2000
     else "cpu"
 )
 print(f"Device: {device}")
 model.to(device)
 
 ########################## --- GPT model trainer --- ######################
-def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-"):
+def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-", L1regBool = False):
     """
     Train the neural network model.
 
@@ -98,13 +98,14 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
             
             loss = criterion(outputs, labels)
             # L1 Regularization - after loss, before lossBACKWARD
-            l1_reg = 0
-            for param in model.parameters():
-                l1_reg += torch.sum(abs(param))
-            l1_reg /= len(list(model.parameters()))
+            if L1regBool == True:
+                l1_reg = 0
+                for param in model.parameters():
+                    l1_reg += torch.sum(abs(param))
+                l1_reg /= len(list(model.parameters()))
             
-            # Append l1 loss to total loss
-            loss = loss + (l1_lambda*l1_reg)
+                # Append l1 loss to total loss
+                loss = loss + (l1_lambda*l1_reg)
 
             # Backward pass and optimization
             loss.backward()
@@ -126,10 +127,10 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
         print('[Epoch Learning rate]: ')
         print(learning_rate_print)
         print("Loss.item()=",loss.item())
-        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.8f}")
+        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.10f}")
     
     # after run, save the model
-    torch.save(model, "Neural_network/model/ppmvar_"+ppmvar+"_L1X_lambda_" + str(l1_lambda) + "_PReLU_hiddenSz_"+ str(len(hidden_sizes)) +'_BSz_'+ str(batch_size) + "_COSAnn_Start_"+ str(learning_rate) + "_epochs_" + str(num_epochs)+'Last_Loss_' + str(epoch_loss) + ".pt")
+    torch.save(model, "Neural_network/model/ppmvar_" +str(ppmvar) +"_L1YES_lambda_" + str(l1_lambda) + "_PReLU_hiddenSz_"+ str(len(hidden_sizes)) + '_BSz_'+ str(batch_size) + "_COSAnn_Start_" + str(learning_rate) + "_epochs_" + str(num_epochs) + 'Last_Loss_' + str(epoch_loss) + ".pt")
 
     fig, axs = plt.subplots(2, 1, figsize=(10, 8))
 
@@ -149,7 +150,15 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
     plt.tight_layout()  # Adjust layout to prevent overlap
     plt.show()
 
-train_model(model=model, train_loader=train_loader, criterion=criterion, optimizer=optimizer, num_epochs=epochs, ppmvar=ppm_variance)
+
+ans = input('L1reg? y/n \n')
+if ans == 'y':
+    print('L1 regularization used')
+    userL1 = True
+else:
+    print('No Regularization used.')
+    userL1 = False
+train_model(model=model, train_loader=train_loader, criterion=criterion, optimizer=optimizer, num_epochs=epochs, ppmvar=ppm_variance, L1regBool=userL1)
 
 
 

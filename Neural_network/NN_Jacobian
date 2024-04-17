@@ -1,0 +1,17 @@
+import os
+import torch
+from torch import nn
+
+from torch.func import vmap, vjp
+
+modelstring = input('Copy relative path:')
+torch.load(modelstring)
+
+# vjp = 
+
+_, vjp_fn = vjp(model, x)
+
+ft_jacobian, = vmap(vjp_fn)(unit_vectors)
+
+# let's confirm both methods compute the same result
+assert torch.allclose(ft_jacobian, jacobian)
