@@ -134,10 +134,17 @@ def plot_world_variables(
     Plots world state from an instance of World3 or any single sector.
 
     """
-    # Get default color cycle for plot lines
-    prop_cycle = plt.rcParams["axes.prop_cycle"]
-    colors = prop_cycle.by_key()["color"]
+    ###################     Gets colors for state vars  ###################
+    _ , colors=create_colorcycle(var_names)
 
+    print("\n\n\n\nCOLORS: ",colors,"\n\n\n\n")
+    if len(colors)<1:
+        print("\n\nNOT PLOTTING STATE VARS\n\n")
+        # Get default color cycle for plot lines
+        prop_cycle = plt.rcParams["axes.prop_cycle"]
+        colors = prop_cycle.by_key()["color"]
+
+    print("\n\n\n\nCOLORS: ",colors,"\n\n\n\n")
     # Determine the number of variables
     var_number = len(var_data)
 
@@ -203,3 +210,89 @@ def plot_world_variables(
 
     # Adjust layout for better visualization
     plt.tight_layout()
+
+
+##############################################    For defining variable-colors    ######################################################
+
+def create_colorcycle(var_names):
+    '''Generates a dict of statevars as keys and corresponding colors as values'''
+        
+    # Define the base colors
+    base_colors = [ 'green', 'royalblue', 'chocolate', 'red', 'violet']
+    #sectors=[  "agriculture"  ,  "capital"  ,  "pollution"  ,  "population"  ,  "resource"  ]
+    variables=[ ["al","pal","uil","lfert"]  , ["ic","sc"] , ["ppol"] , ["p1","p2","p3","p4"] , ["nr"] ]
+    
+    
+    
+    
+
+    #sectors_colors_dict= dict(zip(sectors, list(base_colors, dark_base_colors)))
+
+    # Initialize the colormap list
+    colors = []
+
+    var_keys=[]
+
+    for var, color in zip(variables, base_colors):
+
+        for i in range(len(var)):   # Defines the number of shades for each color - amount of vars per sector
+            shade = plt.cm.colors.to_rgba(color, alpha=(i + 1) / len(var))
+            colors.append(shade)
+        var_keys+=var
+
+    
+
+    sectors_colors_dict= dict(zip(var_keys, colors ))
+
+    varcolor_dict_values=[]
+
+    for var in var_names:
+        try:
+            if var in var_keys:
+                varcolor_dict_values+=var
+            elif var-"_est" in var_keys:
+                varcolor_dict_values+=var
+        except:
+            print("\n\nINCORRECT VARIABLE NAME INPUTED TO PLOT FUNCTIO\n\n")
+
+    varcol_dict=dict(zip(var_names , varcolor_dict_values))
+
+
+    return varcol_dict
+    ######################## For darker and lighter colors #######################
+    ''' #from matplotlib.colors import ListedColormap
+    dark_base_colors = [ 'darkgreen', 'darkblue', 'saddlebrown', 'darkred', 'purple']      # If we diff lightness for estimated vars
+
+    # Define the number of shades for each color
+    num_shades = 4
+
+    # Initialize the colormap list
+    colors = []
+    dark_colors= []
+
+    # Generate shades for each base color
+    for color, dark_color in zip(base_colors, dark_base_colors):
+        # Generate shades of the base color
+        for i in range(num_shades):
+            shade = plt.cm.colors.to_rgba(color, alpha=(i + 1) / num_shades)
+            colors.append(shade)
+            dark_shade = plt.cm.colors.to_rgba(dark_color, alpha=(i + 1) / num_shades)
+            dark_colors.append(dark_shade)
+
+    # Create the colormap
+    custom_cmap = ListedColormap(colors)
+    custom_cmap_dark = ListedColormap(dark_colors)
+    var_str_list=np.array(["al","pal","uil","lfert","ic","sc","ppol","p1","p2","p3","p4","nr"]).T #Transposes it to get each variable as its own column 
+    #Assign to state_vars
+    color_vars_dict=dict( zip( var_str_list, list(custom_cmap_dark.values())  ) ) 
+
+    var_str_list_est=np.char.add(var_str_list,"_est")
+    est_color_vars_dict=dict( zip( var_str_list_est, list(custom_cmap.values())  ) )
+    '''
+    for i, color, dark_color in enumerate(zip(custom_cmap, custom_cmap_dark)):
+        pass
+    # Display the colormap
+    #plt.imshow(np.linspace(0, 1, 100).reshape(10, 10), cmap=custom_cmap)
+    plt.imshow(np.linspace(0, 1, 100).reshape(20, 5), cmap=custom_cmap_dark)
+    plt.colorbar()
+    plt.show()
