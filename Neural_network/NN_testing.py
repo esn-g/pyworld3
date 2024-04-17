@@ -12,10 +12,10 @@ from re import A
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-print("\nsyspath\n: ",sys.path,"\n")
+#print("\nsyspath\n: ",sys.path,"\n")
 from pyworld3 import World3, world3
 
-from pyworld3.utils import plot_world_variables
+from pyworld3.utils import *#plot_world_variables
 
 import sys
 sys.path.append("create_dataset")
@@ -192,8 +192,9 @@ def generate_statevars_dict(state_matrix=np.empty([601, 12]), est_matrix=np.empt
                             "p4",
                             "nr"]).T       #Transposes it to get each variable as its own column - X matrix but names
         # Zip variable names to variable vectors in the state matrix
-        state_vars_dict=dict( zip( var_str_list, state_matrix.T  ) )     # Transpose state matrix for correct alignment
-
+        state_vars_dict=dict( zip( var_str_list, state_matrix.T  ) )    # Transpose state matrix for correct alignment                                                                            
+                                                                        #states_estimated    #on form 601*12
+                                                                        #states_estimated.T on form 12*601
         var_str_list_est=np.char.add(var_str_list,"_est")
         est_state_vars_dict=dict( zip( var_str_list_est, est_matrix.T  ) )     # Transpose state matrix for correct alignment
         print(state_vars_dict)
@@ -201,57 +202,164 @@ def generate_statevars_dict(state_matrix=np.empty([601, 12]), est_matrix=np.empt
         return state_vars_dict, est_state_vars_dict
         
 
+
+
+
+
+
+
+
+
+def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables_included=["all"], time=np.arange(0,300+.5,0.5)):
+
+    '''
+    Automated plotting
+
+    est_state_vars_dict, state_vars_dict=dict() - Takes in the dicts of variable evolutions zipped with variable names
+
+    variables_included=["all"] - Define which variables are plotted (a list of strings - ex: ["al","pal"])
+
+    name=None - Name of the plot
+    
+    '''
+    
+    
+    #Unsure if dict() will work as default parameter
+
+    if variables_included!=["all"]:     #Ensure the ability to chose which variables to include
+        est_state_vars_dict = {key+"_est": est_state_vars_dict[key+"_est"] for key in variables_included}
+        if  state_vars_dict!=dict():
+            state_vars_dict = {key: state_vars_dict[key] for key in variables_included}
+
+    ###############     Generate parameters for plotting        #################
+    orig_est_data=list( state_vars_dict.values() )+list( est_state_vars_dict.values() )
+    #state_vars_dict.values().extend( est_state_vars_dict.values() )
+
+    var_names= list( state_vars_dict.keys() ) + list( est_state_vars_dict.keys() )
+    #state_vars_dict.keys().extend( est_state_vars_dict.keys() )
+
+    var_maxes= np.amax( list( state_vars_dict.values() )+list( state_vars_dict.values() ), axis=1 )*1.2
+
+    # Convert each element in var_maxes to a list containing 0 and the current element
+    var_limits = [[0, max_val] for max_val in var_maxes] 
+
+    #np.amax( state_vars_dict.values().extend( state_vars_dict.values() )
+
+    lines=["--"]*len(state_vars_dict.values()) + ["-"]*len(est_state_vars_dict.values())
+
+    ###############     Make a dict of the parameters to be sent to plotfunction        #################
+
+    dict_of_plotvars= {
+            "time" : time, 
+            "var_data" : orig_est_data ,
+            "var_names" : var_names ,
+            "var_lims" : var_limits ,    #Add axis=1
+            "img_background" : None,
+            "title" :  None,    #Add
+            "figsize" : (7, 5),                                   
+            "grid" : True,
+            "line_styles" : lines }    #"dist_spines" : float = 0.09,
+    
+            #######     PLOT
+    plot_world_variables(**dict_of_plotvars, dist_spines=0.03)
+    plt.show()
+
+test_variables=["al","pal","nr","p1"]
+
 state_vars_dict, est_state_vars_dict=generate_statevars_dict(standard_state_matrix, states_estimated)
 print(state_vars_dict)
-for i in range(len(state_vars_dict["al"][0])):
+'''for i in range(len(state_vars_dict["al"][0])):
     #print(state_vars_dict["al"][0][i])
      
-    print("i: ",i,", real: ",state_vars_dict["al"][0][i],", est: ", state_vars_dict["al"][1][i])
+    print("i: ",i,", real: ",state_vars_dict["al"][0][i],", est: ", state_vars_dict["al"][1][i])'''
 
-
-def plot_auto(est_matrix,state_matrix=None,name=None, variables_included="all"):
-
-    pass
+plot_auto(est_state_vars_dict, state_vars_dict)# , variables_included=test_variables )
 
 
 
-     
-#states_estimated    #on form 601*12
-#states_estimated.T on form 12*601
 
-for var in enumerate(states_estimated.T):
-     pass
-     
+# Get a colormap
+#colormap = plt.cm.get_cmap('tab20')  # Get the 'tab20' colormap with 20 distinct colors
 
-#    Make the rows into a list of np arrays instead
+'''
+from matplotlib import colormaps
+plot_color_gradients(
 
-#   Take in a list of inddexes for which variables to be included
-
-orig_est_data=list( state_vars_dict.values() )+list( est_state_vars_dict.values() )
-#state_vars_dict.values().extend( est_state_vars_dict.values() )
-
-var_names= list( state_vars_dict.keys() ) + list( est_state_vars_dict.keys() )
-#state_vars_dict.keys().extend( est_state_vars_dict.keys() )
-
-var_limits= np.amax( orig_est_data, axis=1 )
-
-#np.amax( state_vars_dict.values().extend( state_vars_dict.values() )
-
-len(state_vars_dict.values())
-
-
-dict_of_plotvars= {
-        "var_data" : orig_est_data ,
-        "var_names" : var_names ,
-        "var_lims" : var_limits ,    #ADd axis=1
-        "img_background" : None,
-        "title" :  None,    #Add
-        "figsize" : (7, 5),                                   
-        "grid" : True,
-        "line_styles" : ["-"] }    #"dist_spines" : float = 0.09,
+(greens)
+(blues)
+(greys)
+(reds)
+(purples)'''
 
 
 
+
+def create_colorspace():
+    #'''Generates a dict of statevars as keys and corresponding colors as values'''
+        
+    # Define the base colors
+    base_colors = [ 'green', 'royalblue', 'chocolate', 'red', 'violet']
+    #sectors=[  "agriculture"  ,  "capital"  ,  "pollution"  ,  "population"  ,  "resource"  ]
+    variables=[ ["al","pal","uil","lfert"]  , ["ic","sc"] , ["ppol"] , ["p1","p2","p3","p4"] , ["nr"] ]
+    
+    
+
+    #sectors_colors_dict= dict(zip(sectors, list(base_colors, dark_base_colors)))
+
+    # Initialize the colormap list
+    colors = []
+
+    var_keys=[]
+
+    for var, color in zip(variables, base_colors):
+
+        for i in range(len(var)):   # Defines the number of shades for each color - amount of vars per sector
+            shade = plt.cm.colors.to_rgba(color, alpha=(i + 1) / len(var))
+            colors.append(shade)
+        var_keys+=var
+
+    sectors_colors_dict= dict(zip(var_keys, colors ))
+    return sectors_colors_dict
+    ######################## For darker and lighter colors #######################
+    ''' #from matplotlib.colors import ListedColormap
+    dark_base_colors = [ 'darkgreen', 'darkblue', 'saddlebrown', 'darkred', 'purple']      # If we diff lightness for estimated vars
+
+    # Define the number of shades for each color
+    num_shades = 4
+
+    # Initialize the colormap list
+    colors = []
+    dark_colors= []
+
+    # Generate shades for each base color
+    for color, dark_color in zip(base_colors, dark_base_colors):
+        # Generate shades of the base color
+        for i in range(num_shades):
+            shade = plt.cm.colors.to_rgba(color, alpha=(i + 1) / num_shades)
+            colors.append(shade)
+            dark_shade = plt.cm.colors.to_rgba(dark_color, alpha=(i + 1) / num_shades)
+            dark_colors.append(dark_shade)
+
+    # Create the colormap
+    custom_cmap = ListedColormap(colors)
+    custom_cmap_dark = ListedColormap(dark_colors)
+    var_str_list=np.array(["al","pal","uil","lfert","ic","sc","ppol","p1","p2","p3","p4","nr"]).T #Transposes it to get each variable as its own column 
+    #Assign to state_vars
+    color_vars_dict=dict( zip( var_str_list, list(custom_cmap_dark.values())  ) ) 
+
+    var_str_list_est=np.char.add(var_str_list,"_est")
+    est_color_vars_dict=dict( zip( var_str_list_est, list(custom_cmap.values())  ) )
+    '''
+    for i, color, dark_color in enumerate(zip(custom_cmap, custom_cmap_dark)):
+        pass
+    # Display the colormap
+    #plt.imshow(np.linspace(0, 1, 100).reshape(10, 10), cmap=custom_cmap)
+    plt.imshow(np.linspace(0, 1, 100).reshape(20, 5), cmap=custom_cmap_dark)
+    plt.colorbar()
+    plt.show()
+
+
+'''
 
 plot_world_variables(
     test_time,
@@ -264,34 +372,36 @@ plot_world_variables(
     line_styles=["-", "-", "-", "-", "--", "--", "--", "--"],
 )
 plt.show()
+'''
 #plt.savefig("fig_world3_AR_test_poli1_diff_big.png")
 
 #Fixa error för hela variablerna, över hela, typ sum eller mean
 
 '''
 State variables:
+(associated colours)
 
-Agriculture:
+Agriculture: - (green)
 al
 pal
 uil
 lfert
 
 
-Capital:
+Capital: - (blue)
 ic 
 sc
 
-Pollution:
+Pollution:   - (gray/brown)
 ppol
 
-Population:
+Population: -   (red)
 p1
 p2
 p3
 p4
 
-Resource:
+Resource:   -   (pink/purple)
 nr'''
 
 '''
@@ -365,7 +475,7 @@ To do list :
         - gör för flera k , kanske stega igenom standard run, J för alla k%50=0
         - ta mean och var 
 
-    - L1 regularization - ESN
+    - L1 regularization - CHECK/ESN
         -Gör Jacobian igen
 
     - L1 och varied dataset     -POST JAC
