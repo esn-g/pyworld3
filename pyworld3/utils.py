@@ -251,6 +251,7 @@ def create_colorcycle(var_names):
             if var in var_keys:
                 varcolor_dict_values+=var
             elif var-"_est" in var_keys:
+                print("wrongvar: ", var)
                 varcolor_dict_values+=var
         except:
             print("\n\nINCORRECT VARIABLE NAME INPUTED TO PLOT FUNCTIO\n\n")
