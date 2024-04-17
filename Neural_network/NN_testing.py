@@ -15,7 +15,7 @@ import sys
 #print("\nsyspath\n: ",sys.path,"\n")
 from pyworld3 import World3, world3
 
-from pyworld3.utils import plot_world_variables
+from pyworld3.utils import *#plot_world_variables
 
 import sys
 sys.path.append("create_dataset")

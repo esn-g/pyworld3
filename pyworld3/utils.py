@@ -135,8 +135,8 @@ def plot_world_variables(
 
     """
     ###################     Gets colors for state vars  ###################
-    _ , colors=create_colorcycle(var_names)
-
+    varcol_dict=create_colorcycle(var_names)
+    colors=list(varcol_dict.values())
     print("\n\n\n\nCOLORS: ",colors,"\n\n\n\n")
     if len(colors)<1:
         print("\n\nNOT PLOTTING STATE VARS\n\n")
