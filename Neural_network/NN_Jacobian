@@ -1,17 +1,43 @@
+from mimetypes import init
 import os
 import torch
 from torch import nn
+import numpy as np
+import matplotlib.pyplot as plt
+import sys
 
-from torch.func import vmap, vjp
+# required to reach create_dataset folder
+sys.path.append("create_dataset")
+from generate_dataset_classfile import Generate_dataset
+standard_state_matrix=np.array(Generate_dataset.fetch_dataset("create_dataset/dataset_storage/dataset_runs_1_variance_0_normalized_.json")["Model_runs"]["Run_0_State_matrix"])
+initial_vals_standard = standard_state_matrix[0]
+initial_vals_standard = torch.from_numpy(initial_vals_standard)
+initial_vals_standard = initial_vals_standard.float()
 
-modelstring = input('Copy relative path:')
-torch.load(modelstring)
+# modelstring = input('Copy relative path: \n')       # ej hårdkodad
+modelstring = 'Neural_network/model/L1X_lambda:1e-07_PReLU_hiddenSz:10_BSz:20_COSAnn_Start:0.001_epochs_2000Last_Loss:5.294184613073109e-07.pt'    # hårdkoda modellen
+model=torch.load(modelstring)
+model.eval()
+model.to('cpu')
 
-# vjp = 
+x = model(initial_vals_standard)
+print(x)
 
-_, vjp_fn = vjp(model, x)
+jac = torch.autograd.functional.jacobian(model, initial_vals_standard)
+print('jacobian: \n' + str(jac))
 
-ft_jacobian, = vmap(vjp_fn)(unit_vectors)
+
+im = plt.imshow(jac, cmap='jet')
+cbar = plt.colorbar(im)
+plt.show()
+
+
+
+#_, vjp_fn = vjp(model, x)
+
+#ft_jacobian, = vmap(vjp_fn)(unit_vectors)
 
 # let's confirm both methods compute the same result
-assert torch.allclose(ft_jacobian, jacobian)
+#assert torch.allclose(ft_jacobian, jacobian)
+# enligt 
+# torch.autograd.functional.jacobian(net, input)
