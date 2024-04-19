@@ -34,6 +34,7 @@
 
 from numpy import arange
 
+#from population import Population
 from .population import Population
 from .capital import Capital
 from .agriculture import Agriculture

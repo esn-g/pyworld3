@@ -97,7 +97,9 @@ lfert=standard_state_matrix[:,3]
 number_of_states=601
 start_state_index=0
 test_time=np.arange(0,300+.5,0.5)
-
+from NN_utils import plot_state_vars
+plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated)
+'''
 plot_world_variables(
     test_time,
     [al, pal, uil, lfert, al_est_full, pal_est_full, uil_est_full, lfert_est_full ],
@@ -107,7 +109,7 @@ plot_world_variables(
     figsize=(7, 5),
     title='Model: ' + modelstring,
 )
-plt.show()
+plt.show()'''
 # plt.savefig(modelstring +'TEST_AGRIC_SEC_Lr_SCHED.pdf')
 
 # funkar ej
