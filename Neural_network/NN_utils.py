@@ -102,7 +102,7 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
     #np.amax( state_vars_dict.values().extend( state_vars_dict.values() )
 
     #Define linestyles and widths based on est and orig model
-    lines=["-"]*len(state_vars_dict.values()) + [":"]*len(est_state_vars_dict.values())
+    lines=["-"]*len(state_vars_dict.values()) + ["-."]*len(est_state_vars_dict.values())
 
     widths=[.75]*len(state_vars_dict.values()) + [1.7]*len(est_state_vars_dict.values())
 
