@@ -83,9 +83,11 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
         model.train()  # Set model to training mode
         running_loss = 0.0
         for inputs, labels in train_loader:
-            print(inputs.shape)
-            print(inputs)
+            # without altering the dataloader, extracts the nine identified main contributers to the model.
+            selected_columns = torch.cat((inputs[:, 2:10], inputs[:, 11].unsqueeze(1)), dim=1) # python slicing
 
+            #inputs = selected_columns           # relaod inputs 
+            selected_columns = selected_columns.float().to(device)
             inputs = inputs.float().to(device)  # Convert inputs to float tensor
             labels = labels.float().to(device)
             # print("Input: ",inputs, "\nShape: ", inputs.shape)
@@ -94,7 +96,7 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
             optimizer.zero_grad()
 
             # Forward pass
-            delta_outputs = model(inputs)
+            delta_outputs = model(selected_columns)
             # residual 
             outputs = inputs + delta_outputs
             
@@ -132,7 +134,7 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.10f}")
     
     # after run, save the model
-    torch.save(model, "Neural_network/model/ppmvar_" +str(ppmvar) +"_L1YES_lambda_" + str(l1_lambda) + "_PReLU_hiddenSz_"+ str(len(hidden_sizes)) + '_BSz_'+ str(batch_size) + "_COSAnn_Start_" + str(learning_rate) + "_epochs_" + str(num_epochs) + 'Last_Loss_' + str(epoch_loss) + ".pt")
+    torch.save(model, "Neural_network/model/hypotheses_validation_ppmvar_" +str(ppmvar) +"_NOL1_lambda_" + str(l1_lambda) + "_PReLU_hiddenSz_"+ str(len(hidden_sizes)) + '_BSz_'+ str(batch_size) + "_COSAnn_Start_" + str(learning_rate) + "_epochs_" + str(num_epochs) + 'Last_Loss_' + str(epoch_loss) + ".pt")
 
     fig, axs = plt.subplots(2, 1, figsize=(10, 8))
 
