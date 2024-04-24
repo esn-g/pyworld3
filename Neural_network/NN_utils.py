@@ -18,6 +18,18 @@ sys.path.append("create_dataset")
 
 from generate_dataset_classfile import Generate_dataset
 
+################### --- PLOTTING SETTINGS --- ###################################
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = 'Times New Roman'
+plt.rcParams['mathtext.fontset'] = 'cm'  # Use the Computer Modern font for math text (LaTeX style)
+
+# Set the font size for different plot elements
+plt.rcParams['axes.labelsize'] = 12  # Font size for labels (x and y)
+plt.rcParams['axes.titlesize'] = 14  # Font size for the title
+plt.rcParams['xtick.labelsize'] = 10  # Font size for the x ticks
+plt.rcParams['ytick.labelsize'] = 10  # Font size for the y ticks
+plt.rcParams['legend.fontsize'] = 10  # Font size for legend
+
 
 ################################################### IMPORTS FROM UTILS ##########################################################
 

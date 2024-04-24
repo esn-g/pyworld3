@@ -30,7 +30,7 @@ plt.rcParams['lines.markersize'] = 6
 ########################### --- Model --- ##########################
 
 hidden_sizes = [20,20,20,20,20,20,20,20,20,20]
-activation=nn.PReLU()
+activation=nn.Tanh()
 model=Neural_Network(hidden_sizes=hidden_sizes, activation=activation)
 
 ########################### --- Hyperparameters --- #################
@@ -39,8 +39,8 @@ model=Neural_Network(hidden_sizes=hidden_sizes, activation=activation)
 # Conversely, when using smaller batch sizes, you might need to decrease the learning rate to prevent overshooting the minimum.
 
 learning_rate = 1e-3 # 1e-6 bra början utan scheduler, 1e-3?
-batch_size = 600
-epochs = 400
+batch_size = 100
+epochs = 600
 criterion=nn.MSELoss()    #Saves lossfunc
 optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -50,18 +50,18 @@ gamma = 0.9 # stock value 0.9? exponential
 
 # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6, last_epoch=(-1), verbose='deprecated')
-scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10, factor=0.8, verbose=False)
+# scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10, factor=0.8, verbose=False)
 # scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.0001, max_lr=0.01, mode='triangular2', )
-scheduler = torch.optim.lr_scheduler.OneCycleLR()
+# scheduler = torch.optim.lr_scheduler.OneCycleLR()
 
 #L1 regularization parameter
 # for gold2000 parameters, lamda 0.00001 is too bad? lambda 0.0000001 Standard result
-l1_lambda = 0.0000001
+l1_lambda = 0.00000001
 
 ########## --- dataset --- #######################
 # updated with validation set 19/4 2024
 
-dataset = CustomDataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000_norm.json") # Create an instance of your map-style dataset
+dataset = CustomDataset("create_dataset/dataset_storage/W3data_len100_ppmvar5000000_norm.json") # Create an instance of your map-style dataset
 train_size = int(0.8 * len(dataset))
 val_size = len(dataset) - train_size
 
@@ -149,8 +149,8 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
         epoch_training_loss = running_loss / len(train_loader.dataset)
         epoch_validation_loss = validate_model(model, val_loader, criterion)
         
-        # scheduler step, needs validation loss for RONL plateu....
-        scheduler.step(epoch_validation_loss)
+        # scheduler step, needs validation loss for RONL plateu.... epoch_validation_loss
+        scheduler.step()
 
         # get LR for plotting
         learning_rate_print = scheduler.get_last_lr()
@@ -166,7 +166,7 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
         print(f"Validation Loss: {epoch_validation_loss:.10f}")
     
     # after run, save the model
-    torch.save(model, "Neural_network/model/ppmvar_" +str(ppmvar) +"_L1"+str(L1regBool)+"_lambda_" + str(l1_lambda) + "_PReLU_hiddenSz_"+ str(len(hidden_sizes)) + '_BSz_'+ str(batch_size) + "_COSAnn_Start_" + str(learning_rate) + "_epochs_" + str(num_epochs) + 'Last_TrainingLoss_' + str(epoch_training_loss) +  'Last_ValidationLoss_' + str(epoch_validation_loss) +".pt")
+    torch.save(model, "Neural_network/model/ppmvar_" +input_tag +str(ppmvar) +"_L1"+str(L1regBool)+"_lambda_" + str(l1_lambda) + "_PReLU_hiddenSz_"+ str(len(hidden_sizes)) + '_BSz_'+ str(batch_size) + "_COSAnn_Start_" + str(learning_rate) + "_epochs_" + str(num_epochs) + 'Last_TrainingLoss_' + str(epoch_training_loss) +  'Last_ValidationLoss_' + str(epoch_validation_loss) +".pt")
 
     fig, axs = plt.subplots(1, 2, figsize=(8, 10))
 
@@ -191,10 +191,12 @@ def train_model(model, train_loader, criterion, optimizer, num_epochs, ppmvar="-
     plt.show()
 
 def validate_model(model, val_loader, criterion):
-    model.eval()  # Set the model to evaluation mode
+    model.eval().to(device)  # Set the model to evaluation mode
     val_loss = 0
     with torch.no_grad():  # Turn off gradients for validation, saves memory and computations
         for inputs, labels in val_loader:
+            inputs = inputs.float().to(device)  # Convert inputs to float tensor
+            labels = labels.float().to(device)
             delta_outputs = model(inputs)
             outputs = inputs + delta_outputs
             loss = criterion(outputs, labels)
@@ -202,6 +204,7 @@ def validate_model(model, val_loader, criterion):
     return val_loss / len(val_loader.dataset)
 
 ans = input('L1reg? y/n \n')
+input_tag = input('custom name,specify string: ')
 if ans == 'y':
     print('L1 regularization used')
     userL1 = True
