@@ -100,17 +100,10 @@ class Generate_dataset():
         augmented_init_state_array=np.array(list(self.initial_values_dict.values())) #Takes original init values into array
 
         #Creates a random variance for each respective variable within the range set in the class initiation 
-<<<<<<< Updated upstream
         ppms = np.random.random_integers(1e6-self.max_initval_variance_ppm, 1e6+self.max_initval_variance_ppm, augmented_init_state_array.shape)
         print("How many ppms: ", ppms)
         fractions=ppms/(1e6) #Convert ppm to fractions
         print("fractions: ", fractions)
-=======
-        ppms = np.random.random_integers(10e6-self.max_initval_variance_ppm, 10e6+self.max_initval_variance_ppm, augmented_init_state_array.shape)
-        
-        fractions=ppms/(10e6) #Convert ppm to fractions
-        print('multipliers used in dataset generation: ' + str(fractions))
->>>>>>> Stashed changes
         
         augmented_init_state_array=augmented_init_state_array*fractions #Augment the init values 
 

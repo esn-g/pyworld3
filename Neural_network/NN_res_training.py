@@ -49,10 +49,10 @@ optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
 gamma = 0.9 # stock value 0.9? exponential 
 
 # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6, last_epoch=(-1), verbose='deprecated')
+# scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6, last_epoch=(-1), verbose='deprecated')
 # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10, factor=0.8, verbose=False)
 # scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.0001, max_lr=0.01, mode='triangular2', )
-# scheduler = torch.optim.lr_scheduler.OneCycleLR()
+scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer=optimizer)
 
 #L1 regularization parameter
 # for gold2000 parameters, lamda 0.00001 is too bad? lambda 0.0000001 Standard result
