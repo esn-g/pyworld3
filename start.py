@@ -1,3 +1,4 @@
+import platform
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -7,7 +8,7 @@ from pyworld3.utils import plot_world_variables
 
 world3 = World3()
 world3.set_world3_control()
-world3.init_world3_constants()
+world3.init_world3_constants(nri=-1)
 world3.init_world3_variables()
 world3.set_world3_table_functions()
 world3.set_world3_delay_functions()
@@ -72,3 +73,15 @@ print(theta_array)
 # theta_
 # print(residuals)
 # print(residuals)
+
+
+plot_world_variables(
+    world3.time,
+    [world3.nr, world3.iopc, world3.fpc, world3.pop, world3.ppolx],
+    ["NRFR", "IOPC", "FPC", "POP", "PPOLX"],
+    [[0,1.2*max(world3.nr)], [0, 1e3], [0, 1e3], [0, 16e9], [0, 32]],
+    figsize=(7, 5),
+    grid=1,
+    title="World3 standard run",
+)
+plt.show()

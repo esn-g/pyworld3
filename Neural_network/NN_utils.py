@@ -57,7 +57,7 @@ def generate_statevars_dict(state_matrix=np.empty([601, 12]), est_matrix=np.empt
         return state_vars_dict, est_state_vars_dict
         
 
-def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601, 12]) , name=None, variables_included=["all"], time=np.arange(0,300+.5,0.5) ):
+def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601, 12]) , name=None, variables_included=["all"], time=np.arange(1900,1900+300+.5,0.5) ):
 
     state_vars_dict, est_state_vars_dict = generate_statevars_dict(state_matrix=state_matrix, est_matrix=est_matrix )
     plot_auto(est_state_vars_dict=est_state_vars_dict, state_vars_dict=state_vars_dict, name=name, variables_included=variables_included, time=time )
@@ -66,7 +66,7 @@ def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601,
 
 
 
-def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables_included=["all"], time=np.arange(0,300+.5,0.5)):
+def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables_included=["all"], time=np.arange(1900,1900+300+.5,0.5)):
 
     '''
     Automated plotting
@@ -104,8 +104,9 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
     #Define linestyles and widths based on est and orig model
     lines=["-"]*len(state_vars_dict.values()) + [":"]*len(est_state_vars_dict.values())
 
-    widths=[.5]*len(state_vars_dict.values()) + [1.5]*len(est_state_vars_dict.values())
+    widths=[.75]*len(state_vars_dict.values()) + [1.7]*len(est_state_vars_dict.values())
 
+    
     ###############     Make a dict of the parameters to be sent to plotfunction        #################
 
     dict_of_plotvars= {
@@ -122,7 +123,7 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
             }    #"dist_spines" : float = 0.09,
     
             #######     PLOT
-    alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.03)
+    alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.06)
     plt.show()
 
 
@@ -232,9 +233,6 @@ def alt_plot_world_variables(
     ps = []
     for i, [label, ydata, color, line_style, line_width] in enumerate(zip( var_names, var_data, colors, line_styles, line_widths) ): #Added line styles+ widths
         
-       
-
-
         # Calculate the index of the axis to plot on
         ax_index = i % len(axs)
         ax = axs[ax_index]
@@ -283,6 +281,7 @@ def alt_plot_world_variables(
 
     # Adjust layout for better visualization
     plt.tight_layout()
+    #fig.tight_layout()
 
 
 ##############################################    For defining variable-colors    ######################################################

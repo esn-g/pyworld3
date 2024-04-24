@@ -169,8 +169,11 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
 
     #mean_of_variable_errors=np.mean(normalized_error_matrix, axis=0)
     #print("mean vector: \n",mean_of_variable_errors)
-    mean_of_variable_errors=np.mean(abs(normalized_error_matrix), axis=0)
-    print("Absolute mean of normalized errormatrix, vector: \n",mean_of_variable_errors)
+    norm_mean_of_variable_errors=np.mean(abs(normalized_error_matrix), axis=0)
+    print("Absolute mean of normalized errormatrix, vector: \n",norm_mean_of_variable_errors)
+
+    mean_of_variable_errors=np.mean( np.square(error_matrix) , axis=0)
+    print("mean square error of errormatrix, vector of vars: \n",mean_of_variable_errors)
 
     return error_matrix , normalized_error_matrix
 
@@ -193,7 +196,7 @@ test_time=np.arange(0,300+.5,0.5)
 '''
 
 
-
+#Best 'Neural_network/model/Plen_100LASSO_OKppmvar_500000_L1YES_lambda_1e-07_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_5.501026285514854e-07.pt' #regularized
 
 
 def main():
@@ -236,10 +239,17 @@ def main():
     model.to('cpu') #Incased trained on gpu, transfer back
     model.eval()
 
+    ##Fetches the standard run
+    #standard_state_matrix=np.array(     
+    #    Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
+    #    )
+
     #Fetches the standard run
     standard_state_matrix=np.array(     
-        Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
+        Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000.json")["Model_runs"]["Run_4_State_matrix"]  
         )
+
+
     # Normalizes the standard run and saves without altering original matrix
     normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix.copy())
     # Estimates the normalized state-matrix

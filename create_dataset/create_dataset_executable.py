@@ -1,12 +1,8 @@
 from re import A
-import matplotlib.pyplot as plt
-import numpy as np
-from pyworld3 import World3
-from pyworld3.utils import plot_world_variables
-from world3_run_class import World3_run
+
 from generate_dataset_classfile import Generate_dataset
 
-datasetting=Generate_dataset(max_initval_variance_ppm=500000, number_of_runs=100,  )
+datasetting=Generate_dataset(max_initval_variance_ppm=5e5, number_of_runs=100  )
 datasetting.generate_models()
 modded_model=datasetting.world3_objects_array[0]
 
