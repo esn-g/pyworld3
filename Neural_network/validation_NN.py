@@ -11,9 +11,6 @@ from pyworld3.utils import plot_world_variables
 import sys
 sys.path.append("create_dataset")
 
-
-
-
 from generate_dataset_classfile import Generate_dataset
 
 from NN_utils import plot_state_vars
@@ -83,38 +80,34 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
     the columns are the different variables
     '''
         
-    # Generate the total error matrix
-    #print("\nsum of standard matrix: ",np.sum(standard_state_matrix),"\n\n")
-    #print("\nsum of estimated matrix: ",np.sum(states_estimated),"\n\n")
-    #print("estimate run:\n",states_estimated)
-    #print("standard run:\n",standard_state_matrix)
+
     error_matrix=standard_state_matrix-states_estimated
 
     #print("\nsum of standard matrix: ",np.sum(standard_state_matrix),"\n\n")
     #print("\nsum of estimated matrix: ",np.sum(states_estimated),"\n\n")
-    #
-    #print("Error matrix: \n", error_matrix)
+
 
     ### Generate the NORMALIZED VERSION error matrix 
-    #print("\nsum of normalized standard matrix: ",np.sum(normalized_state_matrix),"\n\n")
-    #print("\nsum of normalized estimated matrix: ",np.sum(normalized_states_estimated),"\n\n")
-    #print("normalized estimate run:\n",normalized_states_estimated)
-    #print("normalized standard run:\n",normalized_state_matrix)
+
     normalized_error_matrix=normalized_state_matrix-normalized_states_estimated
 
     print("\nsum of normalized standard matrix: ",np.sum(normalized_state_matrix),"\n\n")
     print("\nsum of normalized estimated matrix: ",np.sum(normalized_states_estimated),"\n\n")
 
-    #print("Normalized error matrix: \n", normalized_error_matrix)
-    #print("estimaterun:\n",states_estimated)
 
-    #mean_of_variable_errors=np.mean(normalized_error_matrix, axis=0)
-    #print("mean vector: \n",mean_of_variable_errors)
-    norm_mean_of_variable_errors=np.mean(abs(normalized_error_matrix), axis=0)
-    print("Absolute mean of normalized errormatrix, vector: \n",norm_mean_of_variable_errors)
+    #norm_mean_of_variable_errors=np.mean(abs(normalized_error_matrix), axis=0)
+    #print("Absolute mean of normalized errormatrix, vector: \n",norm_mean_of_variable_errors)
 
-    mean_of_variable_errors=np.mean( np.square(error_matrix) , axis=0)
+    mean_of_variable_errors=np.mean( np.abs(error_matrix) , axis=0)
     print("mean square error of errormatrix, vector of vars: \n",mean_of_variable_errors)
+
+    mean_per_var_world3run=np.mean( standard_state_matrix, axis=0 )
+
+    print("mean of world3 run per var: \n", mean_per_var_world3run)
+
+    MSE_normalized=np.divide( mean_of_variable_errors, mean_per_var_world3run )
+
+    print("Mse normalized vector: \n", MSE_normalized)
 
     return error_matrix , normalized_error_matrix
 
@@ -126,6 +119,7 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
 
 
 def main():
+
     modelstring =input('Copy relative path to model: ')
     if modelstring=="":
         modelstring="Neural_network/model/gold2000.pt"
@@ -149,12 +143,13 @@ def main():
     print(spec_vars)
     if spec_vars =="":
         print("all")
-        spec_vars="all"
+        spec_vars=["all"]
     elif spec_vars in sectors:
         print("sector")
         spec_vars=sectors[spec_vars]
         print(spec_vars)
     elif any(spec_vars in var_list for var_list in sectors.values()):
+        spec_vars=[spec_vars]
         print("var")
         pass
     
@@ -170,7 +165,7 @@ def main():
     #    Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
     #    )
 
-    #Fetches the standard run
+    #Fetches other run
     standard_state_matrix=np.array(     
         Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000.json")["Model_runs"]["Run_4_State_matrix"]  
         )
@@ -189,7 +184,7 @@ def main():
     generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
 
     #Plot the state variables chosen standard is "all"
-    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
+    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
 
 main()
 
