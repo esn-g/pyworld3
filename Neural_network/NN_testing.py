@@ -250,7 +250,7 @@ def main():
     #    )
 
     alt_state_matrix=np.array(     
-    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000.json")["Model_runs"]["Run_4_State_matrix"]  
+    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar100000.0.json")["Model_runs"]["Run_4_State_matrix"]  
     )
 
     # Normalizes the standard run and saves without altering original matrix

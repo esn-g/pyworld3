@@ -21,9 +21,27 @@ var_str_list=np.array(["al",
     "p4",
     "nr"]).T       #Transposes it to get each variable as its own column - X matrix but names
 
-
+initial_state_vars_dict={
+    ################## pop vars ###############
+    "p1i" : 65e7 ,
+    "p2i" : 70e7 ,
+    "p3i" : 19e7 ,
+    "p4i" : 6e7 ,
+    ################### Capital vars ################
+    "ici" : 2.1e11 ,
+    "sci" : 1.44e11 ,
+    ################## Agricultute vars ###############
+    "ali" : 0.9e9 ,
+    "pali" : 2.3e9 ,
+    "uili" : 8.2e6 ,
+    "lferti" : 600 ,
+    ################## pollution vars ###############
+    "ppoli" : 2.5e7 ,
+    ################## Resource vars ###############
+    "nri" : 1e12 }
 
 initial_values_dict={
+    ################## pop vars ###############
     "p1i" : 65e7 ,
     "p2i" : 70e7 ,
     "p3i" : 19e7 ,
@@ -39,12 +57,14 @@ initial_values_dict={
     "rlt" : 30 ,
     "sad" : 20 ,
     "zpgt" : 4000 ,
+    ################### Capital vars ################
     "ici" : 2.1e11 ,
     "sci" : 1.44e11 ,
     "iet" : 4000 ,
     "iopcd" : 400 ,
     "lfpf" : 0.75 ,
     "lufdt" : 2 ,
+    ################## Agricultute vars ###############
     "ali" : 0.9e9 ,
     "pali" : 2.3e9 ,
     "lfh" : 0.7 ,
@@ -59,6 +79,7 @@ initial_values_dict={
     "ilf" : 600 ,
     "fspd" : 2 ,
     "sfpc" : 230 ,
+    ################## pollution vars ###############
     "ppoli" : 2.5e7 ,
     "ppol70" : 1.36e8 ,
     "ahl70" : 1.5 ,
@@ -67,6 +88,7 @@ initial_values_dict={
     "imef" : 0.1 ,
     "fipm" : 0.001 ,
     "frpm" : 0.02 ,
+    ################## Resource vars ###############
     "nri" : 1e12 }
 
 class Generate_dataset(): 
@@ -80,6 +102,7 @@ class Generate_dataset():
         self.number_of_runs=number_of_runs
         self.world3_objects_array=np.empty(number_of_runs, dtype=object)
         self.initial_values_dict=initial_values_dict
+        self.initial_state_vars_dict=initial_state_vars_dict
 
 
         
@@ -97,6 +120,23 @@ class Generate_dataset():
 
     def randomize_init_state(self): #Generate initial values based on initiation of class instance
 
+        augmented_init_state_array=np.array(list(self.initial_state_vars_dict.values())) #Takes original init values into array
+
+        #Creates a random variance for each respective variable within the range set in the class initiation 
+        ppms = np.random.random_integers(1e6-self.max_initval_variance_ppm, 1e6+self.max_initval_variance_ppm, augmented_init_state_array.shape)
+        print("\nHow many ppms:\n ", ppms)
+        fractions=ppms/(1e6) #Convert ppm to fractions
+        print("\nfractions: \n", fractions)
+        
+        augmented_init_state_array=augmented_init_state_array*fractions #Augment the init values 
+
+        augmented_init_state_dict=dict(zip(initial_state_vars_dict.keys(), augmented_init_state_array)) #Adds the new values to similar dict
+        print("\nAugmented init state arra:\n",augmented_init_state_dict)
+
+        return augmented_init_state_dict
+    
+    def old_randomize_init_state(self): #Generate initial values based on initiation of class instance
+
         augmented_init_state_array=np.array(list(self.initial_values_dict.values())) #Takes original init values into array
 
         #Creates a random variance for each respective variable within the range set in the class initiation 
@@ -112,9 +152,9 @@ class Generate_dataset():
         return augmented_init_state_dict
         
 
-            ##### NPY
+            
 
-
+##### NPY
 ############################################# Currently working with JSON #################################################
 #Will likely switch this later for better efficiency - binary formats like NumPy's .npy or .npz formats, or HDF5, designed for efficient storage and retrieval of numerical data.
     def save_runs(self, file_name=None, norm=False):
@@ -128,7 +168,7 @@ class Generate_dataset():
         directory="create_dataset/dataset_storage/"
 
         if file_name==None:
-            file_name=f"W3data_len{self.number_of_runs}_ppmvar{self.max_initval_variance_ppm}"
+            file_name=f"W3data_len{self.number_of_runs}_state_ppmvar{self.max_initval_variance_ppm}"
         file_name=f"{file_name}{add_norm_str}"  #Append normalized or ""
         
         file_path_full=f"{directory}{file_name}.json"
