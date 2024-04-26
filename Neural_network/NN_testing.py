@@ -240,15 +240,18 @@ def main():
     model.eval()
 
     ##Fetches the standard run
-    #standard_state_matrix=np.array(     
-    #    Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
-    #    )
-
-    #Fetches the standard run
     standard_state_matrix=np.array(     
-        Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000.json")["Model_runs"]["Run_4_State_matrix"]  
+        Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
         )
 
+    #Fetches the standard run
+    #standard_state_matrix=np.array(     
+    #    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000.json")["Model_runs"]["Run_0_State_matrix"]  
+    #    )
+
+    alt_state_matrix=np.array(     
+    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000.json")["Model_runs"]["Run_4_State_matrix"]  
+    )
 
     # Normalizes the standard run and saves without altering original matrix
     normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix.copy())
@@ -260,10 +263,13 @@ def main():
     states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
 
     #Gather error matrices and print some error values
-    generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
+    #generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
+
+    ##Plot the state variables chosen standard is "all"
+    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
 
     #Plot the state variables chosen standard is "all"
-    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
+    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
 
 main()
 
