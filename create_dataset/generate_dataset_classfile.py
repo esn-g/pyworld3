@@ -152,7 +152,7 @@ class Generate_dataset():
         return augmented_init_state_dict
         
 
-            
+
 
 ##### NPY
 ############################################# Currently working with JSON #################################################
@@ -168,7 +168,7 @@ class Generate_dataset():
         directory="create_dataset/dataset_storage/"
 
         if file_name==None:
-            file_name=f"W3data_len{self.number_of_runs}_state_ppmvar{self.max_initval_variance_ppm}"
+            file_name=f"W3data_len{self.number_of_runs}_state_ppmvar{self.max_initval_variance_ppm:.0e}"
         file_name=f"{file_name}{add_norm_str}"  #Append normalized or ""
         
         file_path_full=f"{directory}{file_name}.json"
