@@ -2,7 +2,7 @@ from re import A
 
 from generate_dataset_classfile import Generate_dataset
 
-datasetting=Generate_dataset(max_initval_variance_ppm=5e5, number_of_runs=100  )
+datasetting=Generate_dataset(max_initval_variance_ppm=1e5, number_of_runs=300)
 datasetting.generate_models()
 modded_model=datasetting.world3_objects_array[0]
 
