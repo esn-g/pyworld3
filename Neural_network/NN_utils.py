@@ -106,7 +106,17 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
     var_names= list( state_vars_dict.keys() ) + list( est_state_vars_dict.keys() )
     #state_vars_dict.keys().extend( est_state_vars_dict.keys() )
 
+
+
     var_maxes= np.amax( list( state_vars_dict.values() )+list( state_vars_dict.values() ), axis=1 )*1.2
+    est_var_maxes=np.amax( list( est_state_vars_dict.values() )+list( est_state_vars_dict.values() ), axis=1 )*1.2
+
+    #Make the biggest values fit
+    for var_idx, (varmax, estmax) in enumerate(zip(var_maxes, est_var_maxes)):
+        if varmax<estmax:
+            var_maxes[var_idx]=estmax
+    
+            
 
     # Convert each element in var_maxes to a list containing 0 and the current element
     var_limits = [[0, max_val] for max_val in var_maxes] 

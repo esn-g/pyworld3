@@ -1,4 +1,5 @@
 
+from sympy import plot
 import torch
 #from torch import nn
 #from torch.utils.data import DataLoader
@@ -7,20 +8,17 @@ import torch
 #from NN_eli import Neural_Network
 #from Dataset_classfile import CustomDataset
 
-from re import A
-import matplotlib.pyplot as plt
+#from re import A
+#import matplotlib.pyplot as plt
 import numpy as np
 import sys
 #print("\nsyspath\n: ",sys.path,"\n")
 #from pyworld3 import World3, world3
 
-#import pyworld3
-from pyworld3.utils import plot_world_variables
-
 import sys
 sys.path.append("create_dataset")
 
-#pyworld3.world3.
+
 
 
 
@@ -34,32 +32,6 @@ from NN_utils import plot_state_vars
 #/Users/elliottapperkarlsson/Github/pyworld3@AR_data_extraction
 #pip install -e git+file:///Users/elliottapperkarlsson/Github/pyworld3@AR_data_extraction#egg=pyworld3
 
-
-''' Before main()
-#dataset = CustomDataset("create_dataset/dataset_storage/dataset_runs_2_variance_1_normalized_.json") # Create an instance of your map-style dataset
-#model=torch.load("Neural_network/model/model_gen1_bsize_100_lr_0.0001_epochs_1000.pt")  #Funkar inte helt kefft
-
-#model=torch.load("Neural_network/model/model_gen1_bsize_50_lr_0.0001_epochs_1500.pt")  #Funkar kefft
-model=torch.load("Neural_network/model/model_gen1_bsize_50_lr_0.0001_epochs_1000.pt")   #Funkar asbra -tur med init kanske
-model.eval()    #eval mode
-
-
-
-
-#standard_state_matrix=torch.tensor(     
-#    Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
-#    )
-
-#Fetches the standard run
-standard_state_matrix=np.array(     
-    Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
-    )
-
-
-# Normalizes the standard run and saves without altering original matrix
-normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix.copy())
-
-'''
 
 
 def next_state_estimate(model,current_state=torch.empty([]) ):
@@ -111,28 +83,119 @@ def estimated_model(model, residual=True, state_matrix=np.empty([]),  number_of_
         current_state=next_state
 
         #print("\ncurr state\n",current_state)
+    
+    #estimated_state_matrix[number_of_states-1,:]=current_state     #To get last step , but not needed
 
-    estimated_state_matrix[number_of_states-1,:]=current_state
 
     return estimated_state_matrix
+
+def generate_single_step_matrix(model, residual=True, state_matrix=np.empty([]),  number_of_states=601, start_state_index=0):
+    ''' function to generate estimated steps based on the NN-model from each k of the original state-matrix 
+    Takes in arguments: 
+    model - the NN model to estimate the states
+    state_matrix - the original normalized matrix to compare to
+    number_of_states - how many states should be estimated
+    start_state_index - from which k the estimation starts
+
+    The state_matrix of k=[starts_state_index] gives the initial value to the model which is passed forward to generate estimation
+    this is done for each k and saved in a matrix
+    '''
+    
+    #   Gets first state vector
+    est_next_state=state_matrix[start_state_index,:]
+
+    #   Initialize matrices
+    singlestep_state_matrix=np.empty( (number_of_states, 12) )
+
+    singlestep_delta_x_matrix=np.empty( (number_of_states, 12) )
+
+    #   First value is the same because we cant estimate it
+    #singlestep_state_matrix[0,:]=current_state     #Is done anyway
+
+    #   First delta is zero , previous state plus delta is current state - begins att k=0 deltax=0
+    #singlestep_delta_x_matrix[0,:]=0
+    est_next_state_diff=0
+    
+    for k, state_vector in enumerate(state_matrix):
+
+        #   Save into delta matrix
+        singlestep_delta_x_matrix[k,:]=est_next_state_diff
+
+        #   Save into singlestep state matrix , takes the previous state(k-1) state plus the delta x to get state at k 
+        singlestep_state_matrix[k,:]=est_next_state
+        #   state at k
+        current_state=state_matrix[k,:]
+
+
+
+       
+
+        #Format into tensor for NN forward
+        current_state=torch.tensor(current_state).float()   
+
+        #Estimate the next state via helper function, depends on residual bool
+        if residual:
+            est_next_state_diff=next_state_estimate(model=model, current_state=current_state)
+
+            # est_next_state is current state(standard matrix) + estimated diff
+            est_next_state = current_state + est_next_state_diff     
+        else:
+            print("\nNOT FIXED THIS FUNCTIONALITY\n")
+            #next_state=next_state_estimate(model=model, current_state=current_state)      #   NOT USED NOW
+
+        #Reformat as numpy array
+        est_next_state_diff=est_next_state_diff.detach().numpy() 
+        est_next_state=est_next_state.detach().numpy() 
+        
+
+    return singlestep_state_matrix
     
 
-''' Before main()
-# Estimates the normalized state-matrix
-normalized_states_estimated=estimated_model(model=model, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
-#print("normestimaterun:\n",normalized_states_estimated)
 
 
-# Denormalizes the estimated state matrix
-states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
+def generate_single_step_error_matrix(standard_state_matrix, normalized_state_matrix, singlestep_states_estimated, normalized_singlestep_states_estimated):
+    ''' Generate error matrix
+    Takes in arguments - real and estimated matrix, original and normalized
+    All arrays are on the form: each row corresponds to a state at value k
+    the columns are the different variables
+    '''
 
-'''
+            
+    #       Get matrix of all delta x values where X[k]=X[k-1] + delta_x[k]
+    delta_x_matrix=np.empty( singlestep_states_estimated.shape) 
+    delta_x_matrix[0,:]=0
+    delta_x_matrix[1:,:]=standard_state_matrix[1:]-standard_state_matrix[:-1]
 
-#print("normestimaterun:\n",normalized_states_estimated)
-#print("normrun:\n",normalized_state_matrix)
-#states_estimated=normalized_states_estimated
-#standard_state_matrix=normalized_state_matrix
+    est_delta_x_matrix=np.empty( singlestep_states_estimated.shape) 
+    est_delta_x_matrix[0,:]=0
+    est_delta_x_matrix[1:,:]=singlestep_states_estimated[1:]-standard_state_matrix[:-1]
 
+    # sets zero values to small value
+    supersmall_delta=1e-10
+    delta_x_matrix[delta_x_matrix==0]=supersmall_delta
+    for k, delta_x in enumerate(delta_x_matrix):
+        if np.any(delta_x==0):
+
+            print("0 at k=",k)
+            print(delta_x)
+    
+
+    #       Fetch the mean of standard matrices per variable for normalizing
+    mean_of_standard_run=np.mean(standard_state_matrix, axis=0)
+    print("mean of standard run: \n", mean_of_standard_run)
+
+    #   Given standard run and single step est - > error matrix per element = x[k-1]+est_delta_x[k] - x[k-1]+delta_x[k]
+    step_error_matrix=singlestep_states_estimated-standard_state_matrix      # Generate total singlestep error matrix
+
+
+    relative_step_error_matrix=np.divide(step_error_matrix, delta_x_matrix)
+    
+    mean_of_variable_step_errors=np.mean(abs(relative_step_error_matrix), axis=0)
+    print("Absolute mean of relative step-error-matrix, vector: \n",mean_of_variable_step_errors)
+    
+
+    return delta_x_matrix, est_delta_x_matrix
+    #return step_error_matrix , relative_step_error_matrix
 
 
 def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated):
@@ -141,34 +204,18 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
     All arrays are on the form: each row corresponds to a state at value k
     the columns are the different variables
     '''
-        
+
+
+
     # Generate the total error matrix
-    #print("\nsum of standard matrix: ",np.sum(standard_state_matrix),"\n\n")
-    #print("\nsum of estimated matrix: ",np.sum(states_estimated),"\n\n")
-    #print("estimate run:\n",states_estimated)
-    #print("standard run:\n",standard_state_matrix)
     error_matrix=standard_state_matrix-states_estimated
 
-    #print("\nsum of standard matrix: ",np.sum(standard_state_matrix),"\n\n")
-    #print("\nsum of estimated matrix: ",np.sum(states_estimated),"\n\n")
-    #
-    #print("Error matrix: \n", error_matrix)
-
     ### Generate the NORMALIZED VERSION error matrix 
-    #print("\nsum of normalized standard matrix: ",np.sum(normalized_state_matrix),"\n\n")
-    #print("\nsum of normalized estimated matrix: ",np.sum(normalized_states_estimated),"\n\n")
-    #print("normalized estimate run:\n",normalized_states_estimated)
-    #print("normalized standard run:\n",normalized_state_matrix)
     normalized_error_matrix=normalized_state_matrix-normalized_states_estimated
 
     print("\nsum of normalized standard matrix: ",np.sum(normalized_state_matrix),"\n\n")
     print("\nsum of normalized estimated matrix: ",np.sum(normalized_states_estimated),"\n\n")
 
-    #print("Normalized error matrix: \n", normalized_error_matrix)
-    #print("estimaterun:\n",states_estimated)
-
-    #mean_of_variable_errors=np.mean(normalized_error_matrix, axis=0)
-    #print("mean vector: \n",mean_of_variable_errors)
     norm_mean_of_variable_errors=np.mean(abs(normalized_error_matrix), axis=0)
     print("Absolute mean of normalized errormatrix, vector: \n",norm_mean_of_variable_errors)
 
@@ -177,29 +224,13 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
 
     return error_matrix , normalized_error_matrix
 
-#generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
-''' Outdated stuff:
-al_est_full=states_estimated[:,0]
-pal_est_full=states_estimated[:,1]
-uil_est_full=states_estimated[:,2]
-lfert_est_full=states_estimated[:,3]
-print("est shape full: ",lfert_est_full.shape)
 
-al=standard_state_matrix[:,0]
-pal=standard_state_matrix[:,1]
-uil=standard_state_matrix[:,2]
-lfert=standard_state_matrix[:,3]
 
-number_of_states=601
-start_state_index=0
-test_time=np.arange(0,300+.5,0.5)
-'''
 
 
 #Best 'Neural_network/model/Plen_100LASSO_OKppmvar_500000_L1YES_lambda_1e-07_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_5.501026285514854e-07.pt' #regularized
 
-
-def main():
+def specify_plotting():
     modelstring =input('Copy relative path to model: ')
     if modelstring=="":
         modelstring="Neural_network/model/gold2000.pt"
@@ -235,10 +266,21 @@ def main():
     else:
         print("incorrect sector/variable name")
         spec_vars="all"
+
+    return model, residual, spec_vars
+
+
+
+def main():
+
+    #   Fetch parameters for plotting
+    model, residual, spec_vars = specify_plotting()
+    
     # set model to evaluation mode, required for testing
     model.to('cpu') #Incased trained on gpu, transfer back
     model.eval()
 
+    ################################## Fetching runs ################################################################
     ##Fetches the standard run
     standard_state_matrix=np.array(     
         Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
@@ -252,24 +294,49 @@ def main():
     alt_state_matrix=np.array(     
     Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar100000.0.json")["Model_runs"]["Run_4_State_matrix"]  
     )
+    ########################################## Normalizing ########################################################
 
     # Normalizes the standard run and saves without altering original matrix
     normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix.copy())
-    # Estimates the normalized state-matrix
-    normalized_states_estimated=estimated_model(model=model, 
-    residual=residual, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
+    
 
+    ######################################### Estimate using the model #########################################################
+
+    # Estimates the normalized state-matrix
+    normalized_states_estimated=estimated_model(model=model, residual=residual, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
+
+
+     #   Generate the single step model matrix
+    norm_singlestep_estimations=generate_single_step_matrix(model=model, residual=residual, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
+
+    ########################################## DE-Normalizing ########################################################
+    
     # Denormalizes the estimated state matrix
     states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
 
-    #Gather error matrices and print some error values
+
+    # Denormalizes the estimated state matrix
+    singlestep_estimations=Generate_dataset.min_max_DEnormalization(norm_singlestep_estimations.copy())
+
+    
+
+    ######################################### Calculate errors #########################################################
+
+        #   Gather error matrices and print some error values
     #generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
 
-    ##Plot the state variables chosen standard is "all"
-    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
+       
+        #   Gather the single step error matrix
+    delta_x_matrix, est_delta_x_matrix = generate_single_step_error_matrix(standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations)
 
-    #Plot the state variables chosen standard is "all"
-    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
+    #plot_state_vars(state_matrix=delta_x_matrix, est_matrix=est_delta_x_matrix, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
+
+    ######################################### Plot estimation or varied run #########################################################
+    #Plot the state variables chosen, standard is "all"
+    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
+
+    ##Plot the state variables chosen, standard is "all"
+    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
 
 main()
 
