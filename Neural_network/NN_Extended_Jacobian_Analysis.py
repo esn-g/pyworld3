@@ -7,14 +7,9 @@ import sys
 
 sys.path.append("create_dataset")
 from generate_dataset_classfile import Generate_dataset
-standard_state_matrix = np.array(Generate_dataset.fetch_dataset("create_dataset/dataset_storage/dataset_runs_1_variance_0_normalized_.json")["Model_runs"]["Run_0_State_matrix"])
+standard_state_matrix = np.array(Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len1_state_ppmvar0_norm.json")['Model_runs']["Run_0_State_matrix"])
 
-modelstrings = [
-                'Neural_network/model/L1X_lambda:1e-07_PReLU_hiddenSz:10_BSz:20_COSAnn_Start:0.001_epochs_2000Last_Loss:5.294184613073109e-07.pt',
-                'Neural_network/model/gold2000.pt',
-                'Neural_network/model/Plen_100LASSO_OKppmvar_500000_L1YES_lambda_1e-07_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_5.501026285514854e-07.pt', #regularized
-                'Neural_network/model/Plen_100ppmvar_500000_L1X_lambda_1e-06_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_9.909764973059509e-08.pt', # not regularized
-                # add paths
+modelstrings = ['Neural_network/model/XnewGenthinPreluppmvar_400000.0_L1True_lambda_1e-08_PReLU_hiddenSz_10_BSz_100_COSAnn_Start_0.001_epochs_400Last_TrainingLoss_3.088466915842266e-07Last_ValidationLoss_1.99721821140623e-07.pt'
                  ]
 
 models = [torch.load(modelstring) for modelstring in modelstrings]
@@ -49,9 +44,25 @@ def compute_mean_variance(jacobians):
     return mean_jacobian, var_jacobian
  
 def plot_heatmaps(mean_jacobian, var_jacobian, i):
+    varnames =["al","pal","uil","lfert","ic","sc","ppol","p1","p2","p3","p4","nr"]
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
     im1 = ax1.imshow(mean_jacobian.numpy(), cmap='jet')
     ax1.set_title('Abolute Mean of Jacobian' + str(i))
+
+        # Show all ticks and label them with the respective list entries
+    ax1.set_xticks(np.arange(len(varnames)), labels=varnames)
+    ax1.set_yticks(np.arange(len(varnames)), labels=varnames)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax1.get_xticklabels(), rotation=0, ha="right",
+            rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    '''for i in range(len(varnames)):
+        for j in range(len(varnames)):
+            text = ax1.text(j, i, varnames[i, j],
+                        ha="center", va="center", color="w")
+    '''
     fig.colorbar(im1, ax=ax1)
     im2 = ax2.imshow(var_jacobian.numpy(), cmap='jet')
     ax2.set_title('Variance of Jacobian' + str(i))
@@ -64,4 +75,5 @@ for model in models:
     i += 1
     jacobians = calculate_jacobians(standard_state_matrix, model)
     mean_jacobian, var_jacobian = compute_mean_variance(jacobians)
+    # print(str((mean_jacobian)))
     plot_heatmaps(mean_jacobian, var_jacobian, i)
