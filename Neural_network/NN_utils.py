@@ -97,6 +97,11 @@ def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601,
     if variables_included[0]=="all" or variables_included[0] in glob_var_str_list:  #If we plot state vars
         state_vars_dict, est_state_vars_dict = generate_statevars_dict(state_matrix=state_matrix, est_matrix=est_matrix )
         plot_auto(est_state_vars_dict=est_state_vars_dict, state_vars_dict=state_vars_dict, name=name, variables_included=variables_included, time=time )
+        
+    elif variables_included[0]=="std":
+        state_vars_dict, est_state_vars_dict = generate_statevars_dict(state_matrix=state_matrix, est_matrix=est_matrix )
+        plot_auto(est_state_vars_dict=est_state_vars_dict, state_vars_dict=state_vars_dict, name=name, variables_included=variables_included, time=time )
+
     
     else:       # IF we plot some other variable
         print("\n\nALT PLOTTING\n\n")
@@ -109,6 +114,9 @@ def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601,
         dict_of_plotvars=get_plot_params(plot_dict, state_vars_dict=dict() , name=variables_included[0], variables_included=variables_included, time=time)
         print("dict of plotvars\n",dict_of_plotvars)
         alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.06)
+        # Save the figure with adjusted parameters
+        #plt.savefig('Neural_network/NN_report_plotting/NN_20_rel_step_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
+        #plt.savefig('Neural_network/NN_report_plotting/NN_20_rel_run_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
         plt.show()
 
 
@@ -196,7 +204,7 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
             "var_lims" : var_limits ,    #Add axis=1
             "img_background" : None,
             "title" :  None,    #Add
-            "figsize" : (7, 5),                                   
+            "figsize" : None,#(7,5)                                   
             "grid" : True,
             "line_styles" : lines, 
             "line_widths" : widths
@@ -204,6 +212,7 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
     
             #######     PLOT
     alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.06)
+    plt.savefig('Neural_network/NN_report_plotting/NN_20_est_run0', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
     plt.show()
 
 
@@ -293,7 +302,7 @@ def get_plot_params(est_state_vars_dict, state_vars_dict=dict() , name=None, var
             "var_lims" : var_limits ,    #Add axis=1
             "img_background" : None,
             "title" :  None,    #Add
-            "figsize" : (7, 5),                                   
+            "figsize" : (5, 3),                                   
             "grid" : True,
             "line_styles" : lines, 
             "line_widths" : widths
@@ -413,7 +422,7 @@ def alt_plot_world_variables(
     for ax_ in axs:
         formatter_ = EngFormatter(places=0, sep="\N{THIN SPACE}")
         ax_.tick_params(axis="y", rotation=90)
-        ax_.yaxis.set_major_locator(plt.MaxNLocator(5))
+        ax_.yaxis.set_major_locator(plt.MaxNLocator(4))#5
         ax_.yaxis.set_major_formatter(formatter_)
 
     # Format x-axis labels and ticks
@@ -463,7 +472,7 @@ def create_colorcycle(var_names):
         for i in range(len(var)):   # Defines the number of shades for each color - amount of vars per sector
 
             #print("i: ",i)
-            shade = plt.cm.colors.to_rgba(color, alpha=(i + 1) / len(var))
+            shade = plt.cm.colors.to_rgba(color, alpha=0.1+0.9*(i + 1) / len(var))#0.5+
             colors.append(shade)
         var_keys+=var
     #print("list of colors: ", colors," len " , len(colors))
@@ -485,6 +494,8 @@ def create_colorcycle(var_names):
                 #print("estvar: ", var) 
                 varcol_dict[ var ]=sectors_colors_dict[ var[:-4] ]
                 varcolor_dict_values+=var
+            elif var=="pop":
+                varcolor_dict_values=sectors_colors_dict["p1"]
         except:
             print("\n\nINCORRECT VARIABLE NAME INPUTED TO PLOT FUNCTION\n\n")
             #print("wrongvar: ", var) 

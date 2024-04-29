@@ -9,7 +9,7 @@ import torch
 #from Dataset_classfile import CustomDataset
 
 #from re import A
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import sys
 #print("\nsyspath\n: ",sys.path,"\n")
@@ -187,8 +187,8 @@ def generate_single_step_error_matrix(standard_state_matrix, normalized_state_ma
 
     #################################### GET NORMALIZER MEANS ############################################
     #       Fetch the mean of standard matrices per variable for normalizing
-    mean_of_standard_run=np.mean(standard_state_matrix, axis=0)
-    print("mean of standard run: \n", mean_of_standard_run)
+    #mean_of_standard_run=np.mean(standard_state_matrix, axis=0)
+    #print("mean of standard run: \n", mean_of_standard_run)
 
     #       Fetch the mean of standard step/delta matrices per variable for normalizing
 
@@ -232,28 +232,60 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
     the columns are the different variables
     '''
 
+    #################################### GET NORMALIZER MEANS ############################################
+    #       Fetch the mean of standard matrices per variable for normalizing
+    mean_of_standard_run=np.mean(standard_state_matrix, axis=0)
+    print("mean of standard run: \n", mean_of_standard_run)
 
-
+    #################################### GET ERROR MATRICES ############################################
     # Generate the total error matrix
     error_matrix=standard_state_matrix-states_estimated
 
+    abs_error_matrix=abs(error_matrix)
+
+    #################################### MAKE RELATIVE ############################################
     ### Generate the NORMALIZED VERSION error matrix 
-    normalized_error_matrix=normalized_state_matrix-normalized_states_estimated
+    #normalized_error_matrix=normalized_state_matrix-normalized_states_estimated
 
-    print("\nsum of normalized standard matrix: ",np.sum(normalized_state_matrix),"\n\n")
-    print("\nsum of normalized estimated matrix: ",np.sum(normalized_states_estimated),"\n\n")
+    #print("\nsum of normalized standard matrix: ",np.sum(normalized_state_matrix),"\n\n")
+    #print("\nsum of normalized estimated matrix: ",np.sum(normalized_states_estimated),"\n\n")
 
-    norm_mean_of_variable_errors=np.mean(abs(normalized_error_matrix), axis=0)
-    print("Absolute mean of normalized errormatrix, vector: \n",norm_mean_of_variable_errors)
+    #norm_mean_of_variable_errors=np.mean(abs(normalized_error_matrix), axis=0)
+    #print("Absolute mean of normalized errormatrix, vector: \n",norm_mean_of_variable_errors)
 
     mean_of_variable_errors=np.mean( np.square(error_matrix) , axis=0)
     print("mean square error of errormatrix, vector of vars: \n",mean_of_variable_errors)
 
-    return error_matrix , normalized_error_matrix
+
+     #   Divides the diff, error  by mean of the real x values - makes it somewhat relative error
+    relative_to_mean_error_matrix=np.divide(abs_error_matrix, abs(mean_of_standard_run))
+    print("RUN REL shape:", relative_to_mean_error_matrix.shape)
+
+    mean_of_var_errors=np.mean(abs(error_matrix), axis=0) #For seeing mean error per var
+    print("Absolute mean of error-matrix per var, vector: \n",mean_of_var_errors)
+
+    tot_rel_to_mean_error_matrix=np.mean(abs(relative_to_mean_error_matrix), axis=1)
+
+    #reshape
+    tot_rel_to_mean_error_matrix=tot_rel_to_mean_error_matrix.reshape(-1,1)
+    print("totvar RUN REL shape:", tot_rel_to_mean_error_matrix.shape)
+
+    mean_of_error=np.mean(tot_rel_to_mean_error_matrix,axis=0)
+
+    print("\n\n\nMEAN VALUE OF ERROR ACROSS ALL X[K] AND ACROSS VARS:",mean_of_error,"\n\n\n")
+
+    return tot_rel_to_mean_error_matrix
 
 
 
 
+
+
+    return error_matrix #, normalized_error_matrix
+
+
+NN_0= "Neural_network/model/XY_RESULTS0000000L1XXXXXXXXLowerL1ppmvar_0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_16_COSAnn_Start_0.001_epochs_12000Last_TrainingLoss_1.2536813986940842e-08Last_ValidationLoss_1.8733208650978384e-09.pt"
+NN_20= "Neural_network/model/XY_RESULTS202020L1YESXXXXXX_20percentAttemptppmvar_200000.0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_32_COSAnn_Start_0.001_epochs_600Last_TrainingLoss_3.742628736347342e-08Last_ValidationLoss_1.609640550093161e-08.pt"
 
 #Best 'Neural_network/model/Plen_100LASSO_OKppmvar_500000_L1YES_lambda_1e-07_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_5.501026285514854e-07.pt' #regularized
 
@@ -355,23 +387,28 @@ def main():
     ######################################### Calculate errors #########################################################
 
         #   Gather error matrices and print some error values
-    #generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
+    error_matrix=generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
 
        
         #   Gather the single step error matrix
 
     step_error_matrix= generate_single_step_error_matrix(standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations)
     
-    plot_state_vars(state_matrix=step_error_matrix,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+    #plot_state_vars(state_matrix=error_matrix,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+    
 
     ######################################### Plot estimation or varied run #########################################################
     #Plot the state variables chosen, standard is "all"
-    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
 
     ##Plot the state variables chosen, standard is "all"
     #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
 
 main()
+
+
+#AlTERED: ax_.yaxis.set_major_locator(plt.MaxNLocator(3))#5 , "figsize" : (3.5, 2.5), 
+
 
 '''
 
