@@ -1,6 +1,7 @@
 #import torch
 
 from re import A
+from matplotlib import style
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -43,36 +44,72 @@ from numpy import isnan, full, nan
 
 ######################################################################################################################
 
+#def std_plot_vars(est_state_vars_dict, state_vars_dict=dict()):
+
+#Global const
+glob_var_str_list=np.array(["al",
+                        "pal",
+                        "uil",
+                        "lfert",
+                        "ic",
+                        "sc",
+                        "ppol",
+                        "p1",
+                        "p2",
+                        "p3",
+                        "p4",
+                        "nr"]).T 
+
 
 def generate_statevars_dict(state_matrix=np.empty([601, 12]), est_matrix=np.empty([601, 12]) ):
     #List of variable names for all variables examined
-        var_str_list=np.array(["al",
-                            "pal",
-                            "uil",
-                            "lfert",
-                            "ic",
-                            "sc",
-                            "ppol",
-                            "p1",
-                            "p2",
-                            "p3",
-                            "p4",
-                            "nr"]).T       #Transposes it to get each variable as its own column - X matrix but names
-        # Zip variable names to variable vectors in the state matrix
-        state_vars_dict=dict( zip( var_str_list, state_matrix.T  ) )    # Transpose state matrix for correct alignment                                                                            
-                                                                        #states_estimated    #on form 601*12
-                                                                        #states_estimated.T on form 12*601
-        var_str_list_est=np.char.add(var_str_list,"_est")
-        est_state_vars_dict=dict( zip( var_str_list_est , est_matrix.T ) )     # Transpose state matrix for correct alignment
-        #print(state_vars_dict)
-        #print(est_state_vars_dict)
-        return state_vars_dict, est_state_vars_dict
+    var_str_list=np.array(["al",
+                        "pal",
+                        "uil",
+                        "lfert",
+                        "ic",
+                        "sc",
+                        "ppol",
+                        "p1",
+                        "p2",
+                        "p3",
+                        "p4",
+                        "nr"]).T       #Transposes it to get each variable as its own column - X matrix but names
+    # Zip variable names to variable vectors in the state matrix
+    state_vars_dict=dict( zip( var_str_list, state_matrix.T  ) )    # Transpose state matrix for correct alignment                                                                            
+                                                                    #states_estimated    #on form 601*12
+                                                                    #states_estimated.T on form 12*601
+    var_str_list_est=np.char.add(var_str_list,"_est")
+    est_state_vars_dict=dict( zip( var_str_list_est , est_matrix.T ) )     # Transpose state matrix for correct alignment
+
+
+
+    #print(state_vars_dict)
+    #print(est_state_vars_dict)
+    return state_vars_dict, est_state_vars_dict
         
 
 def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601, 12]) , name=None, variables_included=["all"], time=np.arange(1900,1900+300+.5,0.5) ):
 
-    state_vars_dict, est_state_vars_dict = generate_statevars_dict(state_matrix=state_matrix, est_matrix=est_matrix )
-    plot_auto(est_state_vars_dict=est_state_vars_dict, state_vars_dict=state_vars_dict, name=name, variables_included=variables_included, time=time )
+
+
+    
+    if variables_included[0]=="all" or variables_included[0] in glob_var_str_list:  #If we plot state vars
+        state_vars_dict, est_state_vars_dict = generate_statevars_dict(state_matrix=state_matrix, est_matrix=est_matrix )
+        plot_auto(est_state_vars_dict=est_state_vars_dict, state_vars_dict=state_vars_dict, name=name, variables_included=variables_included, time=time )
+    
+    else:       # IF we plot some other variable
+        print("\n\nALT PLOTTING\n\n")
+        if state_matrix.shape==(601,):
+            print("\nRESHAPING PLOTMATRIX\n")
+            state_matrix=state_matrix.reshape(-1,1)
+        #print(state_matrix)
+        plot_dict=dict(zip(variables_included,state_matrix.T))
+        print(plot_dict)
+        dict_of_plotvars=get_plot_params(plot_dict, state_vars_dict=dict() , name=variables_included[0], variables_included=variables_included, time=time)
+        print("dict of plotvars\n",dict_of_plotvars)
+        alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.06)
+        plt.show()
 
 
 
@@ -94,10 +131,30 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
     
     #Unsure if dict() will work as default parameter
 
-    if variables_included!=["all"]:     #Ensure the ability to chose which variables to include
+            #       Re-init dicts for only chosen vars
+    if variables_included!=["all"] and variables_included!=["std"]:     #Ensure the ability to chose which variables to include
         est_state_vars_dict = {key+"_est": est_state_vars_dict[key+"_est"] for key in variables_included}
         if  state_vars_dict!=dict():
             state_vars_dict = {key: state_vars_dict[key] for key in variables_included}
+    elif variables_included==["std"]:       # If std, change p1 to 4 to pop
+        STD_state_vars_dict=state_vars_dict.copy()
+        STD_est_state_vars_dict=est_state_vars_dict.copy()
+
+        pop_list=["p1","p2","p3","p4",]
+        
+        pop_total = sum(STD_state_vars_dict[key] for key in pop_list)   # Compute the sum of selected items
+        est_pop_total = sum(STD_est_state_vars_dict[key+"_est"] for key in pop_list)   # Compute the sum of selected items
+
+        for key in pop_list:    # Remove the previous keys
+            STD_state_vars_dict.pop(key)        #Pop() here is just coincidence, method for removing keys
+            STD_est_state_vars_dict.pop(key+"_est")
+
+        STD_state_vars_dict["pop"]=pop_total    #add pop key
+        STD_est_state_vars_dict["pop_est"]=pop_total
+
+        state_vars_dict=STD_state_vars_dict #Reassign
+        est_state_vars_dict=STD_est_state_vars_dict
+
 
     ###############     Generate parameters for plotting        #################
     orig_est_data=list( state_vars_dict.values() )+list( est_state_vars_dict.values() )
@@ -113,10 +170,11 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
 
     #Make the biggest values fit
     for var_idx, (varmax, estmax) in enumerate(zip(var_maxes, est_var_maxes)):
-        if varmax<estmax:
+        if varmax<=estmax:
             var_maxes[var_idx]=estmax
     
-            
+
+    print("varmax",varmax)
 
     # Convert each element in var_maxes to a list containing 0 and the current element
     var_limits = [[0, max_val] for max_val in var_maxes] 
@@ -124,9 +182,9 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
     #np.amax( state_vars_dict.values().extend( state_vars_dict.values() )
 
     #Define linestyles and widths based on est and orig model
-    lines=["-"]*len(state_vars_dict.values()) + ["-."]*len(est_state_vars_dict.values())
+    lines=[":"]*len(state_vars_dict.values()) + ["-"]*len(est_state_vars_dict.values())
 
-    widths=[.75]*len(state_vars_dict.values()) + [1.7]*len(est_state_vars_dict.values())
+    widths=[1.75]*len(state_vars_dict.values()) + [1.25]*len(est_state_vars_dict.values())
 
     
     ###############     Make a dict of the parameters to be sent to plotfunction        #################
@@ -163,21 +221,84 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
 #How to call:
 #plot_auto(est_state_vars_dict, state_vars_dict)# , variables_included=test_variables )
 
+################################################ ALTERNATIVE PLOT PARAMS   ################################################
+
+def get_plot_params(est_state_vars_dict, state_vars_dict=dict() , name=None, variables_included=["std"], time=np.arange(1900,1900+300+.5,0.5)):
+    #Unsure if dict() will work as default parameter
+    ''' For statevars
+            #       Re-init dicts for only chosen vars
+    if variables_included!=["all"] and variables_included!=["std"]:     #Ensure the ability to chose which variables to include
+        est_state_vars_dict = {key+"_est": est_state_vars_dict[key+"_est"] for key in variables_included}
+        if  state_vars_dict!=dict():
+            state_vars_dict = {key: state_vars_dict[key] for key in variables_included}
+    elif variables_included==["std"]:       # If std, change p1 to 4 to pop
+        STD_state_vars_dict=state_vars_dict.copy()
+        STD_est_state_vars_dict=est_state_vars_dict.copy()
+
+        pop_list=["p1","p2","p3","p4",]
+        
+        pop_total = sum(STD_state_vars_dict[key] for key in pop_list)   # Compute the sum of selected items
+        est_pop_total = sum(STD_est_state_vars_dict[key+"_est"] for key in pop_list)   # Compute the sum of selected items
+
+        for key in pop_list:    # Remove the previous keys
+            STD_state_vars_dict.pop(key)        #Pop() here is just coincidence, method for removing keys
+            STD_est_state_vars_dict.pop(key+"_est")
+
+        STD_state_vars_dict["pop"]=pop_total    #add pop key
+        STD_est_state_vars_dict["pop_est"]=pop_total
+
+        state_vars_dict=STD_state_vars_dict #Reassign
+        est_state_vars_dict=STD_est_state_vars_dict
+    '''
+
+    #   just doubling the plots for ease
+    state_vars_dict=est_state_vars_dict.copy()
+    
+    ###############     Generate parameters for plotting        #################
+    orig_est_data=list( state_vars_dict.values() )+list( est_state_vars_dict.values() )
+    #state_vars_dict.values().extend( est_state_vars_dict.values() )
+
+    var_names= list( state_vars_dict.keys() ) + list( est_state_vars_dict.keys() )
+    #state_vars_dict.keys().extend( est_state_vars_dict.keys() )
 
 
 
-# Get a colormap
-#colormap = plt.cm.get_cmap('tab20')  # Get the 'tab20' colormap with 20 distinct colors
+    var_maxes= np.amax( list( state_vars_dict.values() )+list( state_vars_dict.values() ), axis=1 )*1.2
+    est_var_maxes=np.amax( list( est_state_vars_dict.values() )+list( est_state_vars_dict.values() ), axis=1 )*1.2
 
-'''
-from matplotlib import colormaps
-plot_color_gradients(
+    #Make the biggest values fit
+    for var_idx, (varmax, estmax) in enumerate(zip(var_maxes, est_var_maxes)):
+        if varmax<=estmax:
+            var_maxes[var_idx]=estmax
+    
+            
 
-(greens)
-(blues)
-(greys)
-(reds)
-(purples)'''
+    # Convert each element in var_maxes to a list containing 0 and the current element
+    var_limits = [[0, max_val] for max_val in var_maxes] 
+
+    #np.amax( state_vars_dict.values().extend( state_vars_dict.values() )
+
+    #Define linestyles and widths based on est and orig model
+    lines=["-"]*len(state_vars_dict.values()) + ["-"]*len(est_state_vars_dict.values())
+
+    widths=[1]*len(state_vars_dict.values()) + [1]*len(est_state_vars_dict.values())
+
+    
+    ###############     Make a dict of the parameters to be sent to plotfunction        #################
+
+    dict_of_plotvars= {
+            "time" : time, 
+            "var_data" : orig_est_data ,
+            "var_names" : var_names ,
+            "var_lims" : var_limits ,    #Add axis=1
+            "img_background" : None,
+            "title" :  None,    #Add
+            "figsize" : (7, 5),                                   
+            "grid" : True,
+            "line_styles" : lines, 
+            "line_widths" : widths
+            }    #"dist_spines" : float = 0.09,
+    return dict_of_plotvars
 
 
 
@@ -208,28 +329,36 @@ def alt_plot_world_variables(
     #print("varcoldict: ", varcol_dict)
     colors=list(varcol_dict.values())
     #print("\n\nCOLORS PRE: ",colors,"\n\n")
-    if len(colors)<1:
+    if len(colors)<2:
         print("\n\nNOT PLOTTING STATE VARS\n\n")
         # Get default color cycle for plot lines
         prop_cycle = plt.rcParams["axes.prop_cycle"]
         colors = prop_cycle.by_key()["color"]
+        colors[1]=colors[0] #Make same color
 
-    #print("\n\nCOLORS POST: ",colors,"\n\n")
+    print("\n\nCOLORS POST: ",colors,"\n\n")
 
     ############################################################################
 
     # Determine the number of variables
     var_number = len(var_data)
+    
 
     #Assuming plotting model and estimated:
     var_number=int(var_number/2)
+    print("var_number",var_number)
+    #if var_number<2:
+    #    print("increment")
+    #    var_number+=1
 
     # Create subplots with shared x-axis and multiple y-axes
     fig, host = plt.subplots(figsize=figsize)
     axs = [
         host,
     ]
+
     for i in range(var_number - 1):
+        print("axs:",i)
         axs.append(host.twinx())
 
     # Adjust spacing between subplots
@@ -317,7 +446,7 @@ def create_colorcycle(var_names):
     variables=[ ["al","pal","uil","lfert"]  , ["ic","sc"] , ["ppol"] , ["p1","p2","p3","p4"] , ["nr"] ]
     
     
-    
+    alt_color="midnightblue"
     
 
     #sectors_colors_dict= dict(zip(sectors, list(base_colors, dark_base_colors)))
@@ -364,6 +493,8 @@ def create_colorcycle(var_names):
     #varcol_dict=dict(zip(var_names , varcolor_dict_values))
     
     return varcol_dict
+
+
     ######################## For darker and lighter colors #######################
     ''' #from matplotlib.colors import ListedColormap
     dark_base_colors = [ 'darkgreen', 'darkblue', 'saddlebrown', 'darkred', 'purple']      # If we diff lightness for estimated vars

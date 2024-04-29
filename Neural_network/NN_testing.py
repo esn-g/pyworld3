@@ -170,6 +170,7 @@ def generate_single_step_error_matrix(standard_state_matrix, normalized_state_ma
     est_delta_x_matrix[0,:]=0
     est_delta_x_matrix[1:,:]=singlestep_states_estimated[1:]-standard_state_matrix[:-1]
 
+    '''
     # sets zero values to small value
     supersmall_delta=1e-10
     delta_x_matrix[delta_x_matrix==0]=supersmall_delta
@@ -178,23 +179,49 @@ def generate_single_step_error_matrix(standard_state_matrix, normalized_state_ma
 
             print("0 at k=",k)
             print(delta_x)
+    '''
     
+                        ###################### DIVIDE BY DELTA X SQUARED MEAN, or MINIMUM VALUE MAX VAL OF DELTA X - GIVES SCALE
 
+
+
+    #################################### GET NORMALIZER MEANS ############################################
     #       Fetch the mean of standard matrices per variable for normalizing
     mean_of_standard_run=np.mean(standard_state_matrix, axis=0)
     print("mean of standard run: \n", mean_of_standard_run)
 
+    #       Fetch the mean of standard step/delta matrices per variable for normalizing
+
+    abs_mean_of_standard_run_STEPS=np.mean(abs(delta_x_matrix), axis=0) #Added absolute value of the steps to get just stepsize mean
+    print("mean of standard run abs_delta_x step: \n", abs_mean_of_standard_run_STEPS)
+
+    #################################### GET ERROR MATRICES ############################################
     #   Given standard run and single step est - > error matrix per element = x[k-1]+est_delta_x[k] - x[k-1]+delta_x[k]
     step_error_matrix=singlestep_states_estimated-standard_state_matrix      # Generate total singlestep error matrix
 
+    abs_step_error_matrix=abs(step_error_matrix)
 
-    relative_step_error_matrix=np.divide(step_error_matrix, delta_x_matrix)
-    
-    mean_of_variable_step_errors=np.mean(abs(relative_step_error_matrix), axis=0)
-    print("Absolute mean of relative step-error-matrix, vector: \n",mean_of_variable_step_errors)
-    
+   
 
-    return delta_x_matrix, est_delta_x_matrix
+    #################################### MAKE RELATIVE ############################################
+     #relative_step_error_matrix=np.divide(step_error_matrix, delta_x_matrix)    # For normalizing over step
+    
+    #mean_of_variable_step_errors=np.mean(abs(relative_step_error_matrix), axis=0)  #For abs mean of normalized step error
+    #print("Absolute mean of relative step-error-matrix, vector: \n",mean_of_variable_step_errors)
+
+    #   Divides the diff, error  by mean of the real steps - makes it somewhat relative error
+    relative_to_mean_step_error_matrix=np.divide(abs_step_error_matrix, abs_mean_of_standard_run_STEPS)
+    print("REL shape:", relative_to_mean_step_error_matrix.shape)
+
+    mean_of_variable_step_errors=np.mean(abs(step_error_matrix), axis=0)
+    print("Absolute mean of step-error-matrix, vector: \n",mean_of_variable_step_errors)
+
+    tot_rel_to_mean_step_error_matrix=np.mean(abs(relative_to_mean_step_error_matrix), axis=1)
+
+    #reshape
+    tot_rel_to_mean_step_error_matrix=tot_rel_to_mean_step_error_matrix.reshape(-1,1)
+    print("totvar REL shape:", tot_rel_to_mean_step_error_matrix.shape)
+    return tot_rel_to_mean_step_error_matrix#relative_to_mean_step_error_matrix#abs_step_error_matrix
     #return step_error_matrix , relative_step_error_matrix
 
 
@@ -233,7 +260,8 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
 def specify_plotting():
     modelstring =input('Copy relative path to model: ')
     if modelstring=="":
-        modelstring="Neural_network/model/gold2000.pt"
+        modelstring="Neural_network/model/XnewGen1%TANHMOOOOREppmvar_10000.0_L1False_lambda_1e-08_PReLU_hiddenSz_10_BSz_50_COSAnn_Start_0.001_epochs_800Last_TrainingLoss_6.735498562365772e-09Last_ValidationLoss_6.849705511124959e-09.pt"
+        #"Neural_network/model/gold2000.pt"
     model=torch.load(modelstring)  
     residual= input("Residual? (T/F): ")
     if residual=="F":
@@ -254,18 +282,22 @@ def specify_plotting():
     print(spec_vars)
     if spec_vars =="":
         print("all")
-        spec_vars="all"
+        spec_vars=["all"]
     elif spec_vars in sectors:
         print("sector")
         spec_vars=sectors[spec_vars]
         print(spec_vars)
     elif any(spec_vars in var_list for var_list in sectors.values()):
         print("var")
+        spec_vars=[spec_vars]
         pass
+    elif spec_vars=="std":
+        spec_vars=["std"]
+        print("std")
     
     else:
-        print("incorrect sector/variable name")
-        spec_vars="all"
+        print("NOT sector/variable name, alternative testing")
+        spec_vars=[spec_vars]
 
     return model, residual, spec_vars
 
@@ -288,7 +320,7 @@ def main():
 
     #Fetches the standard run
     #standard_state_matrix=np.array(     
-    #    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000.json")["Model_runs"]["Run_0_State_matrix"]  
+    #    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar100000.0.json")["Model_runs"]["Run_0_State_matrix"]  
     #    )
 
     alt_state_matrix=np.array(     
@@ -327,13 +359,14 @@ def main():
 
        
         #   Gather the single step error matrix
-    delta_x_matrix, est_delta_x_matrix = generate_single_step_error_matrix(standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations)
 
-    #plot_state_vars(state_matrix=delta_x_matrix, est_matrix=est_delta_x_matrix, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
+    step_error_matrix= generate_single_step_error_matrix(standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations)
+    
+    plot_state_vars(state_matrix=step_error_matrix,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
 
     ######################################### Plot estimation or varied run #########################################################
     #Plot the state variables chosen, standard is "all"
-    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
+    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
 
     ##Plot the state variables chosen, standard is "all"
     #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
