@@ -33,6 +33,6 @@ def weightHeatmap(models):
 
 
 # Example usage:
-models = [torch.load("Neural_network/model/XnewGenthinPreluppmvar_400000.0_L1True_lambda_1e-08_PReLU_hiddenSz_10_BSz_100_COSAnn_Start_0.001_epochs_400Last_TrainingLoss_3.088466915842266e-07Last_ValidationLoss_1.99721821140623e-07.pt")]
+models = [torch.load('Neural_network/model/XnewGenBest0WL1ppmvar_0_L1True_lambda_1e-08_PReLU_hiddenSz_10_BSz_16_COSAnn_Start_0.001_epochs_12000Last_TrainingLoss_5.5427414835662606e-08Last_ValidationLoss_1.9844603738050637e-08.pt')]
 axes = None  # You can also provide your own list of axes
 weightHeatmap(models)

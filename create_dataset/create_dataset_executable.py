@@ -2,7 +2,7 @@ from re import A
 
 from generate_dataset_classfile import Generate_dataset
 
-datasetting=Generate_dataset(max_initval_variance_ppm=0, number_of_runs=1)
+datasetting=Generate_dataset(max_initval_variance_ppm=0, number_of_runs=10)
 datasetting.generate_models()
 
 

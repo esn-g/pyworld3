@@ -44,9 +44,25 @@ def compute_mean_variance(jacobians):
     return mean_jacobian, var_jacobian
  
 def plot_heatmaps(mean_jacobian, var_jacobian, i):
+    varnames =["al","pal","uil","lfert","ic","sc","ppol","p1","p2","p3","p4","nr"]
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
     im1 = ax1.imshow(mean_jacobian.numpy(), cmap='jet')
     ax1.set_title('Abolute Mean of Jacobian' + str(i))
+
+        # Show all ticks and label them with the respective list entries
+    ax1.set_xticks(np.arange(len(varnames)), labels=varnames)
+    ax1.set_yticks(np.arange(len(varnames)), labels=varnames)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax1.get_xticklabels(), rotation=0, ha="right",
+            rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    '''for i in range(len(varnames)):
+        for j in range(len(varnames)):
+            text = ax1.text(j, i, varnames[i, j],
+                        ha="center", va="center", color="w")
+    '''
     fig.colorbar(im1, ax=ax1)
     im2 = ax2.imshow(var_jacobian.numpy(), cmap='jet')
     ax2.set_title('Variance of Jacobian' + str(i))
