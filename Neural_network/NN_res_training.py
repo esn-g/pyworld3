@@ -38,8 +38,8 @@ model=Neural_Network(hidden_sizes=hidden_sizes, activation=activation)
 # When using larger batch sizes, you might need to increase the learning rate to compensate for the reduced noise in parameter updates.
 # Conversely, when using smaller batch sizes, you might need to decrease the learning rate to prevent overshooting the minimum.
 
-learning_rate = 1e-3 # 1e-6 bra början utan scheduler, 1e-3?
-batch_size = 100
+learning_rate = 1e-4 # 1e-6 bra början utan scheduler, 1e-3?
+batch_size = 50
 epochs = 600
 criterion=nn.MSELoss()    #Saves lossfunc
 optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
