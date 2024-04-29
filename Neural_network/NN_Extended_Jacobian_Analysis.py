@@ -7,14 +7,9 @@ import sys
 
 sys.path.append("create_dataset")
 from generate_dataset_classfile import Generate_dataset
-standard_state_matrix = np.array(Generate_dataset.fetch_dataset("create_dataset/dataset_storage/dataset_runs_1_variance_0_normalized_.json")["Model_runs"]["Run_0_State_matrix"])
+standard_state_matrix = np.array(Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len1_state_ppmvar0_norm.json")['Model_runs']["Run_0_State_matrix"])
 
-modelstrings = [
-                'Neural_network/model/L1X_lambda:1e-07_PReLU_hiddenSz:10_BSz:20_COSAnn_Start:0.001_epochs_2000Last_Loss:5.294184613073109e-07.pt',
-                'Neural_network/model/gold2000.pt',
-                'Neural_network/model/Plen_100LASSO_OKppmvar_500000_L1YES_lambda_1e-07_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_5.501026285514854e-07.pt', #regularized
-                'Neural_network/model/Plen_100ppmvar_500000_L1X_lambda_1e-06_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_9.909764973059509e-08.pt', # not regularized
-                # add paths
+modelstrings = ['Neural_network/model/XnewGenthinPreluppmvar_400000.0_L1True_lambda_1e-08_PReLU_hiddenSz_10_BSz_100_COSAnn_Start_0.001_epochs_400Last_TrainingLoss_3.088466915842266e-07Last_ValidationLoss_1.99721821140623e-07.pt'
                  ]
 
 models = [torch.load(modelstring) for modelstring in modelstrings]
@@ -64,4 +59,5 @@ for model in models:
     i += 1
     jacobians = calculate_jacobians(standard_state_matrix, model)
     mean_jacobian, var_jacobian = compute_mean_variance(jacobians)
+    # print(str((mean_jacobian)))
     plot_heatmaps(mean_jacobian, var_jacobian, i)

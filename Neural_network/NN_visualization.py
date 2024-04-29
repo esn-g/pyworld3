@@ -14,7 +14,7 @@ from pyworld3 import World3
 from pyworld3.utils import plot_world_variables
 
 ################# ----- LOAD MODEL ------ ##############
-modelstring = "Neural_network/model/hidden:3BSz:20_COSAnn_Start:0.001_epochs_4000Last_Loss:2.8492636869141087e-07.pt"
+modelstring = "Neural_network/model/XnewGenthinPreluppmvar_400000.0_L1True_lambda_1e-08_PReLU_hiddenSz_10_BSz_100_COSAnn_Start_0.001_epochs_400Last_TrainingLoss_3.088466915842266e-07Last_ValidationLoss_1.99721821140623e-07.pt"
 model=torch.load(modelstring)
 def weightHeatmap(model):
     num_valid_params = sum(1 for param in model.parameters() if param.dim() == 2)

@@ -27,8 +27,10 @@ plt.rcParams['lines.markersize'] = 6
 
 ########################### --- Model --- ##########################
 
-hidden_sizes = [20,20,20,20,20,20,20,20,20,20]
-activation=nn.Tanh()
+# hidden_sizes = [20,20,20,20,20,20,20,20,20,20] #10 standard
+# hidden_sizes = [12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12]
+hidden_sizes = [12,12,12,12,12,12,12,12,12,12]
+activation=nn.PReLU()
 model=Neural_Network(hidden_sizes=hidden_sizes, activation=activation)
 
 ########################### --- Hyperparameters --- #################
@@ -36,9 +38,9 @@ model=Neural_Network(hidden_sizes=hidden_sizes, activation=activation)
 # When using larger batch sizes, you might need to increase the learning rate to compensate for the reduced noise in parameter updates.
 # Conversely, when using smaller batch sizes, you might need to decrease the learning rate to prevent overshooting the minimum.
 
-learning_rate = 1e-3 # 1e-6 bra början utan scheduler, 1e-3?
-batch_size = 20
-epochs = 450
+learning_rate = 1e-4 # 1e-6 bra början utan scheduler, 1e-3?
+batch_size = 100
+epochs = 400
 criterion=nn.MSELoss()    #Saves lossfunc
 optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -47,7 +49,7 @@ optimizer=torch.optim.Adam(model.parameters(), lr=learning_rate)
 gamma = 0.9 # stock value 0.9? exponential 
 
 # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
-scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-5, last_epoch=(-1), verbose='deprecated')
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=1e-6, last_epoch=(-1), verbose='deprecated')
 # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10, factor=0.8, verbose=False)
 # scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.0001, max_lr=0.01, mode='triangular2', )
 # scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer=optimizer, max_lr=1e-3, total_steps=epochs)
@@ -59,7 +61,7 @@ l1_lambda = 0.00000001
 ########## --- dataset --- #######################
 # updated with validation set 19/4 2024
 
-dataset = CustomDataset("create_dataset/dataset_storage/W3data_len300_ppmvar100000.0_norm.json") # Create an instance of your map-style dataset
+dataset = CustomDataset("create_dataset/dataset_storage/W3data_len400_state_ppmvar400000.0_norm.json") # Create an instance of your map-style dataset
 train_size = int(0.8 * len(dataset))
 val_size = len(dataset) - train_size
 

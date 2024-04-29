@@ -7,19 +7,11 @@ import sys
 
 sys.path.append("create_dataset")
 from generate_dataset_classfile import Generate_dataset
-standard_state_matrix = np.array(Generate_dataset.fetch_dataset("create_dataset/dataset_storage/dataset_runs_1_variance_0_normalized_.json")["Model_runs"]["Run_0_State_matrix"])
+standard_state_matrix = np.array(Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len1_state_ppmvar0_norm.json")['Model_runs']["Run_0_State_matrix"])
 
-modelstrings = [
-                'Neural_network/model/L1X_lambda:1e-07_PReLU_hiddenSz:10_BSz:20_COSAnn_Start:0.001_epochs_2000Last_Loss:5.294184613073109e-07.pt',
-                'Neural_network/model/gold2000.pt',
-                'Neural_network/model/Plen_100LASSO_OKppmvar_500000_L1YES_lambda_1e-07_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_5.501026285514854e-07.pt', #regularized
-                'Neural_network/model/Plen_100ppmvar_500000_L1X_lambda_1e-06_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_9.909764973059509e-08.pt', # not regularized
-                # add paths
+modelstrings = ['Neural_network/model/XnewGen444jayZppmvar_400000.0_L1False_lambda_1e-08_PReLU_hiddenSz_10_BSz_100_COSAnn_Start_0.001_epochs_400Last_TrainingLoss_1.2120984388500993e-07Last_ValidationLoss_1.2916587919242772e-07.pt'
                  ]
-model_val_span = [ 0,
-                   0,
-                   0.05,
-                   0.05,
+model_val_span = [0.4
                    ]
 
 std_run_initials = standard_state_matrix[0,:]
@@ -30,7 +22,7 @@ def compute_sweep_vec(var, initials, data_points):
     if var < 0.1:
         span = 0.1
     else:
-        span = i
+        span = var
     deviation = np.zeros(len(initials))
     deviation[:] = span
     lower = initials - deviation
@@ -44,6 +36,7 @@ def compute_sweep_vec(var, initials, data_points):
 
     # Convert the list of arrays to a NumPy array
     sweep_arrays= np.array(sweep_arrays)
+    print(sweep_arrays.shape)
     # sweep arrays is a list of np arrays 
     return sweep_arrays
 def load_models(modelstrings):
@@ -55,7 +48,7 @@ def load_models(modelstrings):
     return models
 def calculate_jacobians(state_matrix, model):
     jacobians = []
-    for state in state_matrix.T:
+    for state in state_matrix:
         state_tensor = torch.from_numpy(state).float().unsqueeze(0)  # Adding batch dimension
         jac = torch.autograd.functional.jacobian(model, state_tensor).squeeze(0)  # Reducing batch dimension
         jac = jac.squeeze(1)  # Attempt to remove the unexpected singleton dimension

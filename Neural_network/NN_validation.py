@@ -167,9 +167,14 @@ def main():
         )
 
     #Fetches other run
-    # standard_state_matrix=np.array(     
-    #     Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar500000.json")["Model_runs"]["Run_4_State_matrix"]  
-    #     )
+    #standard_state_matrix=np.array(     
+    #    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len400_state_ppmvar400000.0.json")["Model_runs"]["Run_12_State_matrix"]  
+    #    )
+    
+    ## Fetches alternative run
+    #alt_state_matrix=np.array(     
+    #Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len400_state_ppmvar400000.0.json")["Model_runs"]["Run_12_State_matrix"]  
+    #)
 
 
     # Normalizes the standard run and saves without altering original matrix
@@ -186,6 +191,10 @@ def main():
 
     #Plot the state variables chosen standard is "all"
     plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+    
+    ## Plot comparison world3 runs standard and varied alternative
+    ##Plot the state variables chosen, standard is "all"
+    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
 
 main()
 
