@@ -221,6 +221,10 @@ def generate_single_step_error_matrix(standard_state_matrix, normalized_state_ma
     #reshape
     tot_rel_to_mean_step_error_matrix=tot_rel_to_mean_step_error_matrix.reshape(-1,1)
     print("totvar REL shape:", tot_rel_to_mean_step_error_matrix.shape)
+
+
+    mean_of_step_error=np.mean(tot_rel_to_mean_step_error_matrix,axis=0)
+    print("\n\n\nMEAN VALUE OF ERROR ACROSS ALL X[K] AND ACROSS VARS    STEPPPPPP:",mean_of_step_error,"\n\n\n")
     return tot_rel_to_mean_step_error_matrix#relative_to_mean_step_error_matrix#abs_step_error_matrix
     #return step_error_matrix , relative_step_error_matrix
 
@@ -286,7 +290,7 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
 
 NN_0= "Neural_network/model/XY_RESULTS0000000L1XXXXXXXXLowerL1ppmvar_0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_16_COSAnn_Start_0.001_epochs_12000Last_TrainingLoss_1.2536813986940842e-08Last_ValidationLoss_1.8733208650978384e-09.pt"
 NN_20= "Neural_network/model/XY_RESULTS202020L1YESXXXXXX_20percentAttemptppmvar_200000.0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_32_COSAnn_Start_0.001_epochs_600Last_TrainingLoss_3.742628736347342e-08Last_ValidationLoss_1.609640550093161e-08.pt"
-
+NN_40="Neural_network/model/XY_RESULT40000L1TRUEXXXXXXyppmvar_400000.0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_100_COSAnn_Start_0.001_epochs_600Last_TrainingLoss_1.0176896774183319e-07Last_ValidationLoss_1.6479816197604673e-07.pt"
 #Best 'Neural_network/model/Plen_100LASSO_OKppmvar_500000_L1YES_lambda_1e-07_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_5.501026285514854e-07.pt' #regularized
 
 def specify_plotting():
@@ -351,9 +355,9 @@ def main():
         )
 
     #Fetches the standard run
-    #standard_state_matrix=np.array(     
-    #    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar100000.0.json")["Model_runs"]["Run_0_State_matrix"]  
-    #    )
+    standard_state_matrix=np.array(     
+        Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len2_state_ppmvar4e+05.json")["Model_runs"]["Run_0_State_matrix"]  
+        )
 
     alt_state_matrix=np.array(     
     Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar100000.0.json")["Model_runs"]["Run_4_State_matrix"]  
@@ -399,7 +403,7 @@ def main():
 
     ######################################### Plot estimation or varied run #########################################################
     #Plot the state variables chosen, standard is "all"
-    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
 
     ##Plot the state variables chosen, standard is "all"
     #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )

@@ -115,8 +115,8 @@ def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601,
         print("dict of plotvars\n",dict_of_plotvars)
         alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.06)
         # Save the figure with adjusted parameters
-        #plt.savefig('Neural_network/NN_report_plotting/NN_20_rel_step_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
-        #plt.savefig('Neural_network/NN_report_plotting/NN_20_rel_run_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
+        #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_step_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
+        plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_run_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
         plt.show()
 
 
