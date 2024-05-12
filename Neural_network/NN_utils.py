@@ -102,6 +102,26 @@ def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601,
         state_vars_dict, est_state_vars_dict = generate_statevars_dict(state_matrix=state_matrix, est_matrix=est_matrix )
         plot_auto(est_state_vars_dict=est_state_vars_dict, state_vars_dict=state_vars_dict, name=name, variables_included=variables_included, time=time )
 
+    elif variables_included[0] in ["step", "acc"]:  #FOR REPORT, PLOTTING THREE MODELS ERRORS
+        if variables_included[0] == "step":
+            title="Step error"
+        elif variables_included[0] == "acc":
+            title="Estimation error"
+        print("\n",title)
+        type=variables_included.pop(0)  #   Get type of error to use for axises
+        NN_e_type=["step", "acc"].index(type)+1
+
+
+        plot_dict=dict(zip(variables_included,state_matrix.T))
+        
+        #print(plot_dict)
+        dict_of_plotvars=get_plot_params(est_state_vars_dict=dict(), state_vars_dict=plot_dict , title=title, variables_included=variables_included, time=time, NN_errors=NN_e_type)
+        #print("dict of plotvars\n",dict_of_plotvars)
+        alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.06)
+        # Save the figure with adjusted parameters
+        #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_step_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
+        #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_run_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
+        #plt.show()
     
     else:       # IF we plot some other variable
         print("\n\nALT PLOTTING\n\n")
@@ -111,13 +131,14 @@ def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601,
         #print(state_matrix)
         plot_dict=dict(zip(variables_included,state_matrix.T))
         print(plot_dict)
-        dict_of_plotvars=get_plot_params(plot_dict, state_vars_dict=dict() , name=variables_included[0], variables_included=variables_included, time=time)
-        print("dict of plotvars\n",dict_of_plotvars)
+        dict_of_plotvars=get_plot_params(est_state_vars_dict=dict(), state_vars_dict=plot_dict , title=name, variables_included=variables_included, time=time)
+        #print("dict of plotvars\n",dict_of_plotvars)
         alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.06)
         # Save the figure with adjusted parameters
         #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_step_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
-        plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_run_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
-        plt.show()
+        #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_run_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
+        #plt.show()
+    plt.show()
 
 
 
@@ -173,16 +194,14 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
 
 
 
-    var_maxes= np.amax( list( state_vars_dict.values() )+list( state_vars_dict.values() ), axis=1 )*1.2
-    est_var_maxes=np.amax( list( est_state_vars_dict.values() )+list( est_state_vars_dict.values() ), axis=1 )*1.2
+    var_maxes= np.amax( list( state_vars_dict.values() )+list( state_vars_dict.values() ), axis=1 )*1.01
+    est_var_maxes=np.amax( list( est_state_vars_dict.values() )+list( est_state_vars_dict.values() ), axis=1 )*1.01
 
     #Make the biggest values fit
     for var_idx, (varmax, estmax) in enumerate(zip(var_maxes, est_var_maxes)):
         if varmax<=estmax:
             var_maxes[var_idx]=estmax
     
-
-    print("varmax",varmax)
 
     # Convert each element in var_maxes to a list containing 0 and the current element
     var_limits = [[0, max_val] for max_val in var_maxes] 
@@ -212,8 +231,8 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
     
             #######     PLOT
     alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.06)
-    plt.savefig('Neural_network/NN_report_plotting/NN_20_est_run0', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
-    plt.show()
+    #plt.savefig('Neural_network/NN_report_plotting/NN_20_est_run0', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
+    #plt.show()
 
 
 
@@ -232,7 +251,7 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
 
 ################################################ ALTERNATIVE PLOT PARAMS   ################################################
 
-def get_plot_params(est_state_vars_dict, state_vars_dict=dict() , name=None, variables_included=["std"], time=np.arange(1900,1900+300+.5,0.5)):
+def get_plot_params( state_vars_dict, est_state_vars_dict=dict() , title=None, variables_included=["std"], time=np.arange(1900,1900+300+.5,0.5), NN_errors=0):
     #Unsure if dict() will work as default parameter
     ''' For statevars
             #       Re-init dicts for only chosen vars
@@ -259,8 +278,8 @@ def get_plot_params(est_state_vars_dict, state_vars_dict=dict() , name=None, var
         state_vars_dict=STD_state_vars_dict #Reassign
         est_state_vars_dict=STD_est_state_vars_dict
     '''
-
-    #   just doubling the plots for ease
+    '''
+    #   just doubling the plots for ease - Trying without this
     state_vars_dict=est_state_vars_dict.copy()
     
     ###############     Generate parameters for plotting        #################
@@ -270,8 +289,6 @@ def get_plot_params(est_state_vars_dict, state_vars_dict=dict() , name=None, var
     var_names= list( state_vars_dict.keys() ) + list( est_state_vars_dict.keys() )
     #state_vars_dict.keys().extend( est_state_vars_dict.keys() )
 
-
-
     var_maxes= np.amax( list( state_vars_dict.values() )+list( state_vars_dict.values() ), axis=1 )*1.2
     est_var_maxes=np.amax( list( est_state_vars_dict.values() )+list( est_state_vars_dict.values() ), axis=1 )*1.2
 
@@ -279,11 +296,35 @@ def get_plot_params(est_state_vars_dict, state_vars_dict=dict() , name=None, var
     for var_idx, (varmax, estmax) in enumerate(zip(var_maxes, est_var_maxes)):
         if varmax<=estmax:
             var_maxes[var_idx]=estmax
+
+    '''
+    ###############     Generate parameters for plotting        #################
+    orig_est_data=list( state_vars_dict.values()  )
+    #state_vars_dict.values().extend( est_state_vars_dict.values() )
+
+    var_names= list( state_vars_dict.keys() )
+    #state_vars_dict.keys().extend( est_state_vars_dict.keys() )
+
+    var_maxes= np.amax( list( state_vars_dict.values() ), axis=1)*1.01
+    print(NN_errors)
+    if NN_errors>0:
+        max=np.amax( var_maxes )
+        var_maxes[1:]=max
+        var_maxes[0]=var_maxes[0]*2    
+
+
+    #      ONLY FOR PLOTTING 
+    #est_var_maxes=np.amax( list( est_state_vars_dict.values() ) )*1.2
+
     
-            
 
     # Convert each element in var_maxes to a list containing 0 and the current element
+
     var_limits = [[0, max_val] for max_val in var_maxes] 
+
+    if NN_errors==1:
+        var_limits[0]=[-var_maxes[0]*2,var_maxes[0]]
+    
 
     #np.amax( state_vars_dict.values().extend( state_vars_dict.values() )
 
@@ -301,7 +342,7 @@ def get_plot_params(est_state_vars_dict, state_vars_dict=dict() , name=None, var
             "var_names" : var_names ,
             "var_lims" : var_limits ,    #Add axis=1
             "img_background" : None,
-            "title" :  None,    #Add
+            "title" :  title,    #Add
             "figsize" : (5, 3),                                   
             "grid" : True,
             "line_styles" : lines, 
@@ -334,18 +375,19 @@ def alt_plot_world_variables(
 
     """
     ###################     Gets colors for state vars  ###################
-    varcol_dict=create_colorcycle(var_names)
+    varcol_dict, estimations=create_colorcycle(var_names)    #Gets colors if we are plotting state vars
     #print("varcoldict: ", varcol_dict)
     colors=list(varcol_dict.values())
     #print("\n\nCOLORS PRE: ",colors,"\n\n")
-    if len(colors)<2:
+    if len(colors)<2:       # If no state vars are found in varnames
         print("\n\nNOT PLOTTING STATE VARS\n\n")
+        
         # Get default color cycle for plot lines
         prop_cycle = plt.rcParams["axes.prop_cycle"]
         colors = prop_cycle.by_key()["color"]
-        colors[1]=colors[0] #Make same color
-
-    print("\n\nCOLORS POST: ",colors,"\n\n")
+        #colors[1]=colors[0] #Make same color
+    print("Estimations=", estimations)
+    #print("\n\nCOLORS POST: ",colors,"\n\n")
 
     ############################################################################
 
@@ -353,8 +395,9 @@ def alt_plot_world_variables(
     var_number = len(var_data)
     
 
-    #Assuming plotting model and estimated:
-    var_number=int(var_number/2)
+                #Assuming plotting model and estimated:
+    if estimations==True:
+        var_number=int(var_number/2)
     print("var_number",var_number)
     #if var_number<2:
     #    print("increment")
@@ -367,7 +410,7 @@ def alt_plot_world_variables(
     ]
 
     for i in range(var_number - 1):
-        print("axs:",i)
+        #print("axs:",i)
         axs.append(host.twinx())
 
     # Adjust spacing between subplots
@@ -448,7 +491,9 @@ def alt_plot_world_variables(
 
 def create_colorcycle(var_names):
     '''Generates a dict of statevars as keys and corresponding colors as values'''
-        
+    
+    estimations=False   #To know if we are plotting estimations or not
+    
     # Define the base colors
     base_colors = [ 'green', 'royalblue', 'chocolate', 'red', 'violet']
     #sectors=[  "agriculture"  ,  "capital"  ,  "pollution"  ,  "population"  ,  "resource"  ]
@@ -465,7 +510,7 @@ def create_colorcycle(var_names):
 
     var_keys=[]
 
-    for var, color in zip(variables, base_colors):
+    for var, color in zip(variables, base_colors):      #This defines the go to colours for the go to variables (state)
         #print("vars: ",var)
         #print("color: ", color)
 
@@ -485,7 +530,7 @@ def create_colorcycle(var_names):
     varcolor_dict_values=[]
 
     varcol_dict=dict()
-    for var in var_names:
+    for var in var_names:       #Here we see which variables are included and check if they are from the state vars
         try:
             if var in var_keys:
                 varcol_dict[var]=sectors_colors_dict[var]
@@ -494,6 +539,7 @@ def create_colorcycle(var_names):
                 #print("estvar: ", var) 
                 varcol_dict[ var ]=sectors_colors_dict[ var[:-4] ]
                 varcolor_dict_values+=var
+                estimations=True
             elif var=="pop":
                 varcolor_dict_values=sectors_colors_dict["p1"]
         except:
@@ -503,9 +549,9 @@ def create_colorcycle(var_names):
 
     #varcol_dict=dict(zip(var_names , varcolor_dict_values))
     
-    return varcol_dict
+    return varcol_dict, estimations
 
-
+    
     ######################## For darker and lighter colors #######################
     ''' #from matplotlib.colors import ListedColormap
     dark_base_colors = [ 'darkgreen', 'darkblue', 'saddlebrown', 'darkred', 'purple']      # If we diff lightness for estimated vars

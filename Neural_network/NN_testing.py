@@ -170,6 +170,15 @@ def generate_single_step_error_matrix(standard_state_matrix, normalized_state_ma
     est_delta_x_matrix[0,:]=0
     est_delta_x_matrix[1:,:]=singlestep_states_estimated[1:]-standard_state_matrix[:-1]
 
+
+     #################################### GET ERROR MATRICES ############################################
+    #   Given standard run and single step est - > error matrix per element = x[k-1]+est_delta_x[k] - x[k-1]+delta_x[k]
+    step_error_matrix=singlestep_states_estimated-standard_state_matrix      # Generate total singlestep error matrix
+
+    abs_step_error_matrix=abs(step_error_matrix)
+
+   
+
     '''
     # sets zero values to small value
     supersmall_delta=1e-10
@@ -193,13 +202,7 @@ def generate_single_step_error_matrix(standard_state_matrix, normalized_state_ma
     #       Fetch the mean of standard step/delta matrices per variable for normalizing
 
     abs_mean_of_standard_run_STEPS=np.mean(abs(delta_x_matrix), axis=0) #Added absolute value of the steps to get just stepsize mean
-    print("mean of standard run abs_delta_x step: \n", abs_mean_of_standard_run_STEPS)
-
-    #################################### GET ERROR MATRICES ############################################
-    #   Given standard run and single step est - > error matrix per element = x[k-1]+est_delta_x[k] - x[k-1]+delta_x[k]
-    step_error_matrix=singlestep_states_estimated-standard_state_matrix      # Generate total singlestep error matrix
-
-    abs_step_error_matrix=abs(step_error_matrix)
+    #print("mean of standard run abs_delta_x step: \n", abs_mean_of_standard_run_STEPS)
 
    
 
@@ -211,7 +214,7 @@ def generate_single_step_error_matrix(standard_state_matrix, normalized_state_ma
 
     #   Divides the diff, error  by mean of the real steps - makes it somewhat relative error
     relative_to_mean_step_error_matrix=np.divide(abs_step_error_matrix, abs_mean_of_standard_run_STEPS)
-    print("REL shape:", relative_to_mean_step_error_matrix.shape)
+    #print("REL shape:", relative_to_mean_step_error_matrix.shape)
 
     mean_of_variable_step_errors=np.mean(abs(step_error_matrix), axis=0)
     print("Absolute mean of step-error-matrix, vector: \n",mean_of_variable_step_errors)
@@ -225,8 +228,8 @@ def generate_single_step_error_matrix(standard_state_matrix, normalized_state_ma
 
     mean_of_step_error=np.mean(tot_rel_to_mean_step_error_matrix,axis=0)
     print("\n\n\nMEAN VALUE OF ERROR ACROSS ALL X[K] AND ACROSS VARS    STEPPPPPP:",mean_of_step_error,"\n\n\n")
-    return tot_rel_to_mean_step_error_matrix#relative_to_mean_step_error_matrix#abs_step_error_matrix
-    #return step_error_matrix , relative_step_error_matrix
+    #return tot_rel_to_mean_step_error_matrix#relative_to_mean_step_error_matrix#abs_step_error_matrix
+    return tot_rel_to_mean_step_error_matrix, relative_to_mean_step_error_matrix#step_error_matrix , relative_step_error_matrix
 
 
 def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated):
@@ -239,7 +242,7 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
     #################################### GET NORMALIZER MEANS ############################################
     #       Fetch the mean of standard matrices per variable for normalizing
     mean_of_standard_run=np.mean(standard_state_matrix, axis=0)
-    print("mean of standard run: \n", mean_of_standard_run)
+    #print("mean of standard run: \n", mean_of_standard_run)
 
     #################################### GET ERROR MATRICES ############################################
     # Generate the total error matrix
@@ -257,8 +260,8 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
     #norm_mean_of_variable_errors=np.mean(abs(normalized_error_matrix), axis=0)
     #print("Absolute mean of normalized errormatrix, vector: \n",norm_mean_of_variable_errors)
 
-    mean_of_variable_errors=np.mean( np.square(error_matrix) , axis=0)
-    print("mean square error of errormatrix, vector of vars: \n",mean_of_variable_errors)
+    #mean_of_variable_errors=np.mean( np.square(error_matrix) , axis=0)
+    #print("mean square error of errormatrix, vector of vars: \n",mean_of_variable_errors)
 
 
      #   Divides the diff, error  by mean of the real x values - makes it somewhat relative error
@@ -278,7 +281,7 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
 
     print("\n\n\nMEAN VALUE OF ERROR ACROSS ALL X[K] AND ACROSS VARS:",mean_of_error,"\n\n\n")
 
-    return tot_rel_to_mean_error_matrix
+    return  tot_rel_to_mean_error_matrix, relative_to_mean_error_matrix
 
 
 
@@ -288,22 +291,58 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
     return error_matrix #, normalized_error_matrix
 
 
-NN_0= "Neural_network/model/XY_RESULTS0000000L1XXXXXXXXLowerL1ppmvar_0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_16_COSAnn_Start_0.001_epochs_12000Last_TrainingLoss_1.2536813986940842e-08Last_ValidationLoss_1.8733208650978384e-09.pt"
-NN_20= "Neural_network/model/XY_RESULTS202020L1YESXXXXXX_20percentAttemptppmvar_200000.0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_32_COSAnn_Start_0.001_epochs_600Last_TrainingLoss_3.742628736347342e-08Last_ValidationLoss_1.609640550093161e-08.pt"
-NN_40="Neural_network/model/XY_RESULT40000L1TRUEXXXXXXyppmvar_400000.0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_100_COSAnn_Start_0.001_epochs_600Last_TrainingLoss_1.0176896774183319e-07Last_ValidationLoss_1.6479816197604673e-07.pt"
+
+def report_models():    #For getting the models in the report
+    NN_0= "Neural_network/model/XY_RESULTS0000000L1XXXXXXXXLowerL1ppmvar_0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_16_COSAnn_Start_0.001_epochs_12000Last_TrainingLoss_1.2536813986940842e-08Last_ValidationLoss_1.8733208650978384e-09.pt"
+    NN_20= "Neural_network/model/XY_RESULTS202020L1YESXXXXXX_20percentAttemptppmvar_200000.0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_32_COSAnn_Start_0.001_epochs_600Last_TrainingLoss_3.742628736347342e-08Last_ValidationLoss_1.609640550093161e-08.pt"
+    NN_40="Neural_network/model/XY_RESULT40000L1TRUEXXXXXXyppmvar_400000.0_L1True_lambda_1e-09_PReLU_hiddenSz_10_BSz_100_COSAnn_Start_0.001_epochs_600Last_TrainingLoss_1.0176896774183319e-07Last_ValidationLoss_1.6479816197604673e-07.pt"
+    report_NN_dict={ "NN_0" : NN_0 , "NN_20" : NN_20 , "NN_40" : NN_40 }
+    return report_NN_dict
+
 #Best 'Neural_network/model/Plen_100LASSO_OKppmvar_500000_L1YES_lambda_1e-07_PReLU_hiddenSz_10_BSz_600_COSAnn_Start_0.001_epochs_2000Last_Loss_5.501026285514854e-07.pt' #regularized
 
 def specify_plotting():
-    modelstring =input('Copy relative path to model: ')
+    report_NN_dict=report_models()
+    print("\n",'_' * 75)  # Line separator
+    modelstring =input('\n\nCopy relative path to model: ')
+    multi_NN=False
     if modelstring=="":
         modelstring="Neural_network/model/XnewGen1%TANHMOOOOREppmvar_10000.0_L1False_lambda_1e-08_PReLU_hiddenSz_10_BSz_50_COSAnn_Start_0.001_epochs_800Last_TrainingLoss_6.735498562365772e-09Last_ValidationLoss_6.849705511124959e-09.pt"
         #"Neural_network/model/gold2000.pt"
-    model=torch.load(modelstring)  
-    residual= input("Residual? (T/F): ")
+    elif modelstring=="NN":
+        print("\nAll report models\n")
+        print(modelstring)
+        print(report_NN_dict.values())
+        
+        model_list = list( report_NN_dict.values() )
+        
+        multi_NN=True
+
+
+    elif modelstring in report_NN_dict.keys():
+        print("\nModel ",modelstring, " from report models\n")
+        modelstring=report_NN_dict[modelstring] #Load actual string from dict
+
+    
+    if multi_NN!=True:
+        model=torch.load(modelstring)  
+    else:
+        for nr, modelstring in enumerate(model_list):
+            model=torch.load(modelstring)  
+            model_list[nr]=model
+        model=model_list
+
+
+
+    #   residual= input("Residual? (T/F): ")    # REMOVED FOR NOW
+    residual=True           # ADDED FOR NOW
     if residual=="F":
         residual=False
     else:
         residual=True
+
+
+    
     sectors={"agr" : ["al", "pal", "uil", "lfert"],
             "cap" : ["ic", "sc"],
             "pol" : ["ppol"],
@@ -311,33 +350,110 @@ def specify_plotting():
             "res" : ["nr"]
             }
     #sectors=["agr","cap", "pol", "pop", "res"]
-    print("Input specified variables or a sector to plot. \nChoose from ", list(sectors.items()))
+
+    
+    print('_' * 75)  # Line separator
+    print("\nInput specified variables or a sector to plot. \n\nChoose from:\n" )#, list(sectors.items()))
+    for key, value in sectors.items():
+        print(f'{key}: {value}')
+    print("or step, acc for step error or estimation error plots\n")
     spec_vars=input("SKIP for 'all': ")
+    
 
     #spec_vars=str(spec_vars)
-    print(spec_vars)
+    #print(spec_vars)
     if spec_vars =="":
-        print("all")
+        print("Plotting all state-variables")
         spec_vars=["all"]
     elif spec_vars in sectors:
-        print("sector")
+        print("Plotting sector ", spec_vars)
         spec_vars=sectors[spec_vars]
         print(spec_vars)
     elif any(spec_vars in var_list for var_list in sectors.values()):
-        print("var")
+        print("Plotting variable ", spec_vars)
         spec_vars=[spec_vars]
-        pass
+        
     elif spec_vars=="std":
         spec_vars=["std"]
-        print("std")
+        print("Plotting std variables")
+
+        #______________________Errors versions for report
+    elif spec_vars=="step":
+        print("Plotting step-errors")
+        spec_vars=[spec_vars]
+        if isinstance(model, list): #If report models
+            NN_names=[model for model in list( report_NN_dict.keys() ) ]
+            print(NN_names)
+            spec_vars.extend( NN_names )
+        
+        print(spec_vars)
+        
+    elif spec_vars=="acc":
+        print("Plotting estimation-errors")
+        spec_vars=[spec_vars]
+        if isinstance(model, list): #If report models
+            NN_names=[model for model in list( report_NN_dict.keys() ) ]
+            spec_vars.extend( NN_names )
+        print(spec_vars)
     
     else:
         print("NOT sector/variable name, alternative testing")
         spec_vars=[spec_vars]
+    print('_' * 75, "\n")  # Line separator
 
     return model, residual, spec_vars
 
+def report_error_plotting(model_list, normalized_state_matrix, standard_state_matrix, spec_vars=["step"], residual=True, number_of_states=601, start_state_index=0):        #iterate for the three models
+    '''Generates error plots for three neural networks as used inm the report results'''
+    array_of_errors=np.zeros((number_of_states, len(model_list)))
+    
 
+    for col, model in enumerate(model_list):
+        print("Getting errors of model nr ", col)
+            
+
+        ######################################### Estimate using the model #########################################################
+
+        # Estimates the normalized state-matrix
+        normalized_states_estimated=estimated_model(model=model, residual=residual, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
+
+
+        #   Generate the single step model matrix
+        norm_singlestep_estimations=generate_single_step_matrix(model=model, residual=residual, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
+
+        ########################################## DE-Normalizing ########################################################
+        
+        # Denormalizes the estimated state matrix
+        states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
+
+
+        # Denormalizes the estimated state matrix
+        singlestep_estimations=Generate_dataset.min_max_DEnormalization(norm_singlestep_estimations.copy())
+        #print(singlestep_estimations,"\n\n")
+
+        print("\n\n",spec_vars[col+1],"\n\n")
+        ######################################### Calculate errors ####### ##################################################
+        if spec_vars[0]=="acc":
+            print(" if spec_vars[0]==acc")
+             #   Gather error matrices and print some error values
+            est_error, error_matrix=generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
+            #est_error=est_error.reshape(-1,1)
+            est_error=est_error.reshape(-1,)
+            array_of_errors[:, col]=est_error
+
+        if spec_vars[0]=="step":
+            print(" if spec_vars[0]==step")
+            #   Gather the single step error matrix
+            step_error_vect, step_error_matrix= generate_single_step_error_matrix(standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations)
+            #step_error_vect=step_error_vect.reshape(-1,1)
+            #print("col=",col,"\narrayoferrors shape=", array_of_errors.shape,"\nsteperror shape=", step_error_vect.shape, "\none column of array shape=", array_of_errors[:,col].shape)
+            step_error_vect=step_error_vect.reshape(-1,)
+            array_of_errors[ : , col]=step_error_vect
+
+            print("SHAPE", array_of_errors.shape)
+            
+
+    return array_of_errors
 
 def main():
 
@@ -354,10 +470,10 @@ def main():
         Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
         )
 
-    #Fetches the standard run
-    standard_state_matrix=np.array(     
-        Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len2_state_ppmvar4e+05.json")["Model_runs"]["Run_0_State_matrix"]  
-        )
+    ##Fetches the standard run
+    #standard_state_matrix=np.array(     
+    #    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len2_state_ppmvar2e+05.json")["Model_runs"]["Run_1_State_matrix"]  
+    #    )
 
     alt_state_matrix=np.array(     
     Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar100000.0.json")["Model_runs"]["Run_4_State_matrix"]  
@@ -370,6 +486,97 @@ def main():
 
     ######################################### Estimate using the model #########################################################
 
+
+    # Estimates the normalized state-matrix
+    normalized_states_estimated=estimated_model(model=model, residual=residual, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
+
+
+     #   Generate the single step model matrix
+    norm_singlestep_estimations=generate_single_step_matrix(model=model, residual=residual, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
+
+    ########################################## DE-Normalizing ########################################################
+    
+    # Denormalizes the estimated state matrix
+    states_estimated=Generate_dataset.min_max_DEnormalization(normalized_states_estimated.copy())
+
+
+    # Denormalizes the estimated state matrix
+    singlestep_estimations = Generate_dataset.min_max_DEnormalization(norm_singlestep_estimations.copy())
+
+    
+
+    ######################################### Calculate errors #########################################################
+
+        #   Gather error matrices and print some error values
+    est_error, error_matrix = generate_error_matrix( standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
+
+       
+        #   Gather the single step error matrix
+
+    step_error_vect, step_error_matrix = generate_single_step_error_matrix( standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations )
+    print( step_error_vect.shape )       
+    print( step_error_vect[:,0] )
+    #plot_state_vars(state_matrix=error_matrix,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+    
+
+    ######################################### Plot estimation or varied run #########################################################
+    #Plot the state variables chosen, standard is "all"
+    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+
+    ##Plot the state variables chosen, standard is "all"
+    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+
+#main()
+
+
+
+def report_main():
+
+    #   Fetch parameters for plotting
+    model, residual, spec_vars = specify_plotting()
+    
+    if isinstance(model, list):
+        for NN in model:
+            # set model to evaluation mode, required for testing
+            NN.to('cpu') #Incased trained on gpu, transfer back
+            NN.eval()
+    else:
+        # set model to evaluation mode, required for testing
+        model.to('cpu') #Incased trained on gpu, transfer back
+        model.eval()
+
+    ################################## Fetching runs ################################################################
+    ##Fetches the standard run
+    standard_state_matrix=np.array(     
+        Generate_dataset.fetch_dataset("create_dataset/constants_standards.json")["Standard Run"]  
+        )
+
+    ##Fetches the standard run
+    #standard_state_matrix=np.array(     
+    #    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len2_state_ppmvar4e+05.json")["Model_runs"]["Run_1_State_matrix"]  
+    #    )
+
+    alt_state_matrix=np.array(     
+    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar100000.0.json")["Model_runs"]["Run_4_State_matrix"]  
+    )
+    ########################################## Normalizing ########################################################
+
+    # Normalizes the standard run and saves without altering original matrix
+    normalized_state_matrix=Generate_dataset.min_max_normalization(standard_state_matrix.copy())
+
+    if isinstance(model, list):
+        
+
+        #   Gets the errormatrices for the three models
+        multi_model_e_array=report_error_plotting(model_list=model, normalized_state_matrix=normalized_state_matrix, standard_state_matrix=standard_state_matrix, spec_vars=spec_vars, residual=True, number_of_states=601, start_state_index=0)        #iterate for the three models
+        print(multi_model_e_array.shape)
+        #print(multi_model_e_array[:,0])
+        plot_state_vars(state_matrix=multi_model_e_array,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+        return
+
+
+    ######################################### Estimate using the model #########################################################
+    
     # Estimates the normalized state-matrix
     normalized_states_estimated=estimated_model(model=model, residual=residual, state_matrix=normalized_state_matrix,  number_of_states=601, start_state_index=0)
 
@@ -387,28 +594,53 @@ def main():
     singlestep_estimations=Generate_dataset.min_max_DEnormalization(norm_singlestep_estimations.copy())
 
     
+    if spec_vars[0] in ["step", "acc"]:
+        ######################################### Calculate errors #########################################################
 
-    ######################################### Calculate errors #########################################################
+            #   Gather error matrices and print some error values
+        rel_est_error, error_matrix=generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
 
-        #   Gather error matrices and print some error values
-    error_matrix=generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
+        
+            #   Gather the single step error matrix
 
-       
-        #   Gather the single step error matrix
+        step_error_vect, step_error_matrix= generate_single_step_error_matrix(standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations)
+        
+        '''# If wanting to show average error value for every 10(step_len) years
+        er_mat=rel_error_matrix.copy()
+        step_len=7
+        portion=np.zeros((step_len,12))
+        for k, state in enumerate(er_mat):
+            idx=k%step_len
+            portion[idx]=state
+            
+            if idx==(step_len-1):
+                print("k=",k)
+                portion=np.mean(portion, axis=0)
+                print(portion)
 
-    step_error_matrix= generate_single_step_error_matrix(standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations)
-    
-    #plot_state_vars(state_matrix=error_matrix,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
-    
+                print(er_mat[ k-(step_len-1) :k, :])
+                er_mat[ k-(step_len-1) :k, :] = portion
+                portion=np.zeros((step_len,12))
+        rel_error_matrix=er_mat '''
+        
+
+        #plot_state_vars(state_matrix=error_matrix,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+        if spec_vars[0] =="step":
+            plot_state_vars(est_matrix=step_error_matrix,)#  variables_included=["step_error"]) #, variables_included= ["nr", "ppol","sc"] )
+            return
+        if spec_vars[0] =="acc":
+            plot_state_vars(est_matrix=error_matrix)#, variables_included=["std"])# variables_included=["step_error"]) #, variables_included= ["nr", "ppol","sc"] )
+            return
 
     ######################################### Plot estimation or varied run #########################################################
     #Plot the state variables chosen, standard is "all"
-    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+    plot_state_vars(state_matrix=standard_state_matrix, est_matrix=states_estimated, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
 
     ##Plot the state variables chosen, standard is "all"
-    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=[spec_vars]) #, variables_included= ["nr", "ppol","sc"] )
+    #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+    
+report_main()
 
-main()
 
 
 #AlTERED: ax_.yaxis.set_major_locator(plt.MaxNLocator(3))#5 , "figsize" : (3.5, 2.5), 
