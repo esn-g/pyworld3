@@ -217,17 +217,17 @@ def generate_single_step_error_matrix(standard_state_matrix, normalized_state_ma
     #print("REL shape:", relative_to_mean_step_error_matrix.shape)
 
     mean_of_variable_step_errors=np.mean(abs(step_error_matrix), axis=0)
-    print("Absolute mean of step-error-matrix, vector: \n",mean_of_variable_step_errors)
+    #print("Absolute mean of step-error-matrix, vector: \n",mean_of_variable_step_errors)
 
     tot_rel_to_mean_step_error_matrix=np.mean(abs(relative_to_mean_step_error_matrix), axis=1)
 
     #reshape
     tot_rel_to_mean_step_error_matrix=tot_rel_to_mean_step_error_matrix.reshape(-1,1)
-    print("totvar REL shape:", tot_rel_to_mean_step_error_matrix.shape)
+    #print("totvar REL shape:", tot_rel_to_mean_step_error_matrix.shape)
 
 
     mean_of_step_error=np.mean(tot_rel_to_mean_step_error_matrix,axis=0)
-    print("\n\n\nMEAN VALUE OF ERROR ACROSS ALL X[K] AND ACROSS VARS    STEPPPPPP:",mean_of_step_error,"\n\n\n")
+    print("\nM,abs,Error across k and Xi - STEP-error: ",mean_of_step_error,"\n\n\n")
     #return tot_rel_to_mean_step_error_matrix#relative_to_mean_step_error_matrix#abs_step_error_matrix
     return tot_rel_to_mean_step_error_matrix, relative_to_mean_step_error_matrix#step_error_matrix , relative_step_error_matrix
 
@@ -266,20 +266,20 @@ def generate_error_matrix(standard_state_matrix, normalized_state_matrix, states
 
      #   Divides the diff, error  by mean of the real x values - makes it somewhat relative error
     relative_to_mean_error_matrix=np.divide(abs_error_matrix, abs(mean_of_standard_run))
-    print("RUN REL shape:", relative_to_mean_error_matrix.shape)
+    #print("RUN REL shape:", relative_to_mean_error_matrix.shape)
 
     mean_of_var_errors=np.mean(abs(error_matrix), axis=0) #For seeing mean error per var
-    print("Absolute mean of error-matrix per var, vector: \n",mean_of_var_errors)
+    #print("Absolute mean of error-matrix per var, vector: \n",mean_of_var_errors)
 
     tot_rel_to_mean_error_matrix=np.mean(abs(relative_to_mean_error_matrix), axis=1)
 
     #reshape
     tot_rel_to_mean_error_matrix=tot_rel_to_mean_error_matrix.reshape(-1,1)
-    print("totvar RUN REL shape:", tot_rel_to_mean_error_matrix.shape)
+    #print("totvar RUN REL shape:", tot_rel_to_mean_error_matrix.shape)
 
     mean_of_error=np.mean(tot_rel_to_mean_error_matrix,axis=0)
 
-    print("\n\n\nMEAN VALUE OF ERROR ACROSS ALL X[K] AND ACROSS VARS:",mean_of_error,"\n\n\n")
+    print("\nM,abs,error across k and Xi - estimation-error: ",mean_of_error,"\n\n\n")
 
     return  tot_rel_to_mean_error_matrix, relative_to_mean_error_matrix
 
@@ -317,7 +317,6 @@ def specify_plotting():
         model_list = list( report_NN_dict.values() )
         
         multi_NN=True
-
 
     elif modelstring in report_NN_dict.keys():
         print("\nModel ",modelstring, " from report models\n")
@@ -431,10 +430,10 @@ def report_error_plotting(model_list, normalized_state_matrix, standard_state_ma
         singlestep_estimations=Generate_dataset.min_max_DEnormalization(norm_singlestep_estimations.copy())
         #print(singlestep_estimations,"\n\n")
 
-        print("\n\n",spec_vars[col+1],"\n\n")
+        print("\n",spec_vars[col+1], end=" ")
         ######################################### Calculate errors ####### ##################################################
         if spec_vars[0]=="acc":
-            print(" if spec_vars[0]==acc")
+            print("estimation error...")
              #   Gather error matrices and print some error values
             est_error, error_matrix=generate_error_matrix(standard_state_matrix, normalized_state_matrix, states_estimated, normalized_states_estimated)
             #est_error=est_error.reshape(-1,1)
@@ -442,15 +441,14 @@ def report_error_plotting(model_list, normalized_state_matrix, standard_state_ma
             array_of_errors[:, col]=est_error
 
         if spec_vars[0]=="step":
-            print(" if spec_vars[0]==step")
+            print("step error...")
             #   Gather the single step error matrix
             step_error_vect, step_error_matrix= generate_single_step_error_matrix(standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations)
             #step_error_vect=step_error_vect.reshape(-1,1)
             #print("col=",col,"\narrayoferrors shape=", array_of_errors.shape,"\nsteperror shape=", step_error_vect.shape, "\none column of array shape=", array_of_errors[:,col].shape)
             step_error_vect=step_error_vect.reshape(-1,)
             array_of_errors[ : , col]=step_error_vect
-
-            print("SHAPE", array_of_errors.shape)
+            #print("SHAPE", array_of_errors.shape)
             
 
     return array_of_errors
@@ -478,6 +476,11 @@ def main():
     alt_state_matrix=np.array(     
     Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar100000.0.json")["Model_runs"]["Run_4_State_matrix"]  
     )
+    if spec_vars[0]=="alt":
+        spec_vars=["all"]
+        plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+        return
+
     ########################################## Normalizing ########################################################
 
     # Normalizes the standard run and saves without altering original matrix
@@ -514,8 +517,8 @@ def main():
         #   Gather the single step error matrix
 
     step_error_vect, step_error_matrix = generate_single_step_error_matrix( standard_state_matrix, normalized_state_matrix, singlestep_estimations, norm_singlestep_estimations )
-    print( step_error_vect.shape )       
-    print( step_error_vect[:,0] )
+    #print( step_error_vect.shape )       
+    #print( step_error_vect[:,0] )
     #plot_state_vars(state_matrix=error_matrix,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
     
 
@@ -553,12 +556,18 @@ def report_main():
 
     ##Fetches the standard run
     #standard_state_matrix=np.array(     
-    #    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len2_state_ppmvar4e+05.json")["Model_runs"]["Run_1_State_matrix"]  
+    #    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len2_state_ppmvar2e+05.json")["Model_runs"]["Run_1_State_matrix"]  
     #    )
 
     alt_state_matrix=np.array(     
-    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len100_ppmvar100000.0.json")["Model_runs"]["Run_4_State_matrix"]  
+    Generate_dataset.fetch_dataset("create_dataset/dataset_storage/W3data_len2_state_ppmvar4e+05.json")["Model_runs"]["Run_1_State_matrix"]  
     )
+
+    if spec_vars[0]=="alt":
+        spec_vars=["ic", "sc"]#["p1", "p2", "p3", "p4"]#["ic", "sc"]
+        plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
+        return
+
     ########################################## Normalizing ########################################################
 
     # Normalizes the standard run and saves without altering original matrix
@@ -569,8 +578,9 @@ def report_main():
 
         #   Gets the errormatrices for the three models
         multi_model_e_array=report_error_plotting(model_list=model, normalized_state_matrix=normalized_state_matrix, standard_state_matrix=standard_state_matrix, spec_vars=spec_vars, residual=True, number_of_states=601, start_state_index=0)        #iterate for the three models
-        print(multi_model_e_array.shape)
+        #print(multi_model_e_array.shape)
         #print(multi_model_e_array[:,0])
+        print('_' * 75, "\n")  # Line separator
         plot_state_vars(state_matrix=multi_model_e_array,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
         return
 
@@ -626,7 +636,7 @@ def report_main():
 
         #plot_state_vars(state_matrix=error_matrix,  variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
         if spec_vars[0] =="step":
-            plot_state_vars(est_matrix=step_error_matrix,)#  variables_included=["step_error"]) #, variables_included= ["nr", "ppol","sc"] )
+            plot_state_vars(est_matrix=step_error_matrix)#  variables_included=["step_error"]) #, variables_included= ["nr", "ppol","sc"] )
             return
         if spec_vars[0] =="acc":
             plot_state_vars(est_matrix=error_matrix)#, variables_included=["std"])# variables_included=["step_error"]) #, variables_included= ["nr", "ppol","sc"] )
@@ -638,7 +648,7 @@ def report_main():
 
     ##Plot the state variables chosen, standard is "all"
     #plot_state_vars(state_matrix=standard_state_matrix, est_matrix=alt_state_matrix, variables_included=spec_vars) #, variables_included= ["nr", "ppol","sc"] )
-    
+
 report_main()
 
 

@@ -107,7 +107,7 @@ def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601,
             title="Step error"
         elif variables_included[0] == "acc":
             title="Estimation error"
-        print("\n",title)
+        print("\nPLotting: ",title)
         type=variables_included.pop(0)  #   Get type of error to use for axises
         NN_e_type=["step", "acc"].index(type)+1
 
@@ -117,7 +117,7 @@ def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601,
         #print(plot_dict)
         dict_of_plotvars=get_plot_params(est_state_vars_dict=dict(), state_vars_dict=plot_dict , title=title, variables_included=variables_included, time=time, NN_errors=NN_e_type)
         #print("dict of plotvars\n",dict_of_plotvars)
-        alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.06)
+        alt_plot_world_variables(**dict_of_plotvars, dist_spines=0.1)
         # Save the figure with adjusted parameters
         #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_step_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
         #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_run_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
@@ -138,6 +138,15 @@ def plot_state_vars(state_matrix=np.empty([601, 12]), est_matrix= np.empty([601,
         #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_step_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
         #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_run_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
         #plt.show()
+    #plt.savefig('Neural_network/NN_report_plotting/NN_40_rel_step_error', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
+    #plt.savefig('Neural_network/NN_report_plotting/NNs_pred_run_error_init0', bbox_inches='tight')  # Set bbox_inches='tight' to ensure no clipping of labels
+    
+    #plt.savefig('Neural_network/NN_report_plotting/NNs_pred_run_error_init20.svg', format='svg', dpi=1200)   
+    #plt.savefig('Neural_network/NN_report_plotting/NNs_step_error_init20.svg', format='svg', dpi=1200)  
+
+    plt.savefig('Neural_network/NN_report_plotting/NN_20_predict_init0_agr.svg', format='svg', dpi=1200)    
+    #plt.savefig('Neural_network/NN_report_plotting/compare_init40_cap.svg', format='svg', dpi=1200)    
+
     plt.show()
 
 
@@ -209,9 +218,11 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
     #np.amax( state_vars_dict.values().extend( state_vars_dict.values() )
 
     #Define linestyles and widths based on est and orig model
+    #   Loosely dashed: (0, (5, 10)) , Loosely dotted: (0, (1, 10))
+    #   Densely dotted: (0, (1, 1))  , Loosely dashsotted: (0, (3, 10, 1, 10, 1, 10))
     lines=[":"]*len(state_vars_dict.values()) + ["-"]*len(est_state_vars_dict.values())
 
-    widths=[1.75]*len(state_vars_dict.values()) + [1.25]*len(est_state_vars_dict.values())
+    widths=[1.4]*len(state_vars_dict.values()) + [1]*len(est_state_vars_dict.values())
 
     
     ###############     Make a dict of the parameters to be sent to plotfunction        #################
@@ -223,7 +234,7 @@ def plot_auto(est_state_vars_dict, state_vars_dict=dict() , name=None, variables
             "var_lims" : var_limits ,    #Add axis=1
             "img_background" : None,
             "title" :  None,    #Add
-            "figsize" : None,#(7,5)                                   
+            "figsize" : (7,4),#None,#(7,5)                                   
             "grid" : True,
             "line_styles" : lines, 
             "line_widths" : widths
@@ -306,11 +317,12 @@ def get_plot_params( state_vars_dict, est_state_vars_dict=dict() , title=None, v
     #state_vars_dict.keys().extend( est_state_vars_dict.keys() )
 
     var_maxes= np.amax( list( state_vars_dict.values() ), axis=1)*1.01
-    print(NN_errors)
+    #print(NN_errors)
+    '''
     if NN_errors>0:
         max=np.amax( var_maxes )
         var_maxes[1:]=max
-        var_maxes[0]=var_maxes[0]*2    
+        var_maxes[0]=var_maxes[0]*2  '''
 
 
     #      ONLY FOR PLOTTING 
@@ -343,7 +355,7 @@ def get_plot_params( state_vars_dict, est_state_vars_dict=dict() , title=None, v
             "var_lims" : var_limits ,    #Add axis=1
             "img_background" : None,
             "title" :  title,    #Add
-            "figsize" : (5, 3),                                   
+            "figsize" : (6, 3),                                   
             "grid" : True,
             "line_styles" : lines, 
             "line_widths" : widths
@@ -461,26 +473,27 @@ def alt_plot_world_variables(
         if lim is not None:
             ax.set_ylim(lim[0], lim[1])
 
+
     # Format y-axis labels and ticks
     for ax_ in axs:
-        formatter_ = EngFormatter(places=0, sep="\N{THIN SPACE}")
-        ax_.tick_params(axis="y", rotation=90)
-        ax_.yaxis.set_major_locator(plt.MaxNLocator(4))#5
-        ax_.yaxis.set_major_formatter(formatter_)
+        formatter_ = EngFormatter(places=0, sep="\N{THIN SPACE}")   # Define formatter for y-axis labels with engineering notation and no decimal places
+        ax_.tick_params(axis="y", rotation=90)  # Rotate y-axis labels by 90 degrees for better readability
+        ax_.yaxis.set_major_locator(plt.MaxNLocator(4))#5 # Set the major locator for y-axis to ensure a maximum of 4 ticks
+        ax_.yaxis.set_major_formatter(formatter_)   # Apply the formatter to the y-axis labels for engineering notation
 
     # Format x-axis labels and ticks
-    tkw = dict(size=4, width=1.5)
-    axs[0].set_xlabel("time [years]")
-    axs[0].tick_params(axis="x", **tkw)
-    for i, (ax, p) in enumerate(zip(axs, ps)):
-        ax.set_ylabel(p.get_label(), rotation="horizontal")
-        ax.yaxis.label.set_color(p.get_color())
-        ax.tick_params(axis="y", colors=p.get_color(), **tkw)
-        ax.yaxis.set_label_coords(-i * dist_spines, 1.01)
+    tkw = dict(size=4, width=1.5)               # Define tick parameters for x-axis
+    axs[0].set_xlabel("time [years]")           # Set the label for x-axis
+    axs[0].tick_params(axis="x", **tkw)         # Apply tick parameters to x-axis
+    for i, (ax, p) in enumerate(zip(axs, ps)):          # Set the y-axis label, color, and position for each subplot
+        ax.set_ylabel(p.get_label(), rotation="horizontal")      # Set y-axis label
+        ax.yaxis.label.set_color(p.get_color())                  # Set y-axis label color
+        ax.tick_params(axis="y", colors=p.get_color(), **tkw)    # Apply tick parameters to y-axis
+        ax.yaxis.set_label_coords(-i * dist_spines ,1.01)#+ (0.05 -i*0.01 ) , 1.01)        # Adjust y-axis label position      #Added for horizontals move
 
     # Add title if provided
     if title is not None:
-        fig.suptitle(title, x=0.95, ha="right", fontsize=10)
+        fig.suptitle(title, x=0.95, ha="right", fontsize=14)#10)
 
     # Adjust layout for better visualization
     plt.tight_layout()
